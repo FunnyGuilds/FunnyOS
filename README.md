@@ -6,3 +6,6 @@
  pozdrawiam` - Rivendell
 - '🤮' - netsu
 - `ale kox` - Oksi
+- `czemu kod
+   ma kolor gówna` - dzikoysk
+   
