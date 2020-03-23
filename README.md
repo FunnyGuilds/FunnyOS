@@ -8,4 +8,5 @@
 - `ale kox` - Oksi
 - `czemu kod
    ma kolor gówna` - dzikoysk
+- `totalny sztosinger` - crejk     
    
