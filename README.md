@@ -8,5 +8,6 @@
 - `ale kox` - Oksi
 - `total cossack` - dzikoysk
 - `totalny sztosinger` - crejk     
+- `kekOS marry me pls` - Bopke
    
 ai
