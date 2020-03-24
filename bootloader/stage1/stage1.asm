@@ -10,21 +10,23 @@
 ; Starting code
 ;
 start:
-    ; Fuck the interrupts for now
-    cli
-
-    ; Get info about the booting disk from BIOS
-    mov [data_boot_disk], dl
+    ; Clear segment registers
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
     ; Setup stack
-    xor ax, ax
     mov ss, ax
     mov bp, 0x7C00
     mov sp, bp
 
-    ; Clear segment register: ds
-    xor si, si
-    mov ds, si
+    ; Get info about the booting disk from BIOS
+    mov [data_boot_disk], dl
+
+    ; Fuck the interrupts for now
+    cli
 
     ; Setup video mode
     call setup_video_mode
