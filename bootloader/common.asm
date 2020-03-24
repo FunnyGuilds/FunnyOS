@@ -55,3 +55,18 @@ read_zf:
     and ax, 0b0100000000000000
     shr ax, 14
     ret
+
+; Macro for creating GDT entries.
+%macro gdt_entry 4
+    ; %1 - base addres
+    ; %2 - limit
+    ; %3 - access
+    ; %4 - flags
+
+    dw (%2 & 0xFFFF)
+    dw (%1 & 0xFFFF)
+    db ((%1 >> 16) & 0xFF)
+    db (%3 & 0xFF)
+    db ((%2 >> 16) & 0x0F | (%4 << 4))
+    db ((%1 >> 24) & 0xFF)
+%endmacro

@@ -13,20 +13,6 @@ setup_temporary_gdt:
 
     ret
 
-%macro gdt_entry 4
-    ; %1 - base addres
-    ; %2 - limit
-    ; %3 - access
-    ; %4 - flags
-
-    dw (%2 & 0xFFFF)
-    dw (%1 & 0xFFFF)
-    db ((%1 >> 16) & 0xFF)
-    db (%3 & 0xFF)
-    db ((%2 >> 16) & 0x0F | (%4 << 4))
-    db ((%1 >> 24) & 0xFF)
-%endmacro
-
 gdt_description:
     dw (gdt_end - gdt_start - 1)                               ; size
     dd gdt_start                                               ; offset

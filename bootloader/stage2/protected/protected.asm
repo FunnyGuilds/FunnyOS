@@ -2,6 +2,8 @@
 
 %include "stage2/protected/screen.asm"
 %include "stage2/protected/cpuid.asm"
+%include "stage2/protected/paging.asm"
+%include "stage2/protected/gdt.asm"
 
 protected_mode:
     ; Setup segments
@@ -33,8 +35,22 @@ protected_mode:
 
     call p_print_cpuid_info
 
+    ; Testing for long mode availability
+    call p_check_long_mode_supported
+    jc p_fail
+
+    ; Setup paging
+    mov esi, p_message_paging_setup
+    call p_print
+
+    ; Setup GDT
+
     jmp $
 
+; Final, long mode code
+%include "stage2/protected/long.asm"
+
+[bits 32]
 p_fail:
     mov esi, p_message_fail
     call p_print
@@ -45,4 +61,5 @@ p_fail:
         jmp p_hang
 
 p_message_entered:              db "Entered protected mode!", 0
+p_message_paging_setup:         db "Setting up paging!", 0
 p_message_fail:                 db "Booting failed!", 0

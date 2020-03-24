@@ -53,4 +53,36 @@ p_print_cpuid_info:
     p_print_cpuid_info_msg_header:              db "CPUID information: ", 0
     p_print_cpuid_info_msg_manufacturer:        db " - Manufacturer: XXXXYYYYZZZZ", 0
 
+p_check_long_mode_supported:
+    pushad
+
+    mov esi, p_message_lm_test
+    call p_print
+
+    ; Check for extended processor info and feature bits
+    mov eax, 0x80000000
+    cpuid
+    cmp eax, 0x80000001
+    jl p_check_long_mode_supported__fail
+
+    ; Check for LM flag
+    mov eax, 0x80000001
+    cpuid
+    test edx, 1 << 29
+    jz p_check_long_mode_supported__fail
+
+    ; Success
+    clc
+
+    p_check_long_mode_supported__ret:
+        popad
+        ret
+
+    p_check_long_mode_supported__fail:
+       stc
+       jmp p_check_long_mode_supported__ret
+
+
 p_message_cpuid_test:           db "Testing for CPUID", 0
+p_message_lm_test:              db "Testing for Long mode support", 0
+

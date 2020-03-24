@@ -5,7 +5,8 @@ ASM_OPTS = -f bin
 
 STAGE1_FILES = stage1/stage1.asm
 STAGE2_FILES = stage2/stage2.asm stage2/a20line.asm stage2/logging.asm stage2/drive.asm stage2/gdt.asm \
-	stage2/protected/protected.asm stage2/protected/screen.asm
+	stage2/protected/protected.asm stage2/protected/screen.asm stage2/protected/paging.asm \
+	stage2/protected/gdt.asm stage2/protected/long.asm
 
 COMMON_FILES = common.asm data.asm
 
