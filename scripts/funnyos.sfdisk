@@ -1,0 +1,6 @@
+label: dos
+label-id: 0x46554EFF
+device: FunnyOS.iso
+unit: sectors
+
+start=        2048, size=      522240, type=0C, bootable
