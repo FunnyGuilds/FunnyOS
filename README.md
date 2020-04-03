@@ -1,4 +1,4 @@
-# KekOS - very cool OS
+# FunnyOS - very funny OS
 
 ### Users opininions
 - '🤮' - netsu
