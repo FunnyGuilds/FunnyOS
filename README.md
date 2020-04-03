@@ -6,6 +6,6 @@
 - `total cossack` - dzikoysk
 - `totalny sztosinger` - crejk     
 - `kekOS marry me pls` - Bopke
-- 'ja nie jestem glupi' - igor
+- `Glupi nie jestem.` - Igor
 
 愛

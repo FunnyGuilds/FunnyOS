@@ -11,7 +11,8 @@ Checks: "*,\
         -cppcoreguidelines-pro-type-reinterpret-cast,\
         -cppcoreguidelines-pro-type-vararg,\
         -cppcoreguidelines-avoid-magic-numbers,\
-        -cppcoreguidelines-avoid-c-arrays,\misc-non-private-member-variables-in-classes
+        -cppcoreguidelines-avoid-c-arrays,\
+        -misc-non-private-member-variables-in-classes,\
         -cppcoreguidelines-owning-memory,\
         -readability-magic-numbers,\
         -readability-convert-member-functions-to-static,\
