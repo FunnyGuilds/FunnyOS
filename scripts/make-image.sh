@@ -40,7 +40,7 @@ sudo losetup -d $LOOP 2> /dev/null
 sudo losetup -P $LOOP $OUTPUT
 
 # Format partition
-sudo mkfs.fat -F 32 -R 32 $PARTITION
+sudo mkfs.fat -F 32 -R 64 $PARTITION
 
 if command -v fatlabel > /dev/null; then
   sudo fatlabel $PARTITION "FunnyOS"
@@ -56,7 +56,7 @@ sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=$PARTITION 
 sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=$PARTITION bs=1 obs=1 skip=90 seek=90 count=422
 
 # Put bootloader code to the third sector of the partition
-sudo dd conv=notrunc if=./bootloader/bootloader32/bootloader32.bin of=$PARTITION bs=512 obs=512 seek=2 count=30
+sudo dd conv=notrunc if=./bootloader/bootloader32/bootloader32.bin of=$PARTITION bs=512 obs=512 seek=2 count=59
 
 # Unmount
 sudo losetup -d $LOOP
