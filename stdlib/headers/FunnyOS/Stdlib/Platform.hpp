@@ -1,6 +1,8 @@
 #ifndef FUNNYOS_STDLIB_SRC_PLATFORM_HPP
 #define FUNNYOS_STDLIB_SRC_PLATFORM_HPP
 
+#include <FunnyOS/Stdlib/IntegerTypes.hpp>
+
 #ifdef FOS_STDLIB_PLATFORM_EXTERN
 #define _EXTERN extern
 #else

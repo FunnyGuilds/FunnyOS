@@ -4,6 +4,7 @@
 #include "IntegerTypes.tcc"
 
 namespace FunnyOS::Stdlib::NumeralTypes {
+    // clang-format off
     using  int8_t       =           char;            // NOLINT(google-runtime-int)
     using  int16_t      =           short;           // NOLINT(google-runtime-int)
     using  int32_t      =           int;             // NOLINT(google-runtime-int)
@@ -101,7 +102,7 @@ namespace FunnyOS::Stdlib::NumeralTypes {
     using uintptr_t    = FunnyOS::Stdlib::NumeralTypes::uintptr_t;
     using ptrdiff_t    = FunnyOS::Stdlib::NumeralTypes::ptrdiff_t;
 #endif
+// clang-format on
 
 #include "IntegerTypes.tcc"
-#endif //FUNNYOS_STDLIB_HEADERS_INTEGERTYPES_HPP
-
+#endif  // FUNNYOS_STDLIB_HEADERS_INTEGERTYPES_HPP

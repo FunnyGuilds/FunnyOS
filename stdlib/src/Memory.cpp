@@ -43,7 +43,7 @@ namespace FunnyOS::Stdlib::Memory {
     }
 
     void Free(void* data) {
-        if (data == g_zeroMemory) {
+        if (data == nullptr || data == g_zeroMemory) {
             return;
         }
 
