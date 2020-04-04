@@ -67,6 +67,10 @@ namespace FunnyOS::Bootloader {
 
         // If no free blocks with suitable size are found, allocate new one.
         MemoryMetaBlock* newBlock = AllocateNewBlock(size);
+        if (newBlock == nullptr) {
+            return nullptr;
+        }
+
         return GetBlockMemory(newBlock);
     }
 

@@ -9,7 +9,7 @@ namespace FunnyOS::_Platform {
     using namespace FunnyOS::Stdlib;
 
     void* AllocateMemoryAligned(size_t size, size_t /*aligned*/) {
-        // We don't really support alignments in bootloader, let's hope nobody's gonna be entry about this.
+        // We don't really support alignments in bootloader, let's hope nobody's gonna be angry about this.
         return Bootloader::GetBootloader()->GetAllocator().Allocate(size);
     }
 
