@@ -182,8 +182,8 @@ namespace FunnyOS::Stdlib {
         [[nodiscard]] inline operator bool() const;
 
        private:
-        template <typename... Args>
-        friend Optional<T> MakeOptional(Args&&... args);
+        template <typename T2, typename... Args>
+        friend Optional<T2> MakeOptional(Args&&... args);
 
         template <typename... Args>
         inline explicit Optional(const InPlaceConstructor*, Args&&... args);

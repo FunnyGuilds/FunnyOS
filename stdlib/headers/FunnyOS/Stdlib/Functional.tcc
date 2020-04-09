@@ -186,7 +186,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T, typename... Args>
     inline Optional<T> MakeOptional(Args&&... args) {
-        return Optional<T>(static_cast<typename Optional<T>::InPlaceOptionalType>(nullptr), Forward(args)...);
+        return Optional<T>(InPlaceConstructor::Value, Forward(args)...);
     }
 }  // namespace FunnyOS::Stdlib
 
