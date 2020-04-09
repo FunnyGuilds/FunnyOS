@@ -1,8 +1,8 @@
-#include <FunnyOS/BootloaderCommons/VGAInterface.hpp>
+#include <FunnyOS/Hardware/VGA.hpp>
 
-#include <FunnyOS/BootloaderCommons/InputOutput.hpp>
+#include <FunnyOS/Hardware/InputOutput.hpp>
 
-namespace FunnyOS::Bootloader::VGA {
+namespace FunnyOS::HW {
     using namespace FunnyOS::Misc::TerminalManager;
 
     namespace {
@@ -99,4 +99,4 @@ namespace FunnyOS::Bootloader::VGA {
         *(VIDEO_MEMORY_BASE + toPosition * 2 + 0x01) = *(VIDEO_MEMORY_BASE + fromPosition * 2 + 0x01);
     }
 
-}  // namespace FunnyOS::Bootloader::VGA
+}  // namespace FunnyOS::HW

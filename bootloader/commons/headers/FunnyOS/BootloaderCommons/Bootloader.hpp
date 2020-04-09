@@ -22,7 +22,7 @@ namespace FunnyOS::Bootloader {
          * Prints the error in BIG RED TEXT with some additional debugging information and halts the execution.
          * @param[in] details error details
          */
-        [[noreturn]] virtual FOS_NEVER_INLINE void Panic(const char* details) = 0;
+        [[noreturn]] virtual F_NEVER_INLINE void Panic(const char* details) = 0;
 
         /**
          * Halts the CPU

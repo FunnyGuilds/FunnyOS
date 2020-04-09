@@ -56,8 +56,8 @@ SECTION .data
 
     gdt_start:
         gdt_entry 0x00000000, 0x00000000, 0b00000000, 0b0000       ; null segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b0100       ; code segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b0100       ; data segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1100       ; code segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1100       ; data segment
     gdt_end:
 
 SECTION .bss

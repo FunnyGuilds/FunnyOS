@@ -32,6 +32,7 @@ endif()
 # Global variables
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel -no-pie")
+set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 if (CMAKE_BUILD_TYPE EQUAL "")
     set(CMAKE_BUILD_TYPE "Release")

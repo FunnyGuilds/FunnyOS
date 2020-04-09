@@ -1,5 +1,5 @@
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
-#include <FunnyOS/BootloaderCommons/VGAInterface.hpp>
+#include <FunnyOS/Hardware/VGA.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
 namespace FunnyOS::Bootloader::Logging {
@@ -19,7 +19,7 @@ namespace FunnyOS::Bootloader::Logging {
     };
 
     Misc::TerminalManager::TerminalManager* GetTerminalManager() {
-        static VGA::VGAInterface c_interface{};
+        static HW::VGAInterface c_interface{};
         static Misc::TerminalManager::TerminalManager c_terminalManager{&c_interface};
 
         return &c_terminalManager;

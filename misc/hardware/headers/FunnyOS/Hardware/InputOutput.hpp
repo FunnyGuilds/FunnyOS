@@ -15,7 +15,7 @@
 
 #endif
 
-namespace FunnyOS::Bootloader::InputOutput {
+namespace FunnyOS::HW::InputOutput {
 
     /**
      * Reads and returns a byte fromthe port at the given addres
@@ -59,7 +59,7 @@ namespace FunnyOS::Bootloader::InputOutput {
         PORT_OUTPUT("eax", dword);
     }
 
-}  // namespace FunnyOS::Bootloader::InputOutput
+}  // namespace FunnyOS::HW::InputOutput
 
 #undef PORT_INPUT
 #undef PORT_OUTPUT

@@ -1,8 +1,9 @@
 #ifndef FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP
 #define FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP
+
 #include <FunnyOS/Misc/TerminalManager/ITerminalInterface.hpp>
 
-namespace FunnyOS::Bootloader::VGA {
+namespace FunnyOS::HW {
 
     /**
      * Implementation of ITerminalInterface that operates directly on the VGA hardware.
@@ -28,6 +29,6 @@ namespace FunnyOS::Bootloader::VGA {
         void Move(const CursorPosition& from, const CursorPosition& to) noexcept override;
     };
 
-}  // namespace FunnyOS::Bootloader::VGA
+}  // namespace FunnyOS::HW
 
 #endif  // FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP

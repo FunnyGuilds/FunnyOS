@@ -4,6 +4,8 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include "Interrupts.hpp"
+#include "A20Line.hpp"
 
 #define _NO_RETURN for (;;)
 
@@ -12,6 +14,15 @@ namespace FunnyOS::Bootloader32 {
 
     [[noreturn]] void Bootloader32Type::Main(const Bootloader::BootloaderParameters& args) {
         Bootloader::BootloaderType::Main(args);
+        SetupInterrupts();
+
+        __asm__ __volatile__ ("int 0x69");
+
+        if (Bootloader32::A20::IsEnabled()) {
+            FB_LOG_INFO("A20 line is already enabled!");
+        } else {
+            // TODO: Actually enable the line
+        }
 
         FB_LOG_DEBUG("this is a debug message");
         FB_LOG_INFO("this is an info message");
@@ -35,10 +46,12 @@ namespace FunnyOS::Bootloader32 {
         TerminalManager* terminal = Bootloader::Logging::GetTerminalManager();
         terminal->ChangeColor(Color::Red, Color::White);
         terminal->ClearScreen();
-        terminal->PrintLine("\n    Bootloader panic ! >:(");
-        terminal->PrintString("\nDetails: ");
+        terminal->PrintString("================================================================================");
+        terminal->PrintString("                             Bootloader panic ! >:(                             ");
+        terminal->PrintString("================================================================================");
+        terminal->PrintString("\nDetails: \r\n    ");
         terminal->PrintLine(details);
-        terminal->PrintString("\nCaller address: 0x");
+        terminal->PrintString("\nCaller address: \r\n    0x");
         terminal->PrintLine(static_cast<const char*>(callerAddress));
 
         Halt();

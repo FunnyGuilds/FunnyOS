@@ -13,7 +13,7 @@ namespace FunnyOS::Bootloader32 {
 
         [[noreturn]] void Main(const FunnyOS::Bootloader::BootloaderParameters& args) override;
 
-        [[noreturn]] FOS_NEVER_INLINE void Panic(const char* details) override;
+        [[noreturn]] F_NEVER_INLINE void Panic(const char* details) override;
 
         [[noreturn]] void Halt() override;
     };

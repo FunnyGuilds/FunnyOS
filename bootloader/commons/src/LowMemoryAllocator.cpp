@@ -116,7 +116,7 @@ namespace FunnyOS::Bootloader {
         }
 
         // Copy data
-        Memory::Copy(newMemory, ptr, Algorithm::Min(static_cast<size_t>(oldMemoryBlock->BlockSize), size));
+        Memory::Copy(newMemory, ptr, Min(static_cast<size_t>(oldMemoryBlock->BlockSize), size));
 
         // Free old memory
         Free(ptr);

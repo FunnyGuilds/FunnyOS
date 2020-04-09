@@ -25,7 +25,7 @@ namespace FunnyOS::_Platform {
         FB_LOG_ERROR(error);
     }
 
-    extern void Terminate(const char* error) {
+    void Terminate(const char* error) {
         FunnyOS::Bootloader::GetBootloader()->Panic(error);
     }
 

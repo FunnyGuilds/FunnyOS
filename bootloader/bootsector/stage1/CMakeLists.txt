@@ -9,6 +9,7 @@ set_target_properties(FunnyOS_Bootloader_Stage1 PROPERTIES
         PREFIX ""
         OUTPUT_NAME "stage1"
         SUFFIX ".bin"
-        LINK_FLAGS "${FUNNYOS_BOOTLOADER_LINK_FLAGS} -T ${CMAKE_CURRENT_SOURCE_DIR}/stage1.lds")
+        COMPILE_OPTIONS "-f elf"
+        LINK_OPTIONS "${F_BOOTLOADER_LINK_FLAGS};-T;${CMAKE_CURRENT_SOURCE_DIR}/stage1.lds;-m32")
 
 add_executable(FunnyOS::Bootloader::Stage1 ALIAS FunnyOS_Bootloader_Stage1)
