@@ -1,6 +1,6 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 
-#include "FunnyOS/Stdlib/Platform.hpp"
+#include <FunnyOS/Stdlib/Platform.hpp>
 
 namespace FunnyOS::Stdlib::Memory {
     namespace {
