@@ -9,30 +9,30 @@
 #include "TypeTraits.hpp"
 
 // clang-format off
-namespace FunnyOS::Stdlib::NumeralTypes::Traits::Detail {
-    template <typename T> struct IsInteger : TypeTraits::False {};
+namespace FunnyOS::Stdlib::NumeralTraits::Detail {
+    template <typename T> struct IsInteger : False {};
 
-    template <> struct IsInteger<char              > : TypeTraits::True {};
-    template <> struct IsInteger<short             > : TypeTraits::True {};
-    template <> struct IsInteger<int               > : TypeTraits::True {};
-    template <> struct IsInteger<long              > : TypeTraits::True {};
-    template <> struct IsInteger<unsigned char     > : TypeTraits::True {};
-    template <> struct IsInteger<unsigned short    > : TypeTraits::True {};
-    template <> struct IsInteger<unsigned int      > : TypeTraits::True {};
-    template <> struct IsInteger<unsigned long     > : TypeTraits::True {};
-    template <> struct IsInteger<long long         > : TypeTraits::True {};
-    template <> struct IsInteger<unsigned long long> : TypeTraits::True {};
+    template <> struct IsInteger<char              > : True {};
+    template <> struct IsInteger<short             > : True {};
+    template <> struct IsInteger<int               > : True {};
+    template <> struct IsInteger<long              > : True {};
+    template <> struct IsInteger<unsigned char     > : True {};
+    template <> struct IsInteger<unsigned short    > : True {};
+    template <> struct IsInteger<unsigned int      > : True {};
+    template <> struct IsInteger<unsigned long     > : True {};
+    template <> struct IsInteger<long long         > : True {};
+    template <> struct IsInteger<unsigned long long> : True {};
 
-    template <typename T> struct IsFloatingPoint : TypeTraits::False {};
+    template <typename T> struct IsFloatingPoint : False {};
 
-    template <> struct IsFloatingPoint<float      > : TypeTraits::True {};
-    template <> struct IsFloatingPoint<double     > : TypeTraits::True {};
-    template <> struct IsFloatingPoint<long double> : TypeTraits::True {};
+    template <> struct IsFloatingPoint<float      > : True {};
+    template <> struct IsFloatingPoint<double     > : True {};
+    template <> struct IsFloatingPoint<long double> : True {};
 
     template <typename T>
-    struct IsNumber : TypeTraits::HasBooleanValue<IsInteger<T>::Value || IsFloatingPoint<T>::Value> {};
+    struct IsNumber : HasBooleanValue<IsInteger<T>::Value || IsFloatingPoint<T>::Value> {};
 
-} // namespace FunnyOS::Stdlib::NumeralTypes::Traits::Detail
+}  // namespace FunnyOS::Stdlib::NumeralTraits::Detail
 // clang-format on
 
 #pragma clang diagnostic pop

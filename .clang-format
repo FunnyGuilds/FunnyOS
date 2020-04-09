@@ -5,7 +5,7 @@ NamespaceIndentation: All
 ColumnLimit: 120
 
 IndentPPDirectives: None
-AlwaysBreakTemplateDeclarations: MultiLine
+AlwaysBreakTemplateDeclarations: Yes
 
 SortIncludes: false
 

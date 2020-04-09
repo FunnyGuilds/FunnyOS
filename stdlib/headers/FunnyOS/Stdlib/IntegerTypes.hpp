@@ -3,7 +3,7 @@
 #include "TypeTraits.hpp"
 #include "IntegerTypes.tcc"
 
-namespace FunnyOS::Stdlib::NumeralTypes {
+namespace FunnyOS::Stdlib {
     // clang-format off
     using  int8_t       =           char;            // NOLINT(google-runtime-int)
     using  int16_t      =           short;           // NOLINT(google-runtime-int)
@@ -14,7 +14,7 @@ namespace FunnyOS::Stdlib::NumeralTypes {
     using uint32_t      =  unsigned int;             // NOLINT(google-runtime-int)
     using uint64_t      =  unsigned long long int;   // NOLINT(google-runtime-int)
 
-    #ifdef FOS_64
+    #ifdef F_64
        using intmax_t   =  int64_t;
        using uintmax_t  = uint64_t;
     #else
@@ -29,24 +29,24 @@ namespace FunnyOS::Stdlib::NumeralTypes {
     using uintptr_t   = uintmax_t;
     using ptrdiff_t  = intptr_t;
 
-    namespace Traits {
+    namespace NumeralTraits {
         /**
          * Tests whether or not the given type is an integer.
          */
         template<typename Type>
-        inline constexpr bool IsInteger = Traits::Detail::IsInteger<Type>::Value;
+        inline constexpr bool IsInteger = NumeralTraits::Detail::IsInteger<Type>::Value;
 
         /**
          * Tests whether or not the given type is an floating point number.
          */
         template<typename Type>
-        inline constexpr bool IsFloatingPoint = Traits::Detail::IsFloatingPoint<Type>::Value;
+        inline constexpr bool IsFloatingPoint = NumeralTraits::Detail::IsFloatingPoint<Type>::Value;
 
         /**
          * Tests whether or not the given type is an integer or a floating point number.
         */
         template<typename Type>
-        inline constexpr bool IsNumber = Traits::Detail::IsNumber<Type>::Value;
+        inline constexpr bool IsNumber = NumeralTraits::Detail::IsNumber<Type>::Value;
 
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Woverflow"
@@ -80,27 +80,26 @@ namespace FunnyOS::Stdlib::NumeralTypes {
         };
         #pragma GCC diagnostic pop
 
-    }  // namespace Traits
-}  // namespace FunnyOS::Stdlib::NumeralTypes
+    }  // namespace NumeralTraits
+}  // namespace FunnyOS::Stdlib
 
-#ifndef FUNNYOS_NO_GLOBAL_NUMERALS
-    using    int8_t      = FunnyOS::Stdlib::NumeralTypes::int8_t;
-    using    int16_t     = FunnyOS::Stdlib::NumeralTypes::int16_t;
-    using    int32_t     = FunnyOS::Stdlib::NumeralTypes::int32_t;
-    using   uint8_t      = FunnyOS::Stdlib::NumeralTypes::uint8_t;
-    using   uint16_t     = FunnyOS::Stdlib::NumeralTypes::uint16_t;
-    using   uint32_t     = FunnyOS::Stdlib::NumeralTypes::uint32_t;
-    using   int64_t      = FunnyOS::Stdlib::NumeralTypes::int64_t;
-    using   uint64_t     = FunnyOS::Stdlib::NumeralTypes::uint64_t;
+#ifndef F_NO_GLOBAL_NUMERALS
+    using    int8_t      = FunnyOS::Stdlib:: int8_t;
+    using    int16_t     = FunnyOS::Stdlib:: int16_t;
+    using    int32_t     = FunnyOS::Stdlib:: int32_t;
+    using   uint8_t      = FunnyOS::Stdlib::uint8_t;
+    using   uint16_t     = FunnyOS::Stdlib::uint16_t;
+    using   uint32_t     = FunnyOS::Stdlib::uint32_t;
+    using   int64_t      = FunnyOS::Stdlib:: int64_t;
+    using   uint64_t     = FunnyOS::Stdlib::uint64_t;
 
-
-    using  intmax_t    = FunnyOS::Stdlib::NumeralTypes:: intmax_t;
-    using uintmax_t    = FunnyOS::Stdlib::NumeralTypes::uintmax_t;
-    using  size_t      = FunnyOS::Stdlib::NumeralTypes:: size_t;
-    using ssize_t      = FunnyOS::Stdlib::NumeralTypes::ssize_t;
-    using  intptr_t    = FunnyOS::Stdlib::NumeralTypes:: intptr_t;
-    using uintptr_t    = FunnyOS::Stdlib::NumeralTypes::uintptr_t;
-    using ptrdiff_t    = FunnyOS::Stdlib::NumeralTypes::ptrdiff_t;
+    using  intmax_t    = FunnyOS::Stdlib:: intmax_t;
+    using uintmax_t    = FunnyOS::Stdlib::uintmax_t;
+    using  size_t      = FunnyOS::Stdlib:: size_t;
+    using ssize_t      = FunnyOS::Stdlib::ssize_t;
+    using  intptr_t    = FunnyOS::Stdlib:: intptr_t;
+    using uintptr_t    = FunnyOS::Stdlib::uintptr_t;
+    using ptrdiff_t    = FunnyOS::Stdlib::ptrdiff_t;
 #endif
 // clang-format on
 

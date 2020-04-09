@@ -1,7 +1,8 @@
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_TYPETRAITS_HPP
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_TYPETRAITS_HPP
 
-namespace FunnyOS::Stdlib::TypeTraits {
+// clang-format off
+namespace FunnyOS::Stdlib {
 
     namespace Detail {
         template <bool Expression, typename T = void> struct EnableIf {};
@@ -40,8 +41,8 @@ namespace FunnyOS::Stdlib::TypeTraits {
     struct False : HasBooleanValue<false> {};
 
     namespace Detail {
-        template <typename A, typename B> struct IsSame : False {};
-        template <typename A> struct IsSame<A, A> : True {};
+        template <typename A, typename B>  struct IsSame         : False {};
+        template <typename A>              struct IsSame<A, A>   : True {};
     }  // namespace Detail
 
     /**
@@ -51,6 +52,14 @@ namespace FunnyOS::Stdlib::TypeTraits {
      */
     template <typename A, typename B> constexpr bool IsSame = Detail::IsSame<A, B>::Value;
 
-}  // namespace FunnyOS::Stdlib::TypeTraits
+    /**
+     * Represents a type that has a 'type' value.
+     *
+     * @tparam T the type
+     */
+    template <typename T> struct HasType { using Type = T; };
+
+}  // namespace FunnyOS::Stdlib
+// clang-format on
 
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_TYPETRAITS_HPP

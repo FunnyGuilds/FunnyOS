@@ -11,11 +11,23 @@ if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Options
-option(FOS_COMPILE64 "Build FOS in 64-bit mode?" On)
+option(F_COMPILE64        "Build FunnyOS in 64-bit mode?"     ON)
+option(F_BUILD_TESTS      "Should the testes be built?"       ON)
 
-if (NOT FOS_COMPILE64)
+if (NOT F_COMPILE64)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 endif ()
+
+if (F_BUILD_TESTS)
+    find_package(GTest)
+
+    if (GTEST_FOUND)
+        enable_testing()
+    else()
+        message(WARNING "Testing will not be enabled as googletest was not found")
+        set(F_BUILD_TESTS OFF)
+    endif()
+endif()
 
 # Global variables
 set(CMAKE_CXX_STANDARD 20)
@@ -26,7 +38,7 @@ if (CMAKE_BUILD_TYPE EQUAL "")
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set(FOS_DEBUG_SYMBOLS TRUE)
+    set(F_DEBUG_SYMBOLS TRUE)
 endif ()
 
 add_subdirectory("stdlib")

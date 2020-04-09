@@ -6,11 +6,13 @@
 
 namespace FunnyOS::Stdlib::String {
 
-    template <typename Integer> bool IntegerToString(StringBuffer& buffer, Integer integer) {
+    template <typename Integer>
+    bool IntegerToString(StringBuffer& buffer, Integer integer) noexcept {
         return IntegerToString(buffer, integer, 10);
     }
 
-    template <typename Integer> bool IntegerToString(StringBuffer& buffer, Integer integer, uint8_t radix) {
+    template <typename Integer>
+    bool IntegerToString(StringBuffer& buffer, Integer integer, uint8_t radix) noexcept {
         const char* NUMBER_CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const size_t MAX_RADIX = Length(NUMBER_CHARACTERS);
 
@@ -54,7 +56,8 @@ namespace FunnyOS::Stdlib::String {
         return true;
     }
 
-    template <typename Integer> bool IntegerToHex(StringBuffer& buffer, Integer integer) {
+    template <typename Integer>
+    bool IntegerToHex(StringBuffer& buffer, Integer integer) noexcept {
         const char* NUMBER_CHARACTERS = "0123456789ABCDEF";
 
         // Check output buffeer size
@@ -64,8 +67,8 @@ namespace FunnyOS::Stdlib::String {
         }
 
         // Print each byte respectively, one byte = exactly 2 digits in hex
-        for (size_t i = 0 ; i < intSize ; i++) {
-            const uint8_t shiftBytes = static_cast<const uint8_t>(intSize - i - 1);
+        for (size_t i = 0; i < intSize; i++) {
+            const auto shiftBytes = static_cast<const uint8_t>(intSize - i - 1);
             const uint8_t part = (integer >> (shiftBytes * 8)) & 0xFF;
 
             buffer.Data[i * 2 + 0] = NUMBER_CHARACTERS[part >> 4];
@@ -75,6 +78,101 @@ namespace FunnyOS::Stdlib::String {
         // Add null byte
         buffer.Data[intSize * 2] = 0;
         return true;
+    }
+
+    template <typename Integer>
+    [[nodiscard]] Optional<Integer> StringToInt(const char* buffer, uint8_t radix) noexcept {
+        size_t i = 0;
+        return StringToInt<Integer>(buffer, radix, true, i);
+    }
+
+    template <typename Integer>
+    [[nodiscard]] Optional<Integer> StringToIntLax(const char* buffer, uint8_t radix) noexcept {
+        size_t i = 0;
+        return StringToInt<Integer>(buffer, radix, false, i);
+    }
+
+    template <typename Integer>
+    [[nodiscard]] Optional<Integer> StringToIntLax(const char* buffer, uint8_t radix, size_t& i) noexcept {
+        return StringToInt<Integer>(buffer, radix, false, i);
+    }
+
+    template <typename Integer>
+    Optional<Integer> StringToInt(const char* buffer, uint8_t radix, bool strict, size_t& i) noexcept {
+        bool inPrefix = true;
+        bool hasSign = false;
+        bool strictMatch = true;
+        bool negative = false;
+
+        uint8_t digits[sizeof(Integer) * 8];
+        size_t digitCount = 0;
+
+        for (;;) {
+            const char currentCharacter = buffer[i++];
+
+            if (currentCharacter == '\0') {
+                break;
+            }
+
+            if (inPrefix) {
+                if (currentCharacter == ' ') {
+                    continue;
+                }
+
+                if (!hasSign && currentCharacter == '-') {
+                    negative = true;
+                    hasSign = true;
+                    continue;
+                }
+
+                if (!hasSign && currentCharacter == '+') {
+                    hasSign = true;
+                    continue;
+                }
+
+                inPrefix = false;
+            }
+
+            int digit = 0;
+            if (currentCharacter >= '0' && currentCharacter <= '9') {
+                digit = currentCharacter - '0';
+            } else if (currentCharacter >= 'A' && currentCharacter <= 'Z') {
+                digit = currentCharacter - 'A' + 10;
+            } else if (currentCharacter >= 'a' && currentCharacter <= 'z') {
+                digit = currentCharacter - 'a' + 10;
+            } else {
+                strictMatch = false;
+                break;
+            }
+
+            if (digit >= radix) {
+                strictMatch = false;
+                break;
+            }
+
+            digits[digitCount++] = digit;
+        }
+        i--;
+
+        if (digitCount == 0) {
+            return EmptyOptional<Integer>();
+        }
+
+        if (strict && !strictMatch) {
+            return EmptyOptional<Integer>();
+        }
+
+        Integer currentValue = 0;
+        Integer currentMultiplier = 1;
+        for (ssize_t d = digitCount - 1; d >= 0; d--) {
+            currentValue += digits[d] * currentMultiplier;
+            currentMultiplier *= radix;
+        }
+        if (negative) {
+            currentValue = -currentValue;
+        }
+
+        return currentValue;
     }
 }  // namespace FunnyOS::Stdlib::String
 

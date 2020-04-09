@@ -2,11 +2,36 @@
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_SYSTEM_HPP
 
 #include "Compiler.hpp"
+#include "Platform.hpp"
+
+// Copy and move constructor macros
+#define NON_COPYABLE(name)      \
+    name(const name&) = delete; \
+    name& operator=(const name&) = delete
+
+#define NON_MOVEABLE(name)          \
+    name(name&&) noexcept = delete; \
+    name& operator=(name&&) noexcept = delete
+
+#define TRIVIALLY_COPYABLE(name) \
+    name(const name&) = default; \
+    name& operator=(const name&) = default
+
+#define TRIVIALLY_MOVEABLE(name)     \
+    name(name&&) noexcept = default; \
+    name& operator=(name&&) noexcept = default
+
+#define COPYABLE(name) \
+    name(const name&); \
+    name& operator=(const name&)
+
+#define MOVEABLE(name)     \
+    name(name&&) noexcept; \
+    name& operator=(name&&) noexcept
 
 //
 // Assertion macros
 //
-
 #ifdef F_ASSERTIONS_THROW_EXCEPTIONS
 #define F_FAIL_ASSERT(message)                                                          \
     do {                                                                                \
@@ -25,6 +50,38 @@
             F_FAIL_ASSERT(message);  \
         }                            \
     } while (0)
+
+//
+// Exception macros
+//
+#define F_TRIVIAL_EXCEPTION(name, message)                                      \
+    class name : public FunnyOS::Stdlib::System::Exception {                    \
+       public:                                                                  \
+        name() noexcept = default;                                              \
+        ~name() override = default;                                             \
+        TRIVIALLY_COPYABLE(name);                                               \
+        TRIVIALLY_MOVEABLE(name);                                               \
+                                                                                \
+        [[nodiscard]] inline const char* GetMessage() const noexcept override { \
+            return message;                                                     \
+        }                                                                       \
+    }
+
+#define F_TRIVIAL_EXCEPTION_WITH_MESSAGE(name)                                  \
+    class name : public FunnyOS::Stdlib::System::Exception {                    \
+       public:                                                                  \
+        name(const char* message) noexcept : m_message(message) {}              \
+        ~name() override = default;                                             \
+        TRIVIALLY_COPYABLE(name);                                               \
+        TRIVIALLY_MOVEABLE(name);                                               \
+                                                                                \
+        [[nodiscard]] inline const char* GetMessage() const noexcept override { \
+            return m_message;                                                   \
+        }                                                                       \
+                                                                                \
+       private:                                                                 \
+        const char* m_message;                                                  \
+    }
 
 namespace FunnyOS::Stdlib::System {
 
@@ -69,69 +126,22 @@ namespace FunnyOS::Stdlib::System {
     /**
      * Exception thrown by dynamic_cast when a bad reference cast happen.
      */
-    class BadCastException : public Exception {
-       public:
-        BadCastException() noexcept = default;
-        ~BadCastException() override;
-
-        BadCastException(const BadCastException&) = default;
-        BadCastException& operator=(const BadCastException&) = default;
-        BadCastException(BadCastException&&) = default;
-        BadCastException& operator=(BadCastException&&) = default;
-
-        [[nodiscard]] const char* GetMessage() const noexcept override;
-    };
+    F_TRIVIAL_EXCEPTION(BadCastException, "FunnyOS::Stdlib::System::Exception");
 
     /**
      * An exception of this type is thrown when a typeid operator is applied to a dereferenced null pointer value.
      */
-    class BadTypeidException : public Exception {
-       public:
-        BadTypeidException() noexcept = default;
-        ~BadTypeidException() override;
-
-        BadTypeidException(const BadTypeidException&) = default;
-        BadTypeidException& operator=(const BadTypeidException&) = default;
-        BadTypeidException(BadTypeidException&&) = default;
-        BadTypeidException& operator=(BadTypeidException&&) = default;
-
-        [[nodiscard]] const char* GetMessage() const noexcept override;
-    };
+    F_TRIVIAL_EXCEPTION(BadTypeidException, "FunnyOS::Stdlib::System::BadTypeidException");
 
     /**
      * Exception thrown by the allocation functions to report failure to allocate storage.
      */
-    class BadAllocation : public Exception {
-       public:
-        BadAllocation() noexcept = default;
-        ~BadAllocation() override;
-
-        BadAllocation(const BadAllocation&) = default;
-        BadAllocation& operator=(const BadAllocation&) = default;
-        BadAllocation(BadAllocation&&) = default;
-        BadAllocation& operator=(BadAllocation&&) = default;
-
-        [[nodiscard]] const char* GetMessage() const noexcept override;
-    };
+    F_TRIVIAL_EXCEPTION(BadAllocation, "FunnyOS::Stdlib::System::BadAllocation");
 
     /**
      * Thrown by F_ASSERT if an assertion fails and F_ASSERTIONS_THROW_EXCEPTIONS is defined.
      */
-    class AssertionFailure : public Exception {
-       public:
-        AssertionFailure(const char* message) noexcept;
-        ~AssertionFailure() override;
-
-        AssertionFailure(const AssertionFailure&) = default;
-        AssertionFailure& operator=(const AssertionFailure&) = default;
-        AssertionFailure(AssertionFailure&&) = default;
-        AssertionFailure& operator=(AssertionFailure&&) = default;
-
-        [[nodiscard]] const char* GetMessage() const noexcept override;
-
-       private:
-        const char* m_message;
-    };
+    F_TRIVIAL_EXCEPTION_WITH_MESSAGE(AssertionFailure);
 
 }  // namespace FunnyOS::Stdlib::System
 

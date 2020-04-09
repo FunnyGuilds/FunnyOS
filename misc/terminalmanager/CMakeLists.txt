@@ -13,7 +13,7 @@ setup_library(FunnyOS_Misc_TerminalManager32)
 target_link_libraries(FunnyOS_Misc_TerminalManager32 PUBLIC FunnyOS::Stdlib::Base32_Static)
 add_library(FunnyOS::Misc::TerminalManager32 ALIAS FunnyOS_Misc_TerminalManager32)
 
-if (FOS_COMPILE64)
+if (F_COMPILE64)
     setup_library(FunnyOS_Misc_TerminalManager64)
     target_link_libraries(FunnyOS_Misc_TerminalManager64 PUBLIC FunnyOS::Stdlib::Base64_Static)
     add_library(FunnyOS::Misc::TerminalManager64 ALIAS FunnyOS_Misc_TerminalManager64)

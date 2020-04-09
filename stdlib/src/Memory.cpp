@@ -4,7 +4,7 @@
 
 namespace FunnyOS::Stdlib::Memory {
     namespace {
-        void* g_zeroMemory = reinterpret_cast<void*>(NumeralTypes::Traits::Info<uintptr_t>::MaximumValue);
+        void* g_zeroMemory = reinterpret_cast<void*>(NumeralTraits::Info<uintptr_t>::MaximumValue);
     }
 
     void* Allocate(size_t size) {

@@ -10,7 +10,8 @@ namespace FunnyOS::Stdlib::Memory {
      *
      * @tparam T pointer type
      */
-    template <typename T> struct SizedBuffer {
+    template <typename T>
+    struct SizedBuffer {
         /**
          * Pointer to memory
          */
@@ -25,22 +26,26 @@ namespace FunnyOS::Stdlib::Memory {
     /**
      * Copies [destination.Size] bytes from [source] to [destination.Data]
      */
-    template <typename Type> inline void Copy(SizedBuffer<Type>& destination, const Type* source);
+    template <typename Type>
+    inline void Copy(SizedBuffer<Type>& destination, const Type* source);
 
     /**
      * Copies [size] bytes from [source] to [destination]
      */
-    template <typename Type> inline void Copy(Type* destination, const Type* source, size_t size);
+    template <typename Type>
+    inline void Copy(Type* destination, const Type* source, size_t size);
 
     /**
      * Sets [destination.Size] at [destination.Data] to [byte]
      */
-    template <typename Type> inline void Set(SizedBuffer<Type>& destination, Type byte);
+    template <typename Type>
+    inline void Set(SizedBuffer<Type>& destination, Type byte);
 
     /**
      * Fills the whole [destination] with repeating patterns of [pattern]
      */
-    template <typename Type> inline void Fill(SizedBuffer<Type>& destination, const SizedBuffer<Type>& pattern);
+    template <typename Type>
+    inline void Fill(SizedBuffer<Type>& destination, const SizedBuffer<Type>& pattern);
 
     /**
      * Allocates N bytes of memory on the heap.
@@ -49,7 +54,7 @@ namespace FunnyOS::Stdlib::Memory {
      *
      * @return allocated memory or nullptr if there is not enough mermory
      */
-    void* Allocate(size_t size);
+    [[nodiscard]] void* Allocate(size_t size);
 
     /**
      * Allocates N bytes of aligned memory on the heap.
@@ -60,7 +65,7 @@ namespace FunnyOS::Stdlib::Memory {
      * @return allocated memory or nullptr if there is not enough memory.
      *         Returned value is divisible by alignment if the allocator supports alignment.
      */
-    void* AllocateAligned(size_t size, size_t alignment);
+    [[nodiscard]] void* AllocateAligned(size_t size, size_t alignment);
 
     /**
      * Allocates a SizedBuffer<T> of the heap.
@@ -72,7 +77,8 @@ namespace FunnyOS::Stdlib::Memory {
      *
      * @return newly allocated buffer.
      */
-    template <typename T> inline SizedBuffer<T> AllocateBuffer(size_t size);
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBuffer(size_t size);
 
     /**
      * Allocates N bytes of memory on the heap and initialize it with zeros.
@@ -81,7 +87,7 @@ namespace FunnyOS::Stdlib::Memory {
      *
      * @return zero-initialized allocated memory or nullptr if there is not enough memory.
      */
-    void* AllocateInitialized(size_t size);
+    [[nodiscard]] void* AllocateInitialized(size_t size);
 
     /**
      * Reallocates the given memory previously allocated via any Allocate* or Reallocate* methods.
@@ -93,7 +99,7 @@ namespace FunnyOS::Stdlib::Memory {
      * @param[in] size size of the memory block.
      * @return the newly allocated chunk or nullptr if not enough memory.
      */
-    void* Reallocate(void* data, size_t size);
+    [[nodiscard]] void* Reallocate(void* data, size_t size);
 
     /**
      * Frees a chunk of memory previously allocated via any Allocate* or Reallocate* methods.

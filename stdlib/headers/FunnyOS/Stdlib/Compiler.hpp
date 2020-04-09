@@ -3,12 +3,12 @@
 
 #ifdef __GNUC__
 
-#   define FOS_NEVER_INLINE __attribute__((noinline))
-
-#   define F_FETCH_CALLER_ADDRESS() (static_cast<void*>(__builtin_return_address(0)))
+// Function-related
+#   define F_NEVER_INLINE                       __attribute__((noinline))
+#   define F_CDECL                              __attribute__((__cdecl__))
 
 // Struct alignment
-#   define F_DONT_ALIGN __attribute__((packed))
+#   define F_DONT_ALIGN                         __attribute__((packed))
 
 // Debugging
 #   define F_UNIVERSAL_DEBUGGER_TRAP __asm__ __volatile__ ("xchg bx, bx")
@@ -19,6 +19,10 @@
 #   define va_arg       __builtin_va_arg
 #   define va_copy      __builtin_va_copy
 #   define va_end       __builtin_va_end
+
+
+// Misc
+#   define F_FETCH_CALLER_ADDRESS()             (static_cast<void*>(__builtin_return_address(0)))
 
 #else
 #   error "Unsupported compiler"

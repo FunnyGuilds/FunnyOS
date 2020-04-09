@@ -10,7 +10,7 @@
 // Types required for the operators
 namespace std {
     namespace {
-        using size_t = FunnyOS::Stdlib::NumeralTypes::size_t;
+        using size_t = FunnyOS::Stdlib::size_t;
 
         enum class align_val_t : std::size_t {};
 
@@ -43,6 +43,7 @@ using namespace FunnyOS::Stdlib;
     }
     return mem;
 }
+
 [[nodiscard]] void* operator new(std::size_t size, std::align_val_t alignment) {
     void* mem = operator new(size, alignment, std::nothrow);
     if (mem == nullptr) {

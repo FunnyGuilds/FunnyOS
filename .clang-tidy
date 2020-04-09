@@ -5,6 +5,7 @@ Checks: "*,\
         -modernize-avoid-c-arrays,\
         -google-build-using-namespace,\
         -google-runtime-references,\
+        -google-explicit-constructor,\
         -cppcoreguidelines-pro-bounds-pointer-arithmetic,\
         -cppcoreguidelines-pro-bounds-constant-array-index,\
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay,\
@@ -22,7 +23,9 @@ Checks: "*,\
         -hicpp-vararg,\
         -hicpp-avoid-c-arrays,\
         -hicpp-no-array-decay,\
+        -hicpp-explicit-conversions,\
         -fuchsia-statically-constructed-objects,\
         -cert-dcl50-cpp,\
         -cert-err58-cpp,\
+        -bugprone-forwarding-reference-overload,\
         -misc-non-private-member-variables-in-classes"

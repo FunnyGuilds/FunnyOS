@@ -3,7 +3,7 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-#ifdef FOS_STDLIB_PLATFORM_EXTERN
+#ifdef F_STDLIB_PLATFORM_EXTERN
 #define _EXTERN extern
 #else
 #define _EXTERN
@@ -14,9 +14,9 @@
  */
 namespace FunnyOS::_Platform {
 
-    _EXTERN void* AllocateMemoryAligned(size_t size, size_t aligned);
+    [[nodiscard]] _EXTERN void* AllocateMemoryAligned(size_t size, size_t aligned);
 
-    _EXTERN void* ReallocateMemory(void* memory, size_t size);
+    [[nodiscard]] _EXTERN void* ReallocateMemory(void* memory, size_t size);
 
     _EXTERN void FreeMemory(void* memory);
 
