@@ -21,6 +21,10 @@ SECTION .intro
     EXTERN error
 
     intro:
+        ; To make sure that CS is 0
+        jmp 0x00:stage1
+
+    stage1:
         ; We don't need any interrupts at this stage
         cli
 
