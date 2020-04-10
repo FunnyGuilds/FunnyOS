@@ -47,7 +47,22 @@ namespace FunnyOS::HW {
         Reserved29 = 29,
         Reserved30 = 30,
         Reserved31 = 31,
-        /** TODO: Remap IRQ interrupts here */
+        IRQ_PIT_Interrupt = 32,
+        IRQ_KeyboardInterrupt = 33,
+        IRQ_CascadeInterrupt = 34,
+        IRQ_COM2_Interrupt = 35,
+        IRQ_COM1_Interrupt = 36,
+        IRQ_LPT2_Interrupt = 36,
+        IRQ_FloppyInterrupt = 37,
+        IRQ_LPT1_Interrupt = 38,  // TODO: Handle spurious
+        IRQ_CMOS_RealTimeClockInterrupt = 39,
+        IRQ_ACPI_Interrupt = 40,
+        IRQ_10_Interrupt = 41,
+        IRQ_11_Interrupt = 42,
+        IRQ_PS2_MouseInterrupt = 43,
+        IRQ_CoProcessor_FPU_IPI_Interrupt= 44,
+        IRQ_PrimaryAtaHardDriveInterrupt = 45,
+        IRQ_SecondaryAtaHardDriveInterrupt = 46,
     };
 
     Stdlib::Optional<const char*> GetInterruptMnemonic(InterruptType type);
@@ -161,6 +176,12 @@ namespace FunnyOS::HW {
     void RegisterUnknownInterruptHandler(InterruptHandler handler);
 
     void SetupInterrupts();
+
+    void EnableHardwareInterrupts();
+
+    void DisableHardwareInterrupts();
+
+    bool HardwareInterruptsEnabled();
 
 }  // namespace FunnyOS::HW
 

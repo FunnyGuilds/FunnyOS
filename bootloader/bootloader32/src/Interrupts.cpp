@@ -2,6 +2,9 @@
 
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/Interrupts.hpp>
+#include <FunnyOS/Hardware/CPU.hpp>
+#include <FunnyOS/Hardware/PIC.hpp>
+#include <FunnyOS/Hardware/InputOutput.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
 
 #include "Bootloader32.hpp"
@@ -9,32 +12,34 @@
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
-    inline void DecodeEflagPart(String::StringBuffer& buffer, HW::Register eflags, int bit, const char* flag) {
-        if ((eflags & (1 << bit)) != 0) {
-            String::Concat(buffer, buffer.Data, flag);
-            String::Concat(buffer, buffer.Data, " ");
+    inline void DecodeEflagPart(String::StringBuffer& buf, HW::Register flags, HW::CPU::Flags flag, const char* str) {
+        if ((flags & flag) != 0) {
+            String::Concat(buf, buf.Data, str);
+            String::Concat(buf, buf.Data, " ");
         }
     }
 
     void DecodeEflags(String::StringBuffer& buffer, HW::Register eflags) {
-        DecodeEflagPart(buffer, eflags, 0, "CF");
-        DecodeEflagPart(buffer, eflags, 2, "PF");
-        DecodeEflagPart(buffer, eflags, 4, "AF");
-        DecodeEflagPart(buffer, eflags, 6, "ZF");
-        DecodeEflagPart(buffer, eflags, 7, "SF");
-        DecodeEflagPart(buffer, eflags, 8, "TF");
-        DecodeEflagPart(buffer, eflags, 9, "IF");
-        DecodeEflagPart(buffer, eflags, 10, "DF");
-        DecodeEflagPart(buffer, eflags, 11, "OF");
-        DecodeEflagPart(buffer, eflags, 12, "IO");
-        DecodeEflagPart(buffer, eflags, 13, "PL");
-        DecodeEflagPart(buffer, eflags, 14, "NT");
-        DecodeEflagPart(buffer, eflags, 16, "RF");
-        DecodeEflagPart(buffer, eflags, 17, "VM");
-        DecodeEflagPart(buffer, eflags, 18, "AC");
-        DecodeEflagPart(buffer, eflags, 19, "VIF");
-        DecodeEflagPart(buffer, eflags, 20, "VIP");
-        DecodeEflagPart(buffer, eflags, 21, "ID");
+        using HW::CPU::Flags;
+
+        DecodeEflagPart(buffer, eflags, Flags::CarryFlag, "CF");
+        DecodeEflagPart(buffer, eflags, Flags::ParityFlag, "PF");
+        DecodeEflagPart(buffer, eflags, Flags::AdjustFlag, "AF");
+        DecodeEflagPart(buffer, eflags, Flags::ZeroFlag, "ZF");
+        DecodeEflagPart(buffer, eflags, Flags::SignFlag, "SF");
+        DecodeEflagPart(buffer, eflags, Flags::TrapFlag, "TF");
+        DecodeEflagPart(buffer, eflags, Flags::InterruptFlag, "IF");
+        DecodeEflagPart(buffer, eflags, Flags::DirectionFlag, "DF");
+        DecodeEflagPart(buffer, eflags, Flags::OverflowFlag, "OF");
+        DecodeEflagPart(buffer, eflags, Flags::IOPL_Bit0, "IO");
+        DecodeEflagPart(buffer, eflags, Flags::IOPL_Bit2, "PL");
+        DecodeEflagPart(buffer, eflags, Flags::NestedTaskFlag, "NT");
+        DecodeEflagPart(buffer, eflags, Flags::ResumeFlag, "RF");
+        DecodeEflagPart(buffer, eflags, Flags::Virtual8086_ModeFlag, "VM");
+        DecodeEflagPart(buffer, eflags, Flags::AlingmentCheck, "AC");
+        DecodeEflagPart(buffer, eflags, Flags::VirtualInterruptFlag, "VIF");
+        DecodeEflagPart(buffer, eflags, Flags::VirtualInterruptPending, "VIP");
+        DecodeEflagPart(buffer, eflags, Flags::CPUID_Supported, "ID");
     }
 
     void UnknownInterruptHandler(HW::InterruptData* data) {
@@ -57,11 +62,11 @@ namespace FunnyOS::Bootloader32 {
         }
 
         char eflags[33];
-        String::StringBuffer eflagsBuffer { eflags, 33 };
+        String::StringBuffer eflagsBuffer{eflags, 33};
         String::IntegerToString(eflagsBuffer, data->EFLAGS, 2);
 
         char decodedEflags[43];
-        String::StringBuffer decodedEflagsBuffer{ decodedEflags, 43 };
+        String::StringBuffer decodedEflagsBuffer{decodedEflags, 43};
         DecodeEflags(decodedEflagsBuffer, data->EFLAGS);
 
         formatOk = String::Format(panicBuffer,
@@ -74,8 +79,7 @@ namespace FunnyOS::Bootloader32 {
                                   "        Raw value = 0b%032s\r\n"
                                   "        Decoded = %s\r\n",
                                   interrupt, data->EAX, data->ECX, data->EDX, data->EBX, data->ESP, data->EBP,
-                                  data->ESI, data->EDI, data->EIP, eflags, decodedEflags
-        );
+                                  data->ESI, data->EDI, data->EIP, eflags, decodedEflags);
 
         if (!formatOk) {
             Bootloader::GetBootloader()->Panic("Interrupt info collection failed");
@@ -84,13 +88,37 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::GetBootloader()->Panic(panicBuffer.Data);
     }
 
-    void handler(HW::InterruptData* data) {
-        FB_LOG_WARNING("Interrupt :woah:");
+    void Keyboardhandler(HW::InterruptData* data) {
+        HW::InputOutput::InputByte(0x64);
+        HW::InputOutput::InputByte(0x60);
+        FB_LOG_WARNING("Keyboard interrupt!");
+    }
+
+    void NoOpHandler(HW::InterruptData*) {
     }
 
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
-        HW::RegisterInterruptHandler(static_cast<HW::InterruptType>(0x69), handler);
+
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &Keyboardhandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CascadeInterrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT2_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_FloppyInterrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT1_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CMOS_RealTimeClockInterrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_ACPI_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_10_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_11_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PS2_MouseInterrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CoProcessor_FPU_IPI_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PrimaryAtaHardDriveInterrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_SecondaryAtaHardDriveInterrupt, &NoOpHandler);
+
         HW::SetupInterrupts();
+        HW::PIC::Remap();
+        HW::EnableHardwareInterrupts();
     }
 }  // namespace FunnyOS::Bootloader32

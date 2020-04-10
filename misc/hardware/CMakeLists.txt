@@ -8,6 +8,7 @@ function(setup_library name)
             src/InterruptSetup/InterruptSetup.cpp
             src/Interrupts.cpp
             src/VGA.cpp
+            src/PIC.cpp
     )
 
     target_include_directories(${name}

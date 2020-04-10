@@ -54,7 +54,7 @@ namespace FunnyOS::HW::InterruptSetup {
 #endif
 
 #ifdef __GNUC__
-            __asm__ __volatile__("lidt [%0]" : : "m"(idt));
+            asm volatile("lidt [%0]" : : "m"(idt));
 #endif
         }
 #endif

@@ -4,14 +4,16 @@
 #ifdef __GNUC__
 
 // Function-related
+#   define F_ALWAYS_INLINE                      __attribute__((always_inline))
 #   define F_NEVER_INLINE                       __attribute__((noinline))
 #   define F_CDECL                              __attribute__((__cdecl__))
+
 
 // Struct alignment
 #   define F_DONT_ALIGN                         __attribute__((packed))
 
 // Debugging
-#   define F_UNIVERSAL_DEBUGGER_TRAP __asm__ __volatile__ ("xchg bx, bx")
+#   define F_UNIVERSAL_DEBUGGER_TRAP asm volatile ("xchg bx, bx")
 
 // Varags
 #   define va_list      __builtin_va_list

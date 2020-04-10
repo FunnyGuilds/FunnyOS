@@ -4,6 +4,8 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include <FunnyOS/Hardware/Interrupts.hpp>
+#include <FunnyOS/Hardware/CPU.hpp>
 #include "Interrupts.hpp"
 #include "A20Line.hpp"
 
@@ -15,8 +17,6 @@ namespace FunnyOS::Bootloader32 {
     [[noreturn]] void Bootloader32Type::Main(const Bootloader::BootloaderParameters& args) {
         Bootloader::BootloaderType::Main(args);
         SetupInterrupts();
-
-        __asm__ __volatile__ ("int 0x69");
 
         if (Bootloader32::A20::IsEnabled()) {
             FB_LOG_INFO("A20 line is already enabled!");
@@ -60,11 +60,7 @@ namespace FunnyOS::Bootloader32 {
 
     [[noreturn]] void Bootloader32Type::Halt() {
         for (;;) {
-#ifdef __GNUC__
-            __asm__ __volatile__(
-                "cli \n"
-                "hlt");
-#endif
+            HW::CPU::Halt();
         }
     }
 
