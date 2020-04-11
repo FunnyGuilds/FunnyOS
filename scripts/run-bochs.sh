@@ -27,8 +27,11 @@ if [[ $DEBUG -ne 0 ]]; then
   echo "magic_break: enabled=1" >> $SCRIPT
 fi
 
-echo "ata0-master: type=disk, path=$OUTPUT, mode=flat, cylinders=1024, heads=16, spt=32, translation=none" >> $SCRIPT
-echo "boot: disk" >> $SCRIPT
+cat <<EOT >> $SCRIPT
+clock: sync=realtime
+ata0-master: type=disk, path=$OUTPUT, mode=flat, cylinders=1024, heads=16, spt=32, translation=none
+boot: disk
+EOT
 
 bochs -f $SCRIPT -q
 rm $SCRIPT

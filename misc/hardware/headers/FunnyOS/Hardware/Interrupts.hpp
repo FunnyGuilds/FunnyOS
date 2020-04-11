@@ -60,7 +60,7 @@ namespace FunnyOS::HW {
         IRQ_10_Interrupt = 41,
         IRQ_11_Interrupt = 42,
         IRQ_PS2_MouseInterrupt = 43,
-        IRQ_CoProcessor_FPU_IPI_Interrupt= 44,
+        IRQ_CoProcessor_FPU_IPI_Interrupt = 44,
         IRQ_PrimaryAtaHardDriveInterrupt = 45,
         IRQ_SecondaryAtaHardDriveInterrupt = 46,
     };
@@ -177,12 +177,26 @@ namespace FunnyOS::HW {
 
     void SetupInterrupts();
 
-    void EnableHardwareInterrupts();
+    F_ALWAYS_INLINE inline void EnableHardwareInterrupts();
 
-    void DisableHardwareInterrupts();
+    F_ALWAYS_INLINE inline void DisableHardwareInterrupts();
 
-    bool HardwareInterruptsEnabled();
+    F_ALWAYS_INLINE inline bool HardwareInterruptsEnabled();
+
+    class NoInterruptsBlock {
+       public:
+        NON_MOVEABLE(NoInterruptsBlock);
+        NON_COPYABLE(NoInterruptsBlock);
+
+        NoInterruptsBlock();
+
+        ~NoInterruptsBlock();
+
+       private:
+        bool m_hadInterrupts;
+    };
 
 }  // namespace FunnyOS::HW
 
+#include "Interrupts.tcc"
 #endif  // FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_INTERRUPTS_HPP

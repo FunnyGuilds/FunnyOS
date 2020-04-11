@@ -1,10 +1,10 @@
 set(SOURCES
         src/BootloaderStdlibPlatformImpl.cpp
-        ../../misc/hardware/src/VGA.cpp
         src/Logging.cpp
         src/LowMemoryAllocator.cpp
         src/BootloaderABI.cpp
         src/Bootloader.cpp
+        src/Sleep.cpp
 )
 
 function(setup_library name)

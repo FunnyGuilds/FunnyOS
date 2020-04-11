@@ -6,6 +6,7 @@
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
 #include "Bootloader32.hpp"
 
@@ -100,7 +101,7 @@ namespace FunnyOS::Bootloader32 {
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &Bootloader::PITInterruptHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &Keyboardhandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CascadeInterrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &NoOpHandler);

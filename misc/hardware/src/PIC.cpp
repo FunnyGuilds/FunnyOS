@@ -19,7 +19,7 @@ namespace FunnyOS::HW::PIC {
     }
 
     bool IsMasterPICInterrupt(InterruptType type) {
-        return type >= InterruptType::IRQ_CMOS_RealTimeClockInterrupt && type <= InterruptType::IRQ_LPT1_Interrupt;
+        return type >= InterruptType::IRQ_PIT_Interrupt && type <= InterruptType::IRQ_LPT1_Interrupt;
     }
 
     namespace {
@@ -55,10 +55,7 @@ namespace FunnyOS::HW::PIC {
     }  // namespace
 
     void Remap() {
-        const bool interruptsEnabled = HW::HardwareInterruptsEnabled();
-        if (interruptsEnabled) {
-            HW::DisableHardwareInterrupts();
-        }
+        HW::NoInterruptsBlock noInterrupts;
         const uint8_t masterMask = InputByte(PORT_MASTER_PIC_DATA);
         const uint8_t slaveMask = InputByte(PORT_SLAVE_PIC_DATA);
 
@@ -66,10 +63,6 @@ namespace FunnyOS::HW::PIC {
 
         OutputByte(PORT_MASTER_PIC_DATA, masterMask);
         OutputByte(PORT_SLAVE_PIC_DATA, slaveMask);
-
-        if (interruptsEnabled) {
-            HW::EnableHardwareInterrupts();
-        }
     }
 
     void SendEndOfInterrupt(bool master) {

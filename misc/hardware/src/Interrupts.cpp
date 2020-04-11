@@ -93,20 +93,15 @@ namespace FunnyOS::HW {
         InterruptSetup::SetupInterruptTable(&InterruptHandlerSelector);
     }
 
-    void EnableHardwareInterrupts() {
-#ifdef __GNUC__
-        asm volatile("sti");
-#endif
+    NoInterruptsBlock::NoInterruptsBlock() : m_hadInterrupts(HardwareInterruptsEnabled()) {
+        if (m_hadInterrupts) {
+            DisableHardwareInterrupts();
+        }
     }
-
-    void DisableHardwareInterrupts() {
-#ifdef __GNUC__
-        asm volatile("cli");
-#endif
-    }
-
-    bool HardwareInterruptsEnabled() {
-        return (CPU::GetFlagsRegister() & CPU::Flags::InterruptFlag) != 0;
+    NoInterruptsBlock::~NoInterruptsBlock() {
+        if (m_hadInterrupts) {
+            EnableHardwareInterrupts();
+        }
     }
 
 }  // namespace FunnyOS::HW

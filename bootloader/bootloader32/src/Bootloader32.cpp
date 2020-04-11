@@ -4,6 +4,7 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include <FunnyOS/BootloaderCommons/Sleep.hpp>
 #include <FunnyOS/Hardware/Interrupts.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include "Interrupts.hpp"
@@ -17,6 +18,7 @@ namespace FunnyOS::Bootloader32 {
     [[noreturn]] void Bootloader32Type::Main(const Bootloader::BootloaderParameters& args) {
         Bootloader::BootloaderType::Main(args);
         SetupInterrupts();
+        Bootloader::SetupPIT();
 
         if (Bootloader32::A20::IsEnabled()) {
             FB_LOG_INFO("A20 line is already enabled!");
@@ -30,6 +32,13 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_WARNING("this is a waring message");
         FB_LOG_ERROR("this is an error message");
         FB_LOG_FATAL("this is a fatal message");
+
+        String::StringBuffer buf = Memory::AllocateBuffer<char>(10);
+        for (size_t i = 0 ; i < 10 ; i++) {
+            String::IntegerToString(buf, i);
+            FB_LOG_INFO(buf.Data);
+            Bootloader::Sleep(1000);
+        }
 
         Halt();
         _NO_RETURN;
