@@ -93,12 +93,19 @@ namespace FunnyOS::HW {
         InterruptSetup::SetupInterruptTable(&InterruptHandlerSelector);
     }
 
-    NoInterruptsBlock::NoInterruptsBlock() : m_hadInterrupts(HardwareInterruptsEnabled()) {
+    NoInterruptsBlock::NoInterruptsBlock()
+        : m_hadInterrupts(HardwareInterruptsEnabled()), m_hadNMIs(NonMaskableInterruptsEnabled()) {
         if (m_hadInterrupts) {
             DisableHardwareInterrupts();
         }
+        if (m_hadNMIs) {
+            DisableNonMaskableInterrupts();
+        }
     }
     NoInterruptsBlock::~NoInterruptsBlock() {
+        if (m_hadNMIs) {
+            EnableNonMaskableInterrupts();
+        }
         if (m_hadInterrupts) {
             EnableHardwareInterrupts();
         }

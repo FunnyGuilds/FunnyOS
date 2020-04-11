@@ -183,6 +183,12 @@ namespace FunnyOS::HW {
 
     F_ALWAYS_INLINE inline bool HardwareInterruptsEnabled();
 
+    F_ALWAYS_INLINE inline void EnableNonMaskableInterrupts();
+
+    F_ALWAYS_INLINE inline void DisableNonMaskableInterrupts();
+
+    F_ALWAYS_INLINE inline bool NonMaskableInterruptsEnabled();
+
     class NoInterruptsBlock {
        public:
         NON_MOVEABLE(NoInterruptsBlock);
@@ -194,6 +200,7 @@ namespace FunnyOS::HW {
 
        private:
         bool m_hadInterrupts;
+        bool m_hadNMIs;
     };
 
 }  // namespace FunnyOS::HW

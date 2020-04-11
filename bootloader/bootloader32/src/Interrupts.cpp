@@ -121,5 +121,6 @@ namespace FunnyOS::Bootloader32 {
         HW::SetupInterrupts();
         HW::PIC::Remap();
         HW::EnableHardwareInterrupts();
+        HW::EnableNonMaskableInterrupts();
     }
 }  // namespace FunnyOS::Bootloader32

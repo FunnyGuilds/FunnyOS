@@ -25,7 +25,7 @@ SECTION .intro
         ; Disable interrupts and NMI
         cli
         in al, 0x70
-        and al, 0b01111111
+        or al, 0x80
         out 0x70, al
 
         mov eax, cr0
