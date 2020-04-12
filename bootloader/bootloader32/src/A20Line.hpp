@@ -19,6 +19,10 @@ namespace FunnyOS::Bootloader32::A20 {
      */
     void EnableA20Traditionally();
 
+    /**
+     * Tries to enable the A20 line using all available methods.
+     */
+    void TryEnable();
 }  // namespace FunnyOS::Bootloader32::A20
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_A20LINE_HPP

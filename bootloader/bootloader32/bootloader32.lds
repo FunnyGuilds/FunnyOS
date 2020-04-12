@@ -1,4 +1,4 @@
-OUTPUT_FORMAT(binary)
+OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
@@ -6,7 +6,7 @@ SECTIONS
 
     .text :
     {
-        *(.intro)
+        KEEP(*(.intro))
         *(.text*)
     }
 
@@ -21,21 +21,21 @@ SECTIONS
 
     .data :
     {
-        *(.data)
+        *(.data*)
     }
 
     . = ALIGN(0x400);
 
     .bss :
     {
-        *(.bss)
+        *(.bss*)
     }
 
     . = 0x500 + 59 * 0x200 - 4;
 
     .magic :
     {
-        *(.magic)
+        KEEP(*(.magic))
     }
 
     /DISCARD/ :

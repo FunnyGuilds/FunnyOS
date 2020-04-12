@@ -102,6 +102,7 @@ namespace FunnyOS::HW {
             DisableNonMaskableInterrupts();
         }
     }
+
     NoInterruptsBlock::~NoInterruptsBlock() {
         if (m_hadNMIs) {
             EnableNonMaskableInterrupts();

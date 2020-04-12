@@ -6,13 +6,13 @@ SECTION .intro
 
     intro:
         ; Setup bootloader_parameters
-        mov [bootloader_parameters + 0x00], dl
-        mov [bootloader_parameters + 0x01], ch
+        mov [bootloader_parameters__boot_drive_id], dl
+        mov [bootloader_parameters__boot_parttition], ch
 
         call make_memory_map
-        mov [bootloader_parameters + 0x02], al
-        mov [bootloader_parameters + 0x03], ebx
-        mov [bootloader_parameters + 0x07], cx
+        mov [bootloader_parameters__acpi_extended], al
+        mov [bootloader_parameters__memory_map_start], ebx
+        mov [bootloader_parameters__memory_map_count], cx
 
         ; Setup video mode
         mov ah, 0x00
@@ -65,11 +65,11 @@ SECTION .bss
     ; Parameters to be passed to the bootloader
     GLOBAL bootloader_parameters
     bootloader_parameters:
-        resb 1                  ; Boot drive ID                          ; + 0x00
-        resb 1                  ; Boot partition                         ; + 0x01
-        resb 1                  ; Memory map has ACPI extend attributes  ; + 0x02
-        resd 1                  ; Memory map start                       ; + 0x03
-        resw 1                  ; Memory map number of entries           ; + 0x07
+        bootloader_parameters__boot_drive_id:        resb 1                  ; Boot drive ID
+        bootloader_parameters__boot_parttition:      resb 1                  ; Boot partition
+        bootloader_parameters__acpi_extended:        resb 1                  ; Memory map has ACPI extend attributes
+        bootloader_parameters__memory_map_start:     resd 1                  ; Memory map start
+        bootloader_parameters__memory_map_count:     resw 1                  ; Memory map number of entries
 
 SECTION .magic
     dd 0x46554E42

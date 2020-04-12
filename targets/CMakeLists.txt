@@ -8,13 +8,10 @@ add_custom_command(
             FunnyOS::Bootloader::MBR
             FunnyOS::Bootloader::Stage1
             FunnyOS::Bootloader::Bootloader32
+            FunnyOS_Bootloader_Bootloader32_Binary
 )
 
 add_custom_target(
         FunnyOS_BuildImage
         DEPENDS ${F_OUTPUT_IMAGE}
 )
-
-if (F_DEBUG_SYMBOLS)
-    add_dependencies(FunnyOS_BuildImage FunnyOS_Bootloader_Bootloader32_DebugSymbols)
-endif()

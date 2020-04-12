@@ -1,3 +1,9 @@
+configure_file(
+        Config.hpp.in
+        ${CMAKE_CURRENT_BINARY_DIR}/config/FunnyOS/Stdlib/Config.hpp
+        @ONLY
+)
+
 function(setup_library name type)
     add_library(${name} STATIC
             src/Memory.cpp
@@ -8,10 +14,11 @@ function(setup_library name type)
     target_include_directories(${name}
             PUBLIC
                 "${CMAKE_CURRENT_SOURCE_DIR}/headers/"
+                "${CMAKE_CURRENT_BINARY_DIR}/config"
     )
 
     target_compile_options(${name} PRIVATE -fpermissive)
-    target_compile_options(${name} PUBLIC -fno-pie)
+    target_compile_options(${name} PUBLIC -fno-pie -ffunction-sections -fdata-sections)
 
     target_compile_definitions(${name} PRIVATE F_STDLIB_PLATFORM_EXTERN=1)
 endfunction()

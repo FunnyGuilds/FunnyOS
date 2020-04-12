@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.17)
 project(FunnyOS CXX ASM_NASM)
 
+# Version
+set(FUNNYOS_VERSION 1.0.0)
+
 # Checks
 if (NOT ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" AND NOT ${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
     message(FATAL_ERROR "Unsupported generator")
@@ -30,8 +33,12 @@ if (F_BUILD_TESTS)
 endif()
 
 # Global variables
+set(WARNING_OPTIONS
+        "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function"
+)
+
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel -no-pie")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel -no-pie ${WARNING_OPTIONS}")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 if (CMAKE_BUILD_TYPE EQUAL "")
@@ -40,6 +47,10 @@ endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     set(F_DEBUG_SYMBOLS TRUE)
+endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DF_DEBUG)
 endif ()
 
 add_subdirectory("stdlib")

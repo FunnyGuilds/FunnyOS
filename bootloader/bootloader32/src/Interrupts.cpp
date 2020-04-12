@@ -5,6 +5,7 @@
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
+#include <FunnyOS/Hardware/Serial.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
@@ -95,8 +96,7 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_WARNING("Keyboard interrupt!");
     }
 
-    void NoOpHandler(HW::InterruptData*) {
-    }
+    void NoOpHandler(HW::InterruptData*) {}
 
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
@@ -104,8 +104,8 @@ namespace FunnyOS::Bootloader32 {
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &Bootloader::PITInterruptHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &Keyboardhandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CascadeInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &HW::Serial::SerialInterruptHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &HW::Serial::SerialInterruptHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT2_Interrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_FloppyInterrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT1_Interrupt, &NoOpHandler);

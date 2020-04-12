@@ -2,6 +2,8 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
+#include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
 namespace FunnyOS::Bootloader32::A20 {
     using namespace HW::InputOutput;
@@ -30,6 +32,8 @@ namespace FunnyOS::Bootloader32::A20 {
     }
 
     void EnableA20WithFastA20() {
+        HW::NoInterruptsBlock noInterrupts;
+
         uint8_t value = InputByte(PORT_FAST2A20);
         if ((value & 0x02U) != 0) {
             return;
@@ -40,7 +44,33 @@ namespace FunnyOS::Bootloader32::A20 {
     }
 
     void EnableA20Traditionally() {
-        // TODO: implement me pls
+        HW::NoInterruptsBlock noInterrupts;
+
+        // TODO
     }
 
+    void TryEnable() {
+
+        for (size_t i = 0; i < 3; i++) {
+            EnableA20Traditionally();
+            Bootloader::Sleep(100);
+
+            FB_LOG_DEBUG_F("Trying to enable A20 via keyboard controller... (Try %d/3)", i + 1);
+
+            if (IsEnabled()) {
+                return;
+            }
+
+            FB_LOG_DEBUG("...Failed");
+        }
+
+        FB_LOG_DEBUG("Using the fast A20 gate");
+        EnableA20WithFastA20();
+        Bootloader::Sleep(100);
+
+        if (IsEnabled()) {
+            return;
+        }
+        FB_LOG_DEBUG("... Failed");
+    }
 }  // namespace FunnyOS::Bootloader32::A20

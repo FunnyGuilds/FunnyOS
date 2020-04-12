@@ -5,7 +5,7 @@
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
-#include <FunnyOS/Hardware/Interrupts.hpp>
+#include <FunnyOS/Hardware/CMOS.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include "Interrupts.hpp"
 #include "A20Line.hpp"
@@ -20,18 +20,26 @@ namespace FunnyOS::Bootloader32 {
         SetupInterrupts();
         Bootloader::SetupPIT();
 
-        if (Bootloader32::A20::IsEnabled()) {
-            FB_LOG_INFO("A20 line is already enabled!");
-        } else {
-            // TODO: Actually enable the line
-        }
+        const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 
-        FB_LOG_DEBUG("this is a debug message");
-        FB_LOG_INFO("this is an info message");
-        FB_LOG_OK("this is an ok message");
-        FB_LOG_WARNING("this is a waring message");
-        FB_LOG_ERROR("this is an error message");
-        FB_LOG_FATAL("this is a fatal message");
+        FB_LOG_INFO("FunnyOS Bootloader, hello!");
+        FB_LOG_INFO("Version: " FUNNYOS_VERSION);
+        FB_LOG_INFO_F("Current date is: %04u/%02u/%02u %02u:%02u", time.Year, time.Month, time.DayOfMonth, time.Hours,
+                      time.Minutes);
+        FB_LOG_DEBUG("Debugging is enabled!");
+
+        if (Bootloader32::A20::IsEnabled()) {
+            FB_LOG_DEBUG("A20 line is already enabled!");
+        } else {
+            Bootloader32::A20::TryEnable();
+
+            if (!Bootloader32::A20::IsEnabled()) {
+                FB_LOG_FATAL("No suitable method for enabling the A20 gate found. ");
+                Halt();
+            }
+
+            FB_LOG_DEBUG("A20 enabled");
+        }
 
         String::StringBuffer buf = Memory::AllocateBuffer<char>(10);
         for (size_t i = 0 ; i < 10 ; i++) {
@@ -68,6 +76,9 @@ namespace FunnyOS::Bootloader32 {
     }
 
     [[noreturn]] void Bootloader32Type::Halt() {
+        HW::DisableHardwareInterrupts();
+        FB_LOG_FATAL("Booting failed.");
+
         for (;;) {
             HW::CPU::Halt();
         }
