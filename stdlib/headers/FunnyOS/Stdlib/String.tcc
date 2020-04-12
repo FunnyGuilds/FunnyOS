@@ -68,7 +68,7 @@ namespace FunnyOS::Stdlib::String {
 
         // Print each byte respectively, one byte = exactly 2 digits in hex
         for (size_t i = 0; i < intSize; i++) {
-            const auto shiftBytes = static_cast<const uint8_t>(intSize - i - 1);
+            const auto shiftBytes = static_cast<uint8_t>(intSize - i - 1);
             const uint8_t part = (integer >> (shiftBytes * 8)) & 0xFF;
 
             buffer.Data[i * 2 + 0] = NUMBER_CHARACTERS[part >> 4];

@@ -1,6 +1,7 @@
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_SYSTEM_HPP
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_SYSTEM_HPP
 
+#include <FunnyOS/Stdlib/Config.hpp>
 #include "Compiler.hpp"
 #include "Platform.hpp"
 

@@ -264,7 +264,7 @@ namespace FunnyOS::Stdlib::String {
             }
 
             if (specifier.Type == SpecifierType::UnsignedHexadecimalIntegerLowercase) {
-                int i = 0;
+                size_t i = 0;
                 char current;
 
                 while (i < buffer.Size && (current = buffer.Data[i]) != 0) {
