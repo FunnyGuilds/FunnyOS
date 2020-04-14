@@ -21,6 +21,31 @@ namespace FunnyOS::Stdlib::Memory {
          * Size of the memory in bytes.
          */
         size_t Size;
+
+        /**
+         * Checks if the buffer is valid (it's Data is not nullptr)
+         *
+         * @return whether or not the buffer is valid
+         */
+        inline bool IsValid();
+
+        /**
+         * Gets the N'th element in the buffer.
+         * This function does NOT check the boundary.
+         *
+         * @param index index of element to get
+         * @return pointer to that element
+         */
+        inline T* operator[](size_t index);
+
+        /**
+         * Gets the N'th element in the buffer.
+         * This function does NOT check the boundary.
+         *
+         * @param index index of element to get
+         * @return pointer to that element
+         */
+        inline T const* operator[](size_t index) const;
     };
 
     /**
@@ -69,16 +94,39 @@ namespace FunnyOS::Stdlib::Memory {
 
     /**
      * Allocates a SizedBuffer<T> of the heap.
-     * If there is not enough memory the returned buffer's Size and Data will 0 and nullptr respectively.
+     * If there is not enough memory the returned buffer's Size and Data will be 0 and nullptr respectively.
      *
      * @tparam T type of the newly allocated buffer
      *
-     * @param[in] size size of the memory to allocate
+     * @param[in] size size of the memory to allocate, the actual allocated number of bytes will be this size multiplied
+     * by sizeof(T)
      *
      * @return newly allocated buffer.
      */
     template <typename T>
     [[nodiscard]] inline SizedBuffer<T> AllocateBuffer(size_t size);
+
+    /**
+     * Reallocates memory in a buffer.
+     * The contents of the buffer will be retained or shrunk if the new size is smaller then the old one
+     *
+     * If there is not enough memory for reallocation the buffer will be freed. And buffer.Data will be set to nullptr.
+     *
+     * @tparam T type of the buffer
+     * @param[in] buffer buffer to reallocate
+     * @param[in] size new size to allocate
+     */
+    template <typename T>
+    inline void ReallocateBuffer(SizedBuffer<T>& buffer, size_t size);
+
+    /**
+     * Frees a buffer and sets its data to nullptr.
+     *
+     * @tparam T type of the buffer
+     * @param buffer buffer to free
+     */
+    template <typename T>
+    inline void FreeBuffer(SizedBuffer<T>& buffer);
 
     /**
      * Allocates N bytes of memory on the heap and initialize it with zeros.

@@ -3,8 +3,11 @@ function(setup_tests name lib)
             StdlibPlatform.cpp
             TestAlgorithm.cpp
             TestFunctional.cpp
+            TestLinkedList.cpp
             TestMemory.cpp
             TestString.cpp
+            TestUtility.cpp
+            TestVector.cpp
     )
 
     target_link_libraries(${name}

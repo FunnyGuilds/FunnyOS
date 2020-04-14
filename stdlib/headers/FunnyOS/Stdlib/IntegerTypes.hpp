@@ -5,14 +5,30 @@
 
 namespace FunnyOS::Stdlib {
     // clang-format off
-    using  int8_t       =           char;            // NOLINT(google-runtime-int)
-    using  int16_t      =           short;           // NOLINT(google-runtime-int)
-    using  int32_t      =           int;             // NOLINT(google-runtime-int)
-    using  int64_t      =           long long int;   // NOLINT(google-runtime-int)
-    using uint8_t       =  unsigned char;            // NOLINT(google-runtime-int)
-    using uint16_t      =  unsigned short;           // NOLINT(google-runtime-int)
-    using uint32_t      =  unsigned int;             // NOLINT(google-runtime-int)
-    using uint64_t      =  unsigned long long int;   // NOLINT(google-runtime-int)
+    using  int8_t       =           char;                     // NOLINT(google-runtime-int)
+    using  int16_t      =           short;                    // NOLINT(google-runtime-int)
+    using  int32_t      =           int;                      // NOLINT(google-runtime-int)
+    using uint8_t       =  unsigned char;                     // NOLINT(google-runtime-int)
+    using uint16_t      =  unsigned short;                    // NOLINT(google-runtime-int)
+    using uint32_t      =  unsigned int;                      // NOLINT(google-runtime-int)
+
+    #ifdef F_64
+        using  int64_t      =           long int;             // NOLINT(google-runtime-int)
+        using uint64_t      =  unsigned long int;             // NOLINT(google-runtime-int)
+    #else
+        using  int64_t      =           long long int;        // NOLINT(google-runtime-int)
+        using uint64_t      =  unsigned long long int;        // NOLINT(google-runtime-int)
+    #endif
+
+    static_assert(sizeof(int8_t  ) == 8  / 8, "Invalid int8_t size"  );
+    static_assert(sizeof(int16_t ) == 16 / 8, "Invalid int16_t size" );
+    static_assert(sizeof(int32_t ) == 32 / 8, "Invalid int32_t size" );
+    static_assert(sizeof(int64_t ) == 64 / 8, "Invalid int64_t size" );
+    static_assert(sizeof(uint8_t ) == 8  / 8, "Invalid uint8_t size" );
+    static_assert(sizeof(uint16_t) == 16 / 8, "Invalid uint16_t size");
+    static_assert(sizeof(uint32_t) == 32 / 8, "Invalid uint32_t size");
+    static_assert(sizeof(uint64_t) == 64 / 8, "Invalid uint64_t size");
+
 
     #ifdef F_64
        using intmax_t   =  int64_t;

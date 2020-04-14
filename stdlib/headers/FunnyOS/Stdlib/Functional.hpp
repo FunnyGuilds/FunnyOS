@@ -1,77 +1,35 @@
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_FUNCTIONAL_HPP
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_FUNCTIONAL_HPP
 
+// Iterator support
+#define HAS_STANDARD_ITERATORS               \
+    using iterator = Iterator;               \
+    using const_iterator = ConstIterator;    \
+    iterator begin() {                       \
+        return this->Begin();                \
+    }                                        \
+    iterator end() {                         \
+        return this->End();                  \
+    }                                        \
+    constexpr const_iterator begin() const { \
+        return this->Begin();                \
+    }                                        \
+    constexpr const_iterator end() const {   \
+        return this->End();                  \
+    }
+
 #include "System.hpp"
 #include "Utility.hpp"
+#include "InitializerList.tcc"
 
 namespace FunnyOS::Stdlib {
 
-    struct InPlaceConstructor {
-        constexpr static const InPlaceConstructor* Value = static_cast<const InPlaceConstructor*>(nullptr);
-    };
-
     /**
-     * Represents an arbitrary object wrapper that may or may not be initialized.
-     *
-     * @tparam T type of the underlying object
+     * An object of type initializer_list<T> is a lightweight proxy object that provides access to an array of objects
+     * of type const T.
      */
     template <typename T>
-    class Storage {
-       public:
-        COPYABLE(Storage);
-        MOVEABLE(Storage);
-
-        /**
-         * Create an empty, un-initialized storage.
-         */
-        inline Storage() noexcept;
-
-        /**
-         * Destructs the contained object if it was initialized.
-         */
-        ~Storage();
-
-        /**
-         * Create a storage based on a copy of the supplied value.
-         */
-        inline explicit Storage(T&& value);
-
-        /**
-         * Create the Storage object in-place using the supplied arguments
-         * @tparam Args arguments to pass to the constructor
-         * @param args arguments to pass to the constructor
-         */
-        template <typename... Args>
-        inline explicit Storage(const InPlaceConstructor* /*unused*/, Args&&... args);
-
-        /**
-         * Converts this storage to the type of the underlying object
-         *
-         * @return the underlying object
-         */
-        [[nodiscard]] inline T& GetObject();
-
-        /**
-         * Converts this storage to the type of the underlying object
-         *
-         * @return the underlying object
-         */
-        [[nodiscard]] inline const T& GetObject() const;
-
-        /**
-         * Returns whether or not this storage was initialized.
-         *
-         * @return whether or not this storage was initialized.
-         */
-        [[nodiscard]] bool IsInitialized() const;
-
-       private:
-        void Destroy();
-
-       private:
-        uint8_t m_data[sizeof(T)]{0};
-        bool m_initialized;
-    };
+    using InitializerList = std::initializer_list<T>;
 
     /**
      * Thrown when an empty optional is accessed improperly.
@@ -114,7 +72,7 @@ namespace FunnyOS::Stdlib {
         /**
          * Constructs an optional and initializes it using the provided value.
          */
-        template <typename U = T, typename = EnableIf<IsSame<RemoveReference<T>, RemoveReference<U>>>>  // TODO
+        template <typename U = T, typename = EnableIf<!IsSame<U, NullOptionalType>>>
         inline Optional(U&& value);
 
         /**
