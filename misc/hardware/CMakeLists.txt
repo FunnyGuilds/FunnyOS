@@ -26,7 +26,7 @@ setup_library(FunnyOS_Misc_Hardware32)
 target_compile_options(FunnyOS_Misc_Hardware32_ASM PRIVATE -f elf)
 target_link_libraries(FunnyOS_Misc_Hardware32
         PUBLIC
-            FunnyOS::Stdlib::Base32_Static
+            FunnyOS::Stdlib::Base32_Static_LL
             FunnyOS::Misc::TerminalManager32
 )
 add_library(FunnyOS::Misc::Hardware32 ALIAS FunnyOS_Misc_Hardware32)
@@ -36,7 +36,7 @@ if (F_COMPILE64)
     target_compile_options(FunnyOS_Misc_Hardware64_ASM PRIVATE -f elf64)
     target_link_libraries(FunnyOS_Misc_Hardware64
             PUBLIC
-                FunnyOS::Stdlib::Base64_Static
+                FunnyOS::Stdlib::Base64_Static_LL
                 FunnyOS::Misc::TerminalManager64
     )
     add_library(FunnyOS::Misc::Hardware64 ALIAS FunnyOS_Misc_Hardware64)

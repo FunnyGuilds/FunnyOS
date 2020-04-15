@@ -25,11 +25,9 @@ set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES
         LINK_OPTIONS "${F_BOOTLOADER_LINK_FLAGS};-T;${CMAKE_CURRENT_SOURCE_DIR}/bootloader32.lds;-m32;-Wl,--gc-sections"
 )
 
-target_compile_options(FunnyOS_Bootloader_Bootloader32 PRIVATE -Os -m32 -fno-pie -ffunction-sections -fdata-sections)
-
 target_link_libraries(FunnyOS_Bootloader_Bootloader32
         PUBLIC
-            FunnyOS::Stdlib::Base32_Static
+            FunnyOS::Stdlib::Base32_Static_LL
             FunnyOS::Bootloader::Commons32
 )
 

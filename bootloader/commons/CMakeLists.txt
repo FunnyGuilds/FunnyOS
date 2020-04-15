@@ -10,8 +10,6 @@ set(SOURCES
 function(setup_library name)
     add_library(${name} STATIC ${SOURCES})
 
-    target_compile_options(${name} PUBLIC -Os -fno-pie)
-
     target_include_directories(${name}
             PUBLIC
                 "${CMAKE_CURRENT_SOURCE_DIR}/headers"
@@ -22,7 +20,7 @@ setup_library(FunnyOS_Bootloader_Commons32)
 target_compile_options(FunnyOS_Bootloader_Commons32 PUBLIC -m32)
 target_link_libraries(FunnyOS_Bootloader_Commons32
         PUBLIC
-            FunnyOS::Stdlib::Base32_Static
+            FunnyOS::Stdlib::Base32_Static_LL
             FunnyOS::Misc::Hardware32
             FunnyOS::Misc::TerminalManager32
 )
@@ -32,7 +30,7 @@ if(F_COMPILE64)
     setup_library(FunnyOS_Bootloader_Commons64)
     target_link_libraries(FunnyOS_Bootloader_Commons64
             PUBLIC
-                FunnyOS::Stdlib::Base64_Static
+                FunnyOS::Stdlib::Base64_Static_LL
                 FunnyOS::Misc::Hardware64
                 FunnyOS::Misc::TerminalManager64
     )
