@@ -12,10 +12,10 @@
 namespace FunnyOS::Stdlib::NumeralTraits::Detail {
     template <typename T> struct IsInteger : False {};
 
-    template <> struct IsInteger<char              > : True {};
-    template <> struct IsInteger<short             > : True {};
-    template <> struct IsInteger<int               > : True {};
-    template <> struct IsInteger<long              > : True {};
+    template <> struct IsInteger<  signed char     > : True {};
+    template <> struct IsInteger<         short    > : True {};
+    template <> struct IsInteger<         int      > : True {};
+    template <> struct IsInteger<         long     > : True {};
     template <> struct IsInteger<unsigned char     > : True {};
     template <> struct IsInteger<unsigned short    > : True {};
     template <> struct IsInteger<unsigned int      > : True {};

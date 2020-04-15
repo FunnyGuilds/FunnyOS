@@ -5,7 +5,7 @@
 
 namespace FunnyOS::Stdlib {
     // clang-format off
-    using  int8_t       =           char;                     // NOLINT(google-runtime-int)
+    using  int8_t       =    signed char;                     // NOLINT(google-runtime-int)
     using  int16_t      =           short;                    // NOLINT(google-runtime-int)
     using  int32_t      =           int;                      // NOLINT(google-runtime-int)
     using uint8_t       =  unsigned char;                     // NOLINT(google-runtime-int)
