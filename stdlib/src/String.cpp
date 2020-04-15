@@ -304,7 +304,6 @@ namespace FunnyOS::Stdlib::String {
                     return false;
                 }
 
-                bufferCharacter++;
                 continue;
             }
 
