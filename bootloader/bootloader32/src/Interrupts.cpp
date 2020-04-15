@@ -4,8 +4,8 @@
 #include <FunnyOS/Hardware/Interrupts.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
-#include <FunnyOS/Hardware/InputOutput.hpp>
-#include <FunnyOS/Hardware/Serial.hpp>
+#include <FunnyOS/Hardware/PS2.hpp>
+
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
@@ -90,22 +90,27 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::GetBootloader()->Panic(panicBuffer.Data);
     }
 
-    void Keyboardhandler(HW::InterruptData* data) {
-        HW::InputOutput::InputByte(0x64);
-        HW::InputOutput::InputByte(0x60);
-        FB_LOG_WARNING("Keyboard interrupt!");
+    void KeyboardHandler(HW::InterruptData*) {
+        HW::PS2::ScanCode scanCode;
+        if (!HW::PS2::TryReadScanCode(scanCode)) {
+            return;
+        }
+
+        FB_LOG_WARNING_F("Scan code: 0x%04hx!", scanCode);
     }
 
-    void NoOpHandler(HW::InterruptData*) {}
+    void NoOpHandler(HW::InterruptData* d) {
+        Stdlib::System::ReportError("Int %u", d->Type);
+    }
 
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &Bootloader::PITInterruptHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &Keyboardhandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &KeyboardHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CascadeInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &HW::Serial::SerialInterruptHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &HW::Serial::SerialInterruptHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &NoOpHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT2_Interrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_FloppyInterrupt, &NoOpHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT1_Interrupt, &NoOpHandler);

@@ -7,6 +7,7 @@
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
 #include <FunnyOS/Hardware/CMOS.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
+#include <FunnyOS/Hardware/PS2.hpp>
 #include "Interrupts.hpp"
 #include "A20Line.hpp"
 
@@ -19,10 +20,40 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::BootloaderType::Main(args);
         SetupInterrupts();
         Bootloader::SetupPIT();
+        FB_LOG_INFO("FunnyOS Bootloader, hello!");
+
+        if (!HW::PS2::InitializeKeyboard()) {
+            FB_LOG_WARNING("Couldn't initialize keyboard");
+        }
+
+        // TODO: Move this
+        FB_LOG_DEBUG("Printing memory map");
+        for (size_t i = 0; i < args.MemoryMapEntriesCount; i++) {
+            auto* entry = reinterpret_cast<Bootloader::BootloaderParameters::MemoryMapEntry*>(args.MemoryMapStart) + i;
+            const char* type;
+            switch (entry->Type) {
+                case Bootloader::BootloaderParameters::MemoryMapEntryType::AvailableMemory:
+                    type = "Available";
+                    break;
+                case Bootloader::BootloaderParameters::MemoryMapEntryType::ReservedMemory:
+                    type = "Reserved";
+                    break;
+                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPIReclaimMemory:
+                    type = "ACPIReclaimable";
+                    break;
+                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPINVSMemory:
+                    type = "ACPINVS";
+                    break;
+                default:
+                    type = "Unknown";
+                    break;
+            }
+
+            FB_LOG_DEBUG_F(" at 0x%016llx - 0x%016llx b - %s", entry->BaseAddress, entry->Length, type);
+        }
 
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 
-        FB_LOG_INFO("FunnyOS Bootloader, hello!");
         FB_LOG_INFO("Version: " FUNNYOS_VERSION);
         FB_LOG_INFO_F("Current date is: %04u/%02u/%02u %02u:%02u", time.Year, time.Month, time.DayOfMonth, time.Hours,
                       time.Minutes);
@@ -42,7 +73,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         String::StringBuffer buf = Memory::AllocateBuffer<char>(10);
-        for (size_t i = 0 ; i < 10 ; i++) {
+        for (size_t i = 0; i < 10; i++) {
             String::IntegerToString(buf, i);
             FB_LOG_INFO(buf.Data);
             Bootloader::Sleep(1000);
@@ -76,8 +107,7 @@ namespace FunnyOS::Bootloader32 {
     }
 
     [[noreturn]] void Bootloader32Type::Halt() {
-        HW::DisableHardwareInterrupts();
-        FB_LOG_FATAL("Booting failed.");
+//        HW::DisableHardwareInterrupts(); TODO
 
         for (;;) {
             HW::CPU::Halt();

@@ -2,6 +2,7 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
+#include <FunnyOS/Hardware/PS2.hpp>
 #include <FunnyOS/BootloaderCommons/Logging.hpp>
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
@@ -43,14 +44,15 @@ namespace FunnyOS::Bootloader32::A20 {
         OutputByte(PORT_FAST2A20, value);
     }
 
-    void EnableA20Traditionally() {
-        HW::NoInterruptsBlock noInterrupts;
+    void EnableA20ViaEEPort() {
+        HW::InputOutput::InputByte(0xEE);
+    }
 
-        // TODO
+    void EnableA20Traditionally() {
+        HW::PS2::EnableA20();
     }
 
     void TryEnable() {
-
         for (size_t i = 0; i < 3; i++) {
             EnableA20Traditionally();
             Bootloader::Sleep(100);
@@ -66,6 +68,15 @@ namespace FunnyOS::Bootloader32::A20 {
 
         FB_LOG_DEBUG("Using the fast A20 gate");
         EnableA20WithFastA20();
+        Bootloader::Sleep(100);
+
+        if (IsEnabled()) {
+            return;
+        }
+        FB_LOG_DEBUG("... Failed");
+
+        FB_LOG_DEBUG("Using the EE port");
+        EnableA20ViaEEPort();
         Bootloader::Sleep(100);
 
         if (IsEnabled()) {

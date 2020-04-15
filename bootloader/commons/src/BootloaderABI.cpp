@@ -58,7 +58,8 @@ void __cxa_throw(void* thrown_exception, void* /*tinfo*/, void (*/*dest*/)(void*
     // We can assume that any exception thrown will actually inherit stdlib's System::Exception
     auto* exception = reinterpret_cast<System::Exception*>(thrown_exception);
 
-    Memory::SizedBuffer<char> outputBuffer = Memory::AllocateBuffer<char>(String::Length(c_prologue) + String::Length(exception->GetMessage()) + 1);
+    Memory::SizedBuffer<char> outputBuffer =
+        Memory::AllocateBuffer<char>(String::Length(c_prologue) + String::Length(exception->GetMessage()) + 1);
 
     bool noMemory = false;
     if (outputBuffer.Data == nullptr) {
@@ -103,4 +104,12 @@ void __cxa_guard_release(uint32_t* g) {
 }
 
 void __cxa_guard_abort(uint32_t*) {}
+}
+
+// Global destruction
+void* __dso_handle = nullptr;
+
+// Shared library stuff
+extern "C" int __cxa_atexit(void (*)(void*), void*, void*) {
+    return 0;
 }

@@ -8,23 +8,6 @@
 namespace FunnyOS::Bootloader::Logging {
     using namespace Misc::TerminalManager;
 
-    // TODO: Enable this conditionally.
-    void WriteToSerial(const char* data) {
-        using namespace HW::Serial;
-
-        static bool c_serialInitialized = false;
-
-        if (!c_serialInitialized) {
-            InitializeCOMPort(COMPort::COM1, DataBits::BITS_8, StopBits::STOP_1, ParityBits::NONE, 115200);
-        }
-
-        for (size_t i = 0 ; data[i] != 0 ; i++) {
-            while (!CanWrite(COMPort::COM1)) {
-            }
-            Write(COMPort::COM1, data[i]);
-        }
-    }
-
     /**
      * Colors for the tags of the specific log levels.
      */
@@ -57,8 +40,6 @@ namespace FunnyOS::Bootloader::Logging {
         // Actual tag
         terminal->ChangeForegroundColor(g_logLevelColors[static_cast<int>(level)]);
         terminal->PrintString(g_logLevelNames[static_cast<int>(level)]);
-        WriteToSerial(g_logLevelNames[static_cast<int>(level)]);
-        WriteToSerial(" - ");
 
         // Tag finish
         terminal->ChangeForegroundColor(Color::White);
@@ -68,8 +49,6 @@ namespace FunnyOS::Bootloader::Logging {
         terminal->ChangeForegroundColor(preservedColor);
         terminal->PrintString(message);
         terminal->PrintLine();
-        WriteToSerial(message);
-        WriteToSerial("\r\n");
     }
 
     void PostLogFormatted(LogLevel level, const char* format, ...) {
