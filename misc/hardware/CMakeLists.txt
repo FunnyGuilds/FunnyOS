@@ -7,6 +7,7 @@ function(setup_library name)
     add_library(${name} STATIC
             src/InterruptSetup/InterruptSetup.cpp
             src/CMOS.cpp
+            src/PS2.cpp
             src/Interrupts.cpp
             src/PIC.cpp
             src/Serial.cpp
