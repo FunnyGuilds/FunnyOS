@@ -112,7 +112,7 @@ namespace FunnyOS::Stdlib::String {
             String = 's',
             Invalid = 0
         };
-        const char* VALID_SPECIFIERS = "diuoxXcsp";
+        const char* VALID_SPECIFIERS = "diuoxXcs";
 
         struct FormatSpecifier {
             int Flags;
@@ -237,7 +237,7 @@ namespace FunnyOS::Stdlib::String {
                 } else if (specifier.Length == FormatLength::Int32) {
                     FormatProcessSigned<int32_t>(buffer, va_arg(*list, int32_t), radix, isNegative);
                 } else if (specifier.Length == FormatLength::Int64) {
-                    FormatProcessSigned<int8_t>(buffer, va_arg(*list, int64_t), radix, isNegative);
+                    FormatProcessSigned<int64_t>(buffer, va_arg(*list, int64_t), radix, isNegative);
                 } else if (specifier.Length == FormatLength::IntMax) {
                     FormatProcessSigned<intmax_t>(buffer, va_arg(*list, intmax_t), radix, isNegative);
                 } else if (specifier.Length == FormatLength::SizeT) {
@@ -253,7 +253,7 @@ namespace FunnyOS::Stdlib::String {
                 } else if (specifier.Length == FormatLength::Int32) {
                     IntegerToString<uint32_t>(buffer, va_arg(*list, uint32_t), radix);
                 } else if (specifier.Length == FormatLength::Int64) {
-                    IntegerToString<uint8_t>(buffer, va_arg(*list, uint64_t), radix);
+                    IntegerToString<uint64_t>(buffer, va_arg(*list, uint64_t), radix);
                 } else if (specifier.Length == FormatLength::IntMax) {
                     IntegerToString<uintmax_t>(buffer, va_arg(*list, uintmax_t), radix);
                 } else if (specifier.Length == FormatLength::SizeT) {
@@ -304,6 +304,7 @@ namespace FunnyOS::Stdlib::String {
                     return false;
                 }
 
+                bufferCharacter++;
                 continue;
             }
 

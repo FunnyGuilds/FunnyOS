@@ -22,13 +22,16 @@ namespace FunnyOS::Stdlib::String {
 
         // If the number is negative just append '-' at the beginning and convert [-integer] to string.
         if (integer < 0) {
+            using UnsignedType = ToUnsigned<Integer>;
+
             buffer.Data[0] = '-';
             StringBuffer wrapperBuffer{buffer.Data + 1, buffer.Size - 1};
-            return IntegerToString(wrapperBuffer, -integer, radix);
+            return IntegerToString<UnsignedType>(wrapperBuffer, static_cast<UnsignedType>(-integer), radix);
         }
 
         // Find the highest divisor
         Integer highestDivisor = 1;
+
         while (integer / highestDivisor >= radix) {
             highestDivisor *= radix;
         }
@@ -60,7 +63,7 @@ namespace FunnyOS::Stdlib::String {
     bool IntegerToHex(StringBuffer& buffer, Integer integer) noexcept {
         const char* NUMBER_CHARACTERS = "0123456789ABCDEF";
 
-        // Check output buffeer size
+        // Check output buffer size
         const size_t intSize = sizeof(Integer);
         if (buffer.Size < intSize * 2 + 1) {
             return false;

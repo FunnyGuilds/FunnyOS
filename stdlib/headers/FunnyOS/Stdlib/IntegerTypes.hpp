@@ -29,7 +29,6 @@ namespace FunnyOS::Stdlib {
     static_assert(sizeof(uint32_t) == 32 / 8, "Invalid uint32_t size");
     static_assert(sizeof(uint64_t) == 64 / 8, "Invalid uint64_t size");
 
-
     #ifdef F_64
        using intmax_t   =  int64_t;
        using uintmax_t  = uint64_t;
@@ -44,6 +43,42 @@ namespace FunnyOS::Stdlib {
     using  intptr_t   =  intmax_t;
     using uintptr_t   = uintmax_t;
     using ptrdiff_t  = intptr_t;
+
+
+    namespace Detail {
+        template <typename T> struct ToUnsigned {};
+        template <typename T> struct ToSigned {};
+
+        template<> struct ToUnsigned< int8_t > : HasType<uint8_t > {};
+        template<> struct ToUnsigned< int16_t> : HasType<uint16_t> {};
+        template<> struct ToUnsigned< int32_t> : HasType<uint32_t> {};
+        template<> struct ToUnsigned< int64_t> : HasType<uint64_t> {};
+        template<> struct ToUnsigned<uint8_t > : HasType<uint8_t > {};
+        template<> struct ToUnsigned<uint16_t> : HasType<uint16_t> {};
+        template<> struct ToUnsigned<uint32_t> : HasType<uint32_t> {};
+        template<> struct ToUnsigned<uint64_t> : HasType<uint64_t> {};
+
+        template<> struct ToSigned<uint8_t > : HasType<int8_t > {};
+        template<> struct ToSigned<uint16_t> : HasType<int16_t> {};
+        template<> struct ToSigned<uint32_t> : HasType<int32_t> {};
+        template<> struct ToSigned<uint64_t> : HasType<int64_t> {};
+        template<> struct ToSigned< int8_t > : HasType<int8_t > {};
+        template<> struct ToSigned< int16_t> : HasType<int16_t> {};
+        template<> struct ToSigned< int32_t> : HasType<int32_t> {};
+        template<> struct ToSigned< int64_t> : HasType<int64_t> {};
+    }
+
+    /**
+     * An unsigned equivalent of type T
+     */
+    template <typename T>
+    using ToUnsigned = typename Detail::ToUnsigned<T>::Type;
+
+    /**
+     * A signed equivalent of type T
+     */
+    template <typename T>
+    using ToSigned = typename Detail::ToSigned<T>::Type;
 
     namespace NumeralTraits {
         /**
