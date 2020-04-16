@@ -1,8 +1,9 @@
 #ifndef FUNNYOS_MISC_TERMINALMANAGER_HEADERS_FUNNYOS_MISC_TERMINALMANAGER_ITERMINALINTERFACE_HPP
 #define FUNNYOS_MISC_TERMINALMANAGER_HEADERS_FUNNYOS_MISC_TERMINALMANAGER_ITERMINALINTERFACE_HPP
 
-#include <FunnyOS/Stdlib/System.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
+#include <FunnyOS/Stdlib/Memory.hpp>
+#include <FunnyOS/Stdlib/System.hpp>
 
 namespace FunnyOS::Misc::TerminalManager {
     /**
@@ -60,6 +61,22 @@ namespace FunnyOS::Misc::TerminalManager {
      */
     class ITerminalInterface {
        public:
+        /**
+         * Allocates a buffer containing all data about the current state of the screen.
+         * It can be later used to restore screen status via RestoreScreenData
+         *
+         * @return buffer with screen data
+         */
+        [[nodiscard]] virtual Stdlib::Memory::SizedBuffer<uint8_t> SaveScreenData() const noexcept = 0;
+
+        /**
+         * Restores screen data previously saved via SaveScreenData.
+         * This function FREES the buffer after restoring data.
+         *
+         * @param buffer buffer with data to restore
+         */
+        virtual void RestoreScreenData(Stdlib::Memory::SizedBuffer<uint8_t>& buffer) noexcept = 0;
+
         /**
          * @return width of the screen
          */

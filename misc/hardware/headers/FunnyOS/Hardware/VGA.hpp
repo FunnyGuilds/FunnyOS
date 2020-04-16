@@ -14,6 +14,10 @@ namespace FunnyOS::HW {
         using CharacterData = Misc::TerminalManager::CharacterData;
 
        public:
+        [[nodiscard]] Stdlib::Memory::SizedBuffer<uint8_t> SaveScreenData() const noexcept override;
+
+        void RestoreScreenData(Stdlib::Memory::SizedBuffer<uint8_t>& buffer) noexcept override;
+
         [[nodiscard]] uint8_t GetScreenWidth() const noexcept override;
 
         [[nodiscard]] uint8_t GetScreenHeight() const noexcept override;
