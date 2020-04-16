@@ -169,33 +169,97 @@ namespace FunnyOS::HW {
      */
     using InterruptHandler = void (*)(InterruptData* data);
 
+    /**
+     * Sets a handler for the specified interrupt type.
+     * It will replace the previous handler.
+     *
+     * @param type type of the interrupt.
+     * @param handler new handler
+     */
     void RegisterInterruptHandler(InterruptType type, InterruptHandler handler);
 
+    /**
+     * Removes a handler for the specified interrupt type making the interrupt being handled by the Unknown Interrupt
+     * Handler.
+     *
+     * @param type type of the interrupt.
+     */
     void UnregisterInterruptHandler(InterruptType type);
 
+    /**
+     * Registers a handler for all interrupts that do not have their own handlers registered.
+     * It will replace the previous handler.
+     *
+     * @param handler new handler
+     */
     void RegisterUnknownInterruptHandler(InterruptHandler handler);
 
+    /**
+     * Sets up and loads the Interrupt Descriptor Table.
+     *
+     * Must be called once for the InterruptHandlers to work.
+     */
     void SetupInterrupts();
 
+    /**
+     * Sets the IF flag in FLAGS register.
+     *
+     * If this flag is set the maskable hardware interrupts will be handled.
+     */
     F_ALWAYS_INLINE inline void EnableHardwareInterrupts();
 
+    /**
+     * Clears the IF flag in FLAGS register.
+     *
+     * If this flag is cleared the maskable hardware interrupts will be ignored.
+     */
     F_ALWAYS_INLINE inline void DisableHardwareInterrupts();
 
+    /**
+     * Retruns whether or not the IF flag in FLAGS register is set.
+     *
+     * @return whether or not the IF flag in FLAGS register is set.
+     */
     F_ALWAYS_INLINE inline bool HardwareInterruptsEnabled();
 
+    /**
+     * Enables the non-maskable interrupt handling by clearing the NMI disable flag in CMOS.
+     *
+     * If this flag is cleared the CPU wil generate int 2 when a non-maskable interrupt happen.
+     */
     F_ALWAYS_INLINE inline void EnableNonMaskableInterrupts();
 
+    /**
+     * Disables the non-maskable interrupt handling by setting the NMI disable flag in CMOS.
+     *
+     * If this flag is set the CPU will ignore non-maskable interrupt.
+     * The NMIs should never be disabled for an extended periods of time and should be always properly handled.
+     */
     F_ALWAYS_INLINE inline void DisableNonMaskableInterrupts();
 
+    /**
+     * Checks whether or not the CPU handles non-maskable interrupts.
+     *
+     * @return  whether or not the CPU handles non-maskable interrupts
+     */
     F_ALWAYS_INLINE inline bool NonMaskableInterruptsEnabled();
 
+    /**
+     * RAII class for disabling interrupts for specific blocks.
+     */
     class NoInterruptsBlock {
        public:
         NON_MOVEABLE(NoInterruptsBlock);
         NON_COPYABLE(NoInterruptsBlock);
 
+        /**
+         * Disables the interrupts (including NMIs) if they are enabled.
+         */
         NoInterruptsBlock();
 
+        /**
+         * Enables the interrupts (including NMIs) if they were enabled when the constructor was called.
+         */
         ~NoInterruptsBlock();
 
        private:

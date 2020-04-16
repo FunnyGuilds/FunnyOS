@@ -13,17 +13,16 @@ namespace FunnyOS::HW {
         constexpr const uint8_t NMI_DISABLE_FLAG = 0b1000000;
     }  // namespace
 
-    inline void EnableHardwareInterrupts() {
 #ifdef __GNUC__
+    inline void EnableHardwareInterrupts() {
         asm volatile("sti");
-#endif
     }
 
     inline void DisableHardwareInterrupts() {
-#ifdef __GNUC__
         asm volatile("cli");
-#endif
     }
+#endif
+
 
     inline bool HardwareInterruptsEnabled() {
         return (CPU::GetFlagsRegister() & CPU::Flags::InterruptFlag) != 0;
