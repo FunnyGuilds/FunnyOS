@@ -10,6 +10,7 @@
 #include <FunnyOS/BootloaderCommons/Sleep.hpp>
 
 #include "Bootloader32.hpp"
+#include "DebugMenu.hpp"
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
@@ -90,13 +91,25 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::GetBootloader()->Panic(panicBuffer.Data);
     }
 
-    void KeyboardHandler(HW::InterruptData*) {
-        HW::PS2::ScanCode scanCode;
-        if (!HW::PS2::TryReadScanCode(scanCode)) {
-            return;
-        }
+    void KeyboardHandler(HW::InterruptData* data) {
+        using HW::PS2::ScanCode;
 
-        FB_LOG_WARNING_F("Scan code: 0x%04hx!", scanCode);
+        ScanCode scanCode;
+        while (HW::PS2::TryReadScanCode(scanCode)) {
+            if (scanCode == ScanCode::Pause_Pressed) {
+                FB_LOG_WARNING_F("Execution paused at EIP = 0x%04x", data->EIP);
+                FB_LOG_WARNING("Press enter to continue ...");
+
+                while (!HW::PS2::TryReadScanCode(scanCode) || scanCode != ScanCode::Enter_Released) {
+                    // Wait
+                }
+
+                FB_LOG_OK("Continuing");
+                return;
+            }
+
+            DebugMenu::HandleKey(scanCode);
+        }
     }
 
     void NoOpHandler(HW::InterruptData* d) {

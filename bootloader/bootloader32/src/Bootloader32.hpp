@@ -11,7 +11,9 @@ namespace FunnyOS::Bootloader32 {
     class Bootloader32Type : public Bootloader::BootloaderType {
        public:
 
-        [[noreturn]] void Main(const FunnyOS::Bootloader::BootloaderParameters& args) override;
+        [[nodiscard]] const FunnyOS::Bootloader::BootloaderParameters& GetBootloaderParameters() override;
+
+        [[noreturn]] void Main() override;
 
         [[noreturn]] F_NEVER_INLINE void Panic(const char* details) override;
 

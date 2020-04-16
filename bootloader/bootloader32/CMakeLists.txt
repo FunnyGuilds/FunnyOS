@@ -10,10 +10,12 @@ target_compile_options(FunnyOS_Bootloader_Bootloader32_ASM PRIVATE -f elf)
 # Create .elf executable
 add_executable(FunnyOS_Bootloader_Bootloader32
         $<TARGET_OBJECTS:FunnyOS_Bootloader_Bootloader32_ASM>
-        src/Entry.cpp
         src/A20Line.cpp
-        src/Interrupts.cpp
         src/Bootloader32.cpp
+        src/DebugMenu.cpp
+        src/DebugModeOptions.cpp
+        src/Entry.cpp
+        src/Interrupts.cpp
 )
 
 set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES

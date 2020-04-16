@@ -8,18 +8,30 @@
 namespace FunnyOS::Bootloader::Logging {
     using namespace Misc::TerminalManager;
 
-    /**
-     * Colors for the tags of the specific log levels.
-     */
-    static Color g_logLevelColors[] = {Color::Cyan,   Color::LightBlue, Color::LightGreen,
-                                       Color::Yellow, Color::LightRed,  Color::Red};
+    namespace {
+        /**
+         * Colors for the tags of the specific log levels.
+         */
+        Color g_logLevelColors[] = {Color::Cyan,   Color::LightBlue, Color::LightGreen,
+                                    Color::Yellow, Color::LightRed,  Color::Red};
 
-    /**
-     * Tags for the specific log levels.
-     */
-    static const char* g_logLevelNames[] = {
-        " DBG", "INFO", " OK ", "WARN", " ERR", "FAIL",
-    };
+        /**
+         * Tags for the specific log levels.
+         */
+        const char* g_logLevelNames[] = {
+            " DBG", "INFO", " OK ", "WARN", " ERR", "FAIL",
+        };
+
+        bool g_debugModeEnabled = false;
+    }  // namespace
+
+    bool IsDebugModeEnabled() {
+        return g_debugModeEnabled;
+    }
+
+    void SetDebugModeEnabled(bool enabled) {
+        g_debugModeEnabled = enabled;
+    }
 
     Misc::TerminalManager::TerminalManager* GetTerminalManager() {
         static HW::VGAInterface c_interface{};
@@ -29,6 +41,10 @@ namespace FunnyOS::Bootloader::Logging {
     }
 
     void PostLog(LogLevel level, const char* message) {
+        if (level == LogLevel::Debug && !g_debugModeEnabled) {
+            return;
+        }
+
         TerminalManager* terminal = GetTerminalManager();
 
         const Color preservedColor = terminal->GetForegroundColor();

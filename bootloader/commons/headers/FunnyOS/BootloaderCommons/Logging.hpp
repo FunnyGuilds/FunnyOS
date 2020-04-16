@@ -12,6 +12,19 @@ namespace FunnyOS::Bootloader::Logging {
     enum class LogLevel { Debug, Info, Ok, Warning, Error, Fatal };
 
     /**
+     * Returns whether or not logging debug mode is enabled. (Debug messages are actually printed on the screen)
+     * @return whether or not logging debug mode is enabled.
+     */
+    [[nodiscard]] bool IsDebugModeEnabled();
+
+    /**
+     * Sets whether or not logging debug mode is enabled.
+     *
+     * @param enabled whether or not to enable it
+     */
+    void SetDebugModeEnabled(bool enabled);
+
+    /**
      * Gets the TerminalManager instance used by the logging system.
      */
     Misc::TerminalManager::TerminalManager* GetTerminalManager();

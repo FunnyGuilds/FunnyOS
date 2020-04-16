@@ -8,56 +8,47 @@
 #include <FunnyOS/Hardware/CMOS.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
-#include "Interrupts.hpp"
 #include "A20Line.hpp"
+#include "DebugMenu.hpp"
+#include "Interrupts.hpp"
 
 #define _NO_RETURN for (;;)
+
+// Defined in real_mode_intro.asm
+extern const FunnyOS::Bootloader::BootloaderParameters bootloader_parameters;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
-    [[noreturn]] void Bootloader32Type::Main(const Bootloader::BootloaderParameters& args) {
-        Bootloader::BootloaderType::Main(args);
+    const FunnyOS::Bootloader::BootloaderParameters& Bootloader32Type::GetBootloaderParameters() {
+        return bootloader_parameters;
+    }
+
+    [[noreturn]] void Bootloader32Type::Main() {
+        Bootloader::BootloaderType::Main();
         SetupInterrupts();
         Bootloader::SetupPIT();
         FB_LOG_INFO("FunnyOS Bootloader, hello!");
-
-        if (!HW::PS2::InitializeKeyboard()) {
-            FB_LOG_WARNING("Couldn't initialize keyboard");
-        }
-
-        // TODO: Move this
-        FB_LOG_DEBUG("Printing memory map");
-        for (size_t i = 0; i < args.MemoryMapEntriesCount; i++) {
-            auto* entry = reinterpret_cast<Bootloader::BootloaderParameters::MemoryMapEntry*>(args.MemoryMapStart) + i;
-            const char* type;
-            switch (entry->Type) {
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::AvailableMemory:
-                    type = "Available";
-                    break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ReservedMemory:
-                    type = "Reserved";
-                    break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPIReclaimMemory:
-                    type = "ACPIReclaimable";
-                    break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPINVSMemory:
-                    type = "ACPINVS";
-                    break;
-                default:
-                    type = "Unknown";
-                    break;
-            }
-
-            FB_LOG_DEBUG_F(" at 0x%016llx - 0x%016llx b - %s", entry->BaseAddress, entry->Length, type);
-        }
-
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 
         FB_LOG_INFO("Version: " FUNNYOS_VERSION);
         FB_LOG_INFO_F("Current date is: %04u/%02u/%02u %02u:%02u", time.Year, time.Month, time.DayOfMonth, time.Hours,
                       time.Minutes);
-        FB_LOG_DEBUG("Debugging is enabled!");
+
+        for (int i = 0; i < 3; i++) {
+            if (HW::PS2::InitializeKeyboard()) {
+                break;
+            }
+
+            FB_LOG_WARNING_F("Couldn't initialize keyboard, try %d/3", i + 1);
+            Bootloader::Sleep(100);
+        }
+
+        // Debug menu
+        Bootloader::Sleep(1000);
+        if (DebugMenu::MenuRequested()) {
+            DebugMenu::Enter();
+        }
 
         if (Bootloader32::A20::IsEnabled()) {
             FB_LOG_DEBUG("A20 line is already enabled!");
@@ -107,7 +98,7 @@ namespace FunnyOS::Bootloader32 {
     }
 
     [[noreturn]] void Bootloader32Type::Halt() {
-//        HW::DisableHardwareInterrupts(); TODO
+        //        HW::DisableHardwareInterrupts(); TODO
 
         for (;;) {
             HW::CPU::Halt();

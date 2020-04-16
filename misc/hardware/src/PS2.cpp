@@ -165,6 +165,11 @@ namespace FunnyOS::HW::PS2 {
     bool InitializeKeyboard() {
         HW::NoInterruptsBlock noInterrupts;
 
+        // Read any junk that can be in the register (for example by user mashing buttons)
+        while (CanRead()) {
+            ReadData();
+        }
+
         // Set scan code 2
         WriteDataBlocking(KeyboardCommands::KeyboardSetScancode);
         WriteDataBlocking(2);
@@ -193,63 +198,61 @@ namespace FunnyOS::HW::PS2 {
     }
 
     bool TryReadScanCode(ScanCode& code) {
-        if (!CanRead()) {
-            return false;
-        }
-
-        const uint8_t value = ReadData();
-        if (value == Response::Acknowledged) {
-            return false;
-        }
-
-        if (g_scanCodeBufPosition >= 6) {
-            g_scanCodeBufPosition = 0;
-        }
-
-        g_scanCodeBuffer[g_scanCodeBufPosition] = value;
-
-        if (g_scanCodeBufPosition == 0 && value != 0xE0 && value != 0xE1) {
-            // One-byte scan code
-            g_scanCodeBufPosition = 0;
-            code = static_cast<ScanCode>(g_scanCodeBuffer[0]);
-            return true;
-        }
-
-        if (g_scanCodeBufPosition == 1 && g_scanCodeBuffer[0] == 0xE0) {
-            const uint8_t part = g_scanCodeBuffer[1];
-
-            // Parts of print screen scan code
-            if (part == 0x2A || part == 0xB7) {
-                g_scanCodeBufPosition++;
+        while (CanRead()) {
+            const uint8_t value = ReadData();
+            if (value == Response::Acknowledged) {
                 return false;
             }
 
-            // We have complete 0xE0XX scan code
-            g_scanCodeBufPosition = 0;
-            code = static_cast<ScanCode>(0xE000 | g_scanCodeBuffer[1]);
-            return true;
-        }
+            if (g_scanCodeBufPosition >= 6) {
+                g_scanCodeBufPosition = 0;
+            }
 
-        // Other, special scan codes
-        if (TestForSpecialScanCode(PRINTSCREEN_PRESSED_SCANCODE, sizeof(PRINTSCREEN_PRESSED_SCANCODE))) {
-            g_scanCodeBufPosition = 0;
-            code = ScanCode::PrintScreen_Pressed;
-            return true;
-        }
+            g_scanCodeBuffer[g_scanCodeBufPosition] = value;
 
-        if (TestForSpecialScanCode(PRINTSCREEN_RELEASED_SCANCODE, sizeof(PRINTSCREEN_RELEASED_SCANCODE))) {
-            g_scanCodeBufPosition = 0;
-            code = ScanCode::PrintScreen_Release;
-            return true;
-        }
+            if (g_scanCodeBufPosition == 0 && value != 0xE0 && value != 0xE1) {
+                // One-byte scan code
+                g_scanCodeBufPosition = 0;
+                code = static_cast<ScanCode>(g_scanCodeBuffer[0]);
+                return true;
+            }
 
-        if (TestForSpecialScanCode(PAUSE_PRESSED_SCANCODE, sizeof(PAUSE_PRESSED_SCANCODE))) {
-            g_scanCodeBufPosition = 0;
-            code = ScanCode::Pause_Pressed;
-            return true;
-        }
+            if (g_scanCodeBufPosition == 1 && g_scanCodeBuffer[0] == 0xE0) {
+                const uint8_t part = g_scanCodeBuffer[1];
 
-        g_scanCodeBufPosition++;
+                // Parts of print screen scan code
+                if (part == 0x2A || part == 0xB7) {
+                    g_scanCodeBufPosition++;
+                    return false;
+                }
+
+                // We have complete 0xE0XX scan code
+                g_scanCodeBufPosition = 0;
+                code = static_cast<ScanCode>(0xE000 | g_scanCodeBuffer[1]);
+                return true;
+            }
+
+            // Other, special scan codes
+            if (TestForSpecialScanCode(PRINTSCREEN_PRESSED_SCANCODE, sizeof(PRINTSCREEN_PRESSED_SCANCODE))) {
+                g_scanCodeBufPosition = 0;
+                code = ScanCode::PrintScreen_Pressed;
+                return true;
+            }
+
+            if (TestForSpecialScanCode(PRINTSCREEN_RELEASED_SCANCODE, sizeof(PRINTSCREEN_RELEASED_SCANCODE))) {
+                g_scanCodeBufPosition = 0;
+                code = ScanCode::PrintScreen_Release;
+                return true;
+            }
+
+            if (TestForSpecialScanCode(PAUSE_PRESSED_SCANCODE, sizeof(PAUSE_PRESSED_SCANCODE))) {
+                g_scanCodeBufPosition = 0;
+                code = ScanCode::Pause_Pressed;
+                return true;
+            }
+
+            g_scanCodeBufPosition++;
+        }
 
         return false;
     }

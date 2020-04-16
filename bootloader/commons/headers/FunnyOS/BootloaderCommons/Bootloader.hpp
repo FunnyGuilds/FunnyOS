@@ -12,11 +12,16 @@ namespace FunnyOS::Bootloader {
     class BootloaderType {
        public:
         /**
-         * Bootloader entry point
+         * Returns arguments collected by the pre-bootloader asm code.
          *
-         * @param[in] args arguments collected by the pre-bootloader asm code
+         * @return arguments collected by the pre-bootloader asm code
          */
-        virtual void Main(const BootloaderParameters& args);
+        [[nodiscard]] virtual const FunnyOS::Bootloader::BootloaderParameters& GetBootloaderParameters() = 0;
+
+        /**
+         * Bootloader entry point
+         */
+        virtual void Main();
 
         /**
          * Prints the error in BIG RED TEXT with some additional debugging information and halts the execution.
