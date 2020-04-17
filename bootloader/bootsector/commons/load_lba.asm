@@ -26,7 +26,7 @@ SECTION .text
         mov ah, 0x08                ; get drive parameters
         xor di, di
         int 0x13
-        jc load_lba_ret
+        jc load_lba_fail
 
         ; Calculations
         and cl, 0b00111111
@@ -46,6 +46,8 @@ SECTION .text
         xor bh, bh
         mov bl, cl
         div bx
+        xor dx, dx
+        div ch
         mov [load_lba__head], ah
 
         call load_lba__fetch_address
@@ -69,9 +71,14 @@ SECTION .text
         mov dl, [load_lba__drive]
         pop bx
         int 0x13
-
-        load_lba_ret:
+        jc load_lba_fail
         popa
+        ret
+
+        load_lba_fail:
+        ; Skip registers pushed by pusha
+        add sp, 16
+        stc
         ret
 
         load_lba__fetch_address:
