@@ -34,6 +34,15 @@ namespace FunnyOS::Stdlib::String {
     bool Concat(StringBuffer& buffer, const char* string1, const char* string2) noexcept;
 
     /**
+     * Appends a string at the end of the buffer.
+     *
+     * @param buffer buffer to append the string to
+     * @param string string to append
+     * @return true if buffer had enough capacity to contain the string
+     */
+    bool Append(StringBuffer& buffer, const char* string) noexcept;
+
+    /**
      * Compares up to [length] characters of the string1 to the string2
      * This function starts comparing the first character of each string. If they are equal to each other, it continues
      * with the following pairs until the characters differ, until a terminating null-character is reached, or until num

@@ -31,6 +31,19 @@ namespace FunnyOS::Stdlib::String {
         return true;
     }
 
+    bool Append(StringBuffer& buffer, const char* string) noexcept {
+        const size_t bufferStringLength = Length(buffer.Data);
+        const size_t appendStringLength = Length(string);
+
+        if (buffer.Size < bufferStringLength + appendStringLength + 1) {
+            return false;
+        }
+
+        Memory::Copy(buffer.Data + bufferStringLength, string, appendStringLength);
+        buffer.Data[bufferStringLength + appendStringLength] = 0;
+        return true;
+    }
+
     int Compare(const char* string1, const char* string2, size_t length) noexcept {
         for (size_t i = 0; i < length; i++) {
             const char c1 = *(string1 + i);
