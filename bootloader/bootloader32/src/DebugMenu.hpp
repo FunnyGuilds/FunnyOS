@@ -24,6 +24,12 @@ namespace FunnyOS::Bootloader32::DebugMenu {
      */
     void Enter();
 
+    /**
+     * Selects active submenu.
+     *
+     * @param submenu active submenu index, or -1 if no submenu is active
+     */
+    void SelectCurrentSubmenu(int submenu);
 }  // namespace FunnyOS::Bootloader32::DebugMenu
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DEBUGMENU_HPP

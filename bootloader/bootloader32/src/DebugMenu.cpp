@@ -5,7 +5,7 @@
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 
-#include "DebugModeOptions.hpp"
+#include "DebugMenuOptions.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
     using namespace Stdlib;
@@ -20,6 +20,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
         unsigned int g_menuEnterKeyPressedCount = 0;
         unsigned int g_currentSelection = 0;
+        int g_currentSubmenu = -1;
+
         bool g_menuEnabled = false;
         bool g_exitRequested = false;
 
@@ -55,33 +57,37 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             terminalManager->GetInterface()->SetCursorPosition({0, 4});
         }
 
-        void PrintOption(const MenuOption& option) {
-            char noState[] = "";
+        void PrintOption(const MenuOption* option) {
             auto* terminalManager = Bootloader::Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
-            String::StringBuffer buffer = Memory::AllocateBuffer<char>(screenWidth + 1);
-            String::Concat(buffer, " * ", option.Name);
 
-            char* state = option.FetchState == nullptr ? noState : option.FetchState();
+            String::StringBuffer buffer = Memory::AllocateBufferInitialized<char>(screenWidth + 1);
+            String::StringBuffer stateBuffer = Memory::AllocateBufferInitialized<char>(32);
 
+            String::Append(buffer, " * ");
+            option->FetchName(buffer);
+            option->FetchState(stateBuffer);
+
+            // Padding
             const size_t optionNameLength = String::Length(buffer.Data);
-            const size_t stateLength = String::Length(state);
+            const size_t stateLength = String::Length(stateBuffer.Data);
 
             for (size_t i = optionNameLength; i < screenWidth - stateLength; i++) {
                 *buffer[i] = ' ';
             }
 
-            Memory::Copy(buffer.Data + screenWidth - stateLength, state, stateLength);
-            if (option.FetchState != nullptr) {
-                Memory::Free(state);
-            }
-            buffer.Data[buffer.Size - 1] = 0;
+            String::Append(buffer, stateBuffer.Data);
             terminalManager->PrintString(buffer.Data);
 
             Memory::FreeBuffer(buffer);
+            Memory::FreeBuffer(stateBuffer);
         }
 
         void DrawMenu() {
+            if (g_currentSubmenu != -1) {
+                return;
+            }
+
             auto* terminalManager = Bootloader::Logging::GetTerminalManager();
             PrintHeader("FunnyOS v" FUNNYOS_VERSION " Debug menu");
             terminalManager->PrintLine();
@@ -105,12 +111,17 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             return;
         }
 
+        if (code == MENU_EXIT_KEY) {
+            g_exitRequested = true;
+            return;
+        }
+
         if (!g_menuEnabled) {
             return;
         }
 
-        if (code == MENU_EXIT_KEY) {
-            g_exitRequested = true;
+        if (g_currentSubmenu != -1) {
+            g_menuOptions[g_currentSubmenu]->HandleKey(code);
             return;
         }
 
@@ -120,8 +131,9 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             g_currentSelection++;
         } else if (code == ScanCode::CursorUp_Pressed && g_currentSelection > 0) {
             g_currentSelection--;
-        } else if (code == ScanCode::Enter_Pressed) {
-            g_menuOptions[g_currentSelection].Handle();
+        } else if (code == ScanCode::Enter_Released) {
+            SelectCurrentSubmenu(g_currentSelection);
+            g_menuOptions[g_currentSelection]->Enter();
         } else {
             return;
         }
@@ -150,5 +162,13 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         g_menuEnabled = false;
         FB_LOG_OK("Debugging menu exited successfully!");
         FB_LOG_DEBUG("Debug mode is enabled");
+    }
+
+    void SelectCurrentSubmenu(int submenu) {
+        g_currentSubmenu = submenu;
+
+        if (g_currentSubmenu == -1) {
+            DrawMenu();
+        }
     }
 }  // namespace FunnyOS::Bootloader32::DebugMenu

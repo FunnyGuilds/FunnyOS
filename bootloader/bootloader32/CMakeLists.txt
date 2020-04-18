@@ -13,7 +13,7 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/A20Line.cpp
         src/Bootloader32.cpp
         src/DebugMenu.cpp
-        src/DebugModeOptions.cpp
+        src/DebugMenuOptions.cpp
         src/Entry.cpp
         src/Interrupts.cpp
 )
