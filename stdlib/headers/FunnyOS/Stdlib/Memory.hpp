@@ -93,7 +93,7 @@ namespace FunnyOS::Stdlib::Memory {
     [[nodiscard]] void* AllocateAligned(size_t size, size_t alignment);
 
     /**
-     * Allocates a SizedBuffer<T> of the heap.
+     * Allocates a SizedBuffer<T> on the heap.
      * If there is not enough memory the returned buffer's Size and Data will be 0 and nullptr respectively.
      *
      * @tparam T type of the newly allocated buffer
@@ -105,6 +105,50 @@ namespace FunnyOS::Stdlib::Memory {
      */
     template <typename T>
     [[nodiscard]] inline SizedBuffer<T> AllocateBuffer(size_t size);
+
+    /**
+     * Allocates a SizedBuffer<T> on the heap. The allocated memory will be zero-initialized.
+     * If there is not enough memory the returned buffer's Size and Data will be 0 and nullptr respectively.
+     *
+     * @tparam T type of the newly allocated buffer
+     *
+     * @param[in] size size of the memory to allocate, the actual allocated number of bytes will be this size multiplied
+     * by sizeof(T)
+     *
+     * @return newly allocated buffer.
+     */
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferInitialized(size_t size);
+
+    /**
+     * Allocates a SizedBuffer<T> on the heap. The allocated memory will be aligned.
+     * If there is not enough memory the returned buffer's Size and Data will be 0 and nullptr respectively.
+     *
+     * @tparam T type of the newly allocated buffer
+     *
+     * @param[in] size size of the memory to allocate, the actual allocated number of bytes will be this size multiplied
+     * by sizeof(T)
+     * @param[in] alignment memory alignment
+     *
+     * @return newly allocated buffer.
+     */
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferAligned(size_t size, size_t alignment);
+
+    /**
+     * Allocates a SizedBuffer<T> on the heap. The allocated memory will be aligned and zero-initialized.
+     * If there is not enough memory the returned buffer's Size and Data will be 0 and nullptr respectively.
+     *
+     * @tparam T type of the newly allocated buffer
+     *
+     * @param[in] size size of the memory to allocate, the actual allocated number of bytes will be this size multiplied
+     * by sizeof(T)
+     * @param[in] alignment memory alignment
+     *
+     * @return newly allocated buffer.
+     */
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferAlignedAndInitialized(size_t size, size_t alignment);
 
     /**
      * Reallocates memory in a buffer.
@@ -136,6 +180,17 @@ namespace FunnyOS::Stdlib::Memory {
      * @return zero-initialized allocated memory or nullptr if there is not enough memory.
      */
     [[nodiscard]] void* AllocateInitialized(size_t size);
+
+    /**
+     * Allocates N bytes of aligned memory on the heap and initialized it with zeros.
+     *
+     * @param[in] size number of bytes to allocate may be zero.
+     * @param[in] alignment memory alignment
+     *
+     * @return allocated memory or nullptr if there is not enough memory.
+     *         Returned value is divisible by alignment if the allocator supports alignment.
+     */
+    [[nodiscard]] void* AllocateAlignedAndInitialized(size_t size, size_t alignment);
 
     /**
      * Reallocates the given memory previously allocated via any Allocate* or Reallocate* methods.

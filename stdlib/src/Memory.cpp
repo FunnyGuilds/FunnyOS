@@ -29,6 +29,12 @@ namespace FunnyOS::Stdlib::Memory {
         return memory.Data;
     }
 
+    void* AllocateAlignedAndInitialized(size_t size, size_t alignment) {
+        SizedBuffer<uint8_t> memory = AllocateBufferAligned<uint8_t>(size, alignment);
+        Memory::Set(memory, static_cast<uint8_t>(0));
+        return memory.Data;
+    }
+
     void* Reallocate(void* data, size_t size) {
         if (data == nullptr || data == g_zeroMemory) {
             return Memory::Allocate(size);

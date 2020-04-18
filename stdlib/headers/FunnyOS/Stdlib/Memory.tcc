@@ -78,6 +78,24 @@ namespace FunnyOS::Stdlib::Memory {
     }
 
     template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferInitialized(size_t size) {
+        auto* data = static_cast<T*>(AllocateInitialized(size * sizeof(T)));
+        return SizedBuffer<T>{data, data == nullptr ? 0 : size};
+    }
+
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferAligned(size_t size, size_t alignment) {
+        auto* data = static_cast<T*>(AllocateAligned(size * sizeof(T), alignment));
+        return SizedBuffer<T>{data, data == nullptr ? 0 : size};
+    }
+
+    template <typename T>
+    [[nodiscard]] inline SizedBuffer<T> AllocateBufferAlignedAndInitialized(size_t size, size_t alignment) {
+        auto* data = static_cast<T*>(AllocateAlignedAndInitialized(size * sizeof(T), alignment));
+        return SizedBuffer<T>{data, data == nullptr ? 0 : size};
+    }
+
+    template <typename T>
     inline void ReallocateBuffer(SizedBuffer<T>& buffer, size_t size) {
         auto* data = static_cast<T*>(Reallocate(buffer.Data, size * sizeof(T)));
         if (data == nullptr) {
