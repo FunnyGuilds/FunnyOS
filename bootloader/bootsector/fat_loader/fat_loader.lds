@@ -1,41 +1,41 @@
-OUTPUT_FORMAT(elf32-i386)
+OUTPUT_FORMAT(binary)
 
 SECTIONS
 {
-    . = 0x4000;
+    . = 0x500;
 
     .text :
     {
-        KEEP(*(.intro))
+        *(.intro)
         *(.text*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .rodata :
     {
         *(.rodata*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .data :
     {
         *(.data*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .bss :
     {
         *(.bss*)
     }
 
-    . = 0x4000 + 64 * 0x200 - 4;
+    . = 0x500 + 16 * 0x200 - 4;
 
     .magic :
     {
-        KEEP(*(.magic))
+        *(.magic)
     }
 
     /DISCARD/ :

@@ -27,6 +27,8 @@ namespace FunnyOS::_Platform {
 
     void Terminate(const char* error) {
         FunnyOS::Bootloader::GetBootloader()->Panic(error);
+        for (;;) {
+        }
     }
 
 }  // namespace FunnyOS::_Platform

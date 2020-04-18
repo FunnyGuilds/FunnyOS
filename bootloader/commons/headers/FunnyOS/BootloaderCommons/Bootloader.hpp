@@ -21,7 +21,7 @@ namespace FunnyOS::Bootloader {
         /**
          * Bootloader entry point
          */
-        virtual void Main();
+        virtual void Main() = 0;
 
         /**
          * Prints the error in BIG RED TEXT with some additional debugging information and halts the execution.

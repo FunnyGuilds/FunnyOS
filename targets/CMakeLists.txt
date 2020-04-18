@@ -7,6 +7,7 @@ add_custom_command(
         DEPENDS
             FunnyOS::Bootloader::MBR
             FunnyOS::Bootloader::Stage1
+            FunnyOS::Bootloader::FatLoader
             FunnyOS::Bootloader::Bootloader32
             FunnyOS_Bootloader_Bootloader32_Binary
 )

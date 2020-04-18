@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(FunnyOS CXX ASM_NASM)
+project(FunnyOS C CXX ASM_NASM)
 
 # Version
 set(FUNNYOS_VERSION 1.0.0)

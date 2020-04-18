@@ -1,7 +1,7 @@
 ;
 ; Stage1 Bootloader code
 ;
-%define BOOTLOADER_SIZE_IN_SECTORS      59
+%define BOOTLOADER_SIZE_IN_SECTORS      16
 %define BOOTLOADER_MAGIC                0x46554E42
 
 

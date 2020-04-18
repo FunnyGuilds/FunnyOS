@@ -25,7 +25,8 @@ namespace FunnyOS::Bootloader32 {
     }
 
     [[noreturn]] void Bootloader32Type::Main() {
-        Bootloader::BootloaderType::Main();
+        GetAllocator().Initialize(0x00040000, 0x0007FFFF);
+
         SetupInterrupts();
         Bootloader::SetupPIT();
         FB_LOG_INFO("FunnyOS Bootloader, hello!");

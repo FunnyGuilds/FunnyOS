@@ -40,7 +40,7 @@ sudo losetup -d $LOOP 2> /dev/null
 sudo losetup -P $LOOP $OUTPUT
 
 # Format partition
-sudo mkfs.fat -F 32 -R 64 $PARTITION
+sudo mkfs.fat -F 32 -R 32 $PARTITION
 
 if command -v fatlabel > /dev/null; then
   sudo fatlabel $PARTITION "FunnyOS"
@@ -55,8 +55,22 @@ sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=$PARTITION 
 # Put stage1 code to the first sector of the partition
 sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=$PARTITION bs=1 obs=1 skip=90 seek=90 count=422
 
-# Put bootloader code to the third sector of the partition
-sudo dd conv=notrunc if=./bootloader/bootloader32/bootloader32.bin of=$PARTITION bs=512 obs=512 seek=2 count=59
+# Put fat loader code to the third sector of the partition
+sudo dd conv=notrunc if=./bootloader/bootsector/fat_loader/fat_loader.bin of=$PARTITION bs=512 obs=512 seek=2 count=16
+
+# Mount the partition
+MOUNT=$(mktemp -d /tmp/funnyos-mount-XXXXXXXX)
+sudo mount $PARTITION $MOUNT
+echo "Mouting at $MOUNT"
+
+# Put 32-bit bootloader on the partition
+sudo cp ./bootloader/bootloader32/bootloader32.bin $MOUNT/BOOTLD32.BIN
+
+if command -v fatattr > /dev/null; then
+  echo "Setting FAT file attributes"
+  sudo fatattr +rhs $MOUNT/BOOTLD32.BIN
+fi
 
 # Unmount
+sudo umount $MOUNT
 sudo losetup -d $LOOP

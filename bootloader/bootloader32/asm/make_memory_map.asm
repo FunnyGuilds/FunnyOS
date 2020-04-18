@@ -11,7 +11,7 @@ SECTION .text
         mov [bp - 0x02], word 0     ; Entry count
         mov [bp - 0x03], byte 0     ; Has ACPI extended attributes
 
-        mov di, 0x7C0
+        mov di, 0x50
         mov es, di
         xor di, di
 
@@ -42,7 +42,7 @@ SECTION .text
             jne make_memory_map_loop
 
         make_memory_map__ret:
-            mov ebx, 0x7C00
+            mov ebx, 0x500
             mov cx, word [bp - 0x02]
             mov al, byte [bp - 0x03]
 
