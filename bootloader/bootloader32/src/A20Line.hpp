@@ -5,6 +5,7 @@ namespace FunnyOS::Bootloader32::A20 {
 
     /**
      * Checks whether or not the A20 line is enabled.
+     *
      * @return if A20 line is enabled
      */
     bool IsEnabled();

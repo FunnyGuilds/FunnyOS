@@ -6,7 +6,7 @@
 namespace FunnyOS::Bootloader32 {
 
     /**
-     * 32-bit implementation for BootloaderType
+     * 32-bit implementation of BootloaderType
      */
     class Bootloader32Type : public Bootloader::BootloaderType {
        public:

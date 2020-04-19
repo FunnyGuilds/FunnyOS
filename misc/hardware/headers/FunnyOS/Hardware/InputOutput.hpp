@@ -18,14 +18,14 @@
 namespace FunnyOS::HW::InputOutput {
 
     /**
-     * Reads and returns a byte fromthe port at the given addres
+     * Reads and returns a byte from the port at the given address/
      */
     F_ALWAYS_INLINE inline uint8_t InputByte(uint16_t address) {
         PORT_INPUT(uint8_t, "al");
     }
 
     /**
-     * Reads and returns a word from the port at the given addres
+     * Reads and returns a word from the port at the given address.
      */
     F_ALWAYS_INLINE inline uint16_t InputWord(uint16_t address) {
         PORT_INPUT(uint16_t, "ax");
@@ -39,21 +39,21 @@ namespace FunnyOS::HW::InputOutput {
     }
 
     /**
-     * Writes a byte to the port at the given data.
+     * Writes a byte to the port at the given address.
      */
     F_ALWAYS_INLINE inline void OutputByte(uint16_t address, uint8_t byte) {
         PORT_OUTPUT("al", byte);
     }
 
     /**
-     * Writes a word to the port at the given data.
+     * Writes a word to the port at the given address.
      */
     F_ALWAYS_INLINE inline void OutputWord(uint16_t address, uint16_t word) {
         PORT_OUTPUT("ax", word);
     }
 
     /**
-     * Writes a dword to the port at the given data.
+     * Writes a dword to the port at the given address.
      */
     F_ALWAYS_INLINE inline void OutputDword(uint16_t address, uint32_t dword) {
         PORT_OUTPUT("eax", dword);

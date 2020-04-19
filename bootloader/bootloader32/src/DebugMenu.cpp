@@ -127,9 +127,9 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
         constexpr const size_t optionsCount = sizeof(g_menuOptions) / sizeof(g_menuOptions[0]);
 
-        if (code == ScanCode::CursorDown_Pressed && g_currentSelection < optionsCount - 1) {
+        if (code == ScanCode::CursorDown_Released && g_currentSelection < optionsCount - 1) {
             g_currentSelection++;
-        } else if (code == ScanCode::CursorUp_Pressed && g_currentSelection > 0) {
+        } else if (code == ScanCode::CursorUp_Released && g_currentSelection > 0) {
             g_currentSelection--;
         } else if (code == ScanCode::Enter_Released) {
             SelectCurrentSubmenu(g_currentSelection);
