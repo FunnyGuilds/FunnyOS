@@ -8,6 +8,8 @@
 #include <FunnyOS/Hardware/CMOS.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
+#include <FunnyOS/Hardware/RealMode.hpp>
+
 #include "A20Line.hpp"
 #include "DebugMenu.hpp"
 #include "Interrupts.hpp"
@@ -15,20 +17,28 @@
 #define _NO_RETURN for (;;)
 
 // Defined in real_mode_intro.asm
-extern const FunnyOS::Bootloader::BootloaderParameters bootloader_parameters;
+extern const FunnyOS::Bootloader::BootloaderParameters g_bootloaderParameters;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
     const FunnyOS::Bootloader::BootloaderParameters& Bootloader32Type::GetBootloaderParameters() {
-        return bootloader_parameters;
+        return g_bootloaderParameters;
     }
 
     [[noreturn]] void Bootloader32Type::Main() {
+        // Initialization stuff
         GetAllocator().Initialize(0x00040000, 0x0007FFFF);
-
         SetupInterrupts();
         Bootloader::SetupPIT();
+
+        HW::SetupRealModeInterrupts({
+            .SelectorCode32 = 0x08 * 1,
+            .SelectorData32 = 0x08 * 2,
+            .SelectorCode16 = 0x08 * 3,
+            .SelectorData16 = 0x08 * 4,
+        });
+
         FB_LOG_INFO("FunnyOS Bootloader, hello!");
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 

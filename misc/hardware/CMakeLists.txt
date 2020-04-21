@@ -2,12 +2,14 @@ function(setup_library name)
     # Build objects
     add_library(${name}_ASM OBJECT
             src/InterruptSetup/interrupt_setup.asm
+            src/real_mode.asm
     )
 
     add_library(${name} STATIC
             src/InterruptSetup/InterruptSetup.cpp
             src/CMOS.cpp
             src/PS2.cpp
+            src/RealMode.cpp
             src/Interrupts.cpp
             src/PIC.cpp
             src/Serial.cpp

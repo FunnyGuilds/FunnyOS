@@ -34,7 +34,7 @@ SECTION .intro
 
         jmp 0x08:protected_mode
 
-SECTION .data
+SECTION .real.data
     ; Macro for GDT entries
     %macro gdt_entry 4
         ; %1 - base addres
@@ -56,20 +56,20 @@ SECTION .data
 
     gdt_start:
         gdt_entry 0x00000000, 0x00000000, 0b00000000, 0b0000       ; null segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1100       ; code segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1100       ; data segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1100       ; 32-bit code segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1100       ; 32-bit data segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1000       ; 16-bit data segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1000       ; 16-bit code segment
     gdt_end:
 
-SECTION .bss
-
     ; Parameters to be passed to the bootloader
-    GLOBAL bootloader_parameters
-    bootloader_parameters:
-        bootloader_parameters__boot_drive_id:        resb 1                  ; Boot drive ID
-        bootloader_parameters__boot_parttition:      resb 1                  ; Boot partition
-        bootloader_parameters__acpi_extended:        resb 1                  ; Memory map has ACPI extend attributes
-        bootloader_parameters__memory_map_start:     resd 1                  ; Memory map start
-        bootloader_parameters__memory_map_count:     resw 1                  ; Memory map number of entries
+    GLOBAL g_bootloaderParameters
+    g_bootloaderParameters:
+        bootloader_parameters__boot_drive_id:        db 0                  ; Boot drive ID
+        bootloader_parameters__boot_parttition:      db 0                  ; Boot partition
+        bootloader_parameters__acpi_extended:        db 0                  ; Memory map has ACPI extend attributes
+        bootloader_parameters__memory_map_start:     dd 0                  ; Memory map start
+        bootloader_parameters__memory_map_count:     dw 0                  ; Memory map number of entries
 
 SECTION .magic
     dd 0x46554E42

@@ -1,6 +1,6 @@
 [bits 16]
 
-SECTION .text
+SECTION .real.text
     GLOBAL make_memory_map
     make_memory_map:
         ; Counter

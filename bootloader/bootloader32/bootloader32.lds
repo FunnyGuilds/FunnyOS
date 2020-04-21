@@ -4,9 +4,23 @@ SECTIONS
 {
     . = 0x4000;
 
-    .text :
+    .intro :
     {
         KEEP(*(.intro))
+    }
+
+    .real.text :
+    {
+        *(.real.text*)
+    }
+
+    .real.data :
+    {
+        *(.real.data*)
+    }
+
+    .text :
+    {
         *(.text*)
     }
 
@@ -31,7 +45,7 @@ SECTIONS
         *(.bss*)
     }
 
-    . = 0x4000 + 64 * 0x200 - 4;
+    . = 0x4000 + 128 * 0x200 - 4;
 
     .magic :
     {
