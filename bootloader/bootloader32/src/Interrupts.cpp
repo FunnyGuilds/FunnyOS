@@ -6,11 +6,10 @@
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
 
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
-#include <FunnyOS/BootloaderCommons/Sleep.hpp>
-
 #include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
+#include "Logging.hpp"
+#include "Sleep.hpp"
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
@@ -61,7 +60,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         if (!formatOk) {
-            Bootloader::GetBootloader()->Panic("Interrupt info collection failed");
+            Bootloader::Get().Panic("Interrupt info collection failed");
         }
 
         char eflags[33];
@@ -85,10 +84,10 @@ namespace FunnyOS::Bootloader32 {
                                   data->ESI, data->EDI, data->EIP, eflags, decodedEflags);
 
         if (!formatOk) {
-            Bootloader::GetBootloader()->Panic("Interrupt info collection failed");
+            Bootloader::Get().Panic("Interrupt info collection failed");
         }
 
-        Bootloader::GetBootloader()->Panic(panicBuffer.Data);
+        Bootloader::Get().Panic(panicBuffer.Data);
     }
 
     void KeyboardHandler(HW::InterruptData* data) {
@@ -115,7 +114,7 @@ namespace FunnyOS::Bootloader32 {
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &Bootloader::PITInterruptHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &PITInterruptHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &KeyboardHandler);
 
         HW::SetupInterrupts();

@@ -3,8 +3,6 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
-#include <FunnyOS/BootloaderCommons/Sleep.hpp>
 #include <FunnyOS/Hardware/CMOS.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
@@ -13,24 +11,26 @@
 #include "A20Line.hpp"
 #include "DebugMenu.hpp"
 #include "Interrupts.hpp"
+#include "Logging.hpp"
+#include "Sleep.hpp"
 
 #define _NO_RETURN for (;;)
 
 // Defined in real_mode_intro.asm
-extern const FunnyOS::Bootloader::BootloaderParameters g_bootloaderParameters;
+extern const FunnyOS::Bootloader32::BootloaderParameters g_bootloaderParameters;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
-    const FunnyOS::Bootloader::BootloaderParameters& Bootloader32Type::GetBootloaderParameters() {
+    const BootloaderParameters& Bootloader::GetBootloaderParameters() {
         return g_bootloaderParameters;
     }
 
-    [[noreturn]] void Bootloader32Type::Main() {
+    [[noreturn]] void Bootloader::Main() {
         // Initialization stuff
         GetAllocator().Initialize(0x00040000, 0x0007FFFF);
         SetupInterrupts();
-        Bootloader::SetupPIT();
+        SetupPIT();
 
         HW::SetupRealModeInterrupts({
             .SelectorCode32 = 0x08 * 1,
@@ -52,21 +52,21 @@ namespace FunnyOS::Bootloader32 {
             }
 
             FB_LOG_WARNING_F("Couldn't initialize keyboard, try %d/3", i + 1);
-            Bootloader::Sleep(100);
+            Sleep(100);
         }
 
         // Debug menu
-        Bootloader::Sleep(1000);
+        Sleep(1000);
         if (DebugMenu::MenuRequested()) {
             DebugMenu::Enter();
         }
 
-        if (Bootloader32::A20::IsEnabled()) {
+        if (A20::IsEnabled()) {
             FB_LOG_DEBUG("A20 line is already enabled!");
         } else {
-            Bootloader32::A20::TryEnable();
+            A20::TryEnable();
 
-            if (!Bootloader32::A20::IsEnabled()) {
+            if (!A20::IsEnabled()) {
                 FB_LOG_FATAL("No suitable method for enabling the A20 gate found. ");
                 Halt();
             }
@@ -78,14 +78,14 @@ namespace FunnyOS::Bootloader32 {
         for (size_t i = 0; i < 10; i++) {
             String::IntegerToString(buf, i);
             FB_LOG_INFO(buf.Data);
-            Bootloader::Sleep(1000);
+            Sleep(1000);
         }
 
         Halt();
         _NO_RETURN;
     }
 
-    [[noreturn]] void Bootloader32Type::Panic(const char* details) {
+    [[noreturn]] void Bootloader::Panic(const char* details) {
         void* cause = F_FETCH_CALLER_ADDRESS();
         char callerAddress[17];
         Memory::SizedBuffer<char> callerAddressBuffer{static_cast<char*>(callerAddress), 17};
@@ -93,7 +93,7 @@ namespace FunnyOS::Bootloader32 {
 
         using namespace FunnyOS::Misc::TerminalManager;
 
-        TerminalManager* terminal = Bootloader::Logging::GetTerminalManager();
+        TerminalManager* terminal = Logging::GetTerminalManager();
         terminal->ChangeColor(Color::Red, Color::White);
         terminal->ClearScreen();
         terminal->PrintString("================================================================================");
@@ -108,7 +108,7 @@ namespace FunnyOS::Bootloader32 {
         _NO_RETURN;
     }
 
-    [[noreturn]] void Bootloader32Type::Halt() {
+    [[noreturn]] void Bootloader::Halt() {
         //        HW::DisableHardwareInterrupts(); TODO
 
         for (;;) {
@@ -116,4 +116,12 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
+    LowMemoryAllocator& Bootloader::GetAllocator() {
+        return m_allocator;
+    }
+
+    Bootloader& Bootloader::Get() {
+        static FunnyOS::Bootloader32::Bootloader c_bootloader;
+        return c_bootloader;
+    }
 }  // namespace FunnyOS::Bootloader32

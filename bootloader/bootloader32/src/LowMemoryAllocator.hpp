@@ -3,7 +3,7 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-namespace FunnyOS::Bootloader {
+namespace FunnyOS::Bootloader32 {
 
     /**
      * We don't really need larger memory addresses since we are operating in the 0x00007C00 - 0x0007FFFF memory section
@@ -108,7 +108,8 @@ namespace FunnyOS::Bootloader {
          * @param[in] size minimum size of the returned block
          * @return a memory block marked as Taken of size greater or equal [size]. Never nullptr.
          */
-        [[nodiscard]] MemoryMetaBlock* SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor, size_t size) noexcept;
+        [[nodiscard]] MemoryMetaBlock* SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor,
+                                                                     size_t size) noexcept;
 
         /**
          * Allocates a new block after the end of the last allocated block.
@@ -131,6 +132,6 @@ namespace FunnyOS::Bootloader {
         memoryaddress_t m_memoryEnd;
     };
 
-}  // namespace FunnyOS::Bootloader
+}  // namespace FunnyOS::Bootloader32
 
 #endif  // FUNNYOS_BOOTLOADER_COMMONS_SRC_LOWMEMORYALLOCATOR_HPP

@@ -4,8 +4,10 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-namespace FunnyOS::Bootloader {
+namespace FunnyOS::Bootloader32 {
+
     struct BootloaderParameters {
+
         /**
          * ACPI flag. If it is not set the memory block should be ignored, as it it was reserved
          */
@@ -105,6 +107,6 @@ namespace FunnyOS::Bootloader {
         uint16_t MemoryMapEntriesCount;
     } F_DONT_ALIGN;
 
-}  // namespace FunnyOS::Bootloader
+}  // namespace FunnyOS::Bootloader32
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_BOOTLOADERPARAMETERS_HPP

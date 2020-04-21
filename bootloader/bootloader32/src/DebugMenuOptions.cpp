@@ -2,6 +2,7 @@
 
 #include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
+#include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
@@ -12,11 +13,11 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     }
 
     void DebugModeOption::FetchState(String::StringBuffer& buffer) const {
-        String::Append(buffer, Bootloader::Logging::IsDebugModeEnabled() ? "ON" : "OFF");
+        String::Append(buffer, Logging::IsDebugModeEnabled() ? "ON" : "OFF");
     }
 
     void DebugModeOption::Enter() {
-        Bootloader::Logging::SetDebugModeEnabled(!Bootloader::Logging::IsDebugModeEnabled());
+        Logging::SetDebugModeEnabled(!Logging::IsDebugModeEnabled());
         SelectCurrentSubmenu(-1);
     }
 
@@ -31,23 +32,23 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     void PrintMemoryMapOption::FetchState(String::StringBuffer&) const {}
 
     void PrintMemoryMapOption::Enter() {
-        Bootloader::Logging::GetTerminalManager()->ClearScreen();
+        Logging::GetTerminalManager()->ClearScreen();
 
-        const auto& args = Bootloader::GetBootloader()->GetBootloaderParameters();
+        const auto& args = Bootloader::Get().GetBootloaderParameters();
         for (size_t i = 0; i < args.MemoryMapEntriesCount; i++) {
-            auto* entry = reinterpret_cast<Bootloader::BootloaderParameters::MemoryMapEntry*>(args.MemoryMapStart) + i;
+            auto* entry = reinterpret_cast<BootloaderParameters::MemoryMapEntry*>(args.MemoryMapStart) + i;
             const char* type;
             switch (entry->Type) {
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::AvailableMemory:
+                case BootloaderParameters::MemoryMapEntryType::AvailableMemory:
                     type = "Available";
                     break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ReservedMemory:
+                case BootloaderParameters::MemoryMapEntryType::ReservedMemory:
                     type = "Reserved";
                     break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPIReclaimMemory:
+                case BootloaderParameters::MemoryMapEntryType::ACPIReclaimMemory:
                     type = "ACPIReclaimable";
                     break;
-                case Bootloader::BootloaderParameters::MemoryMapEntryType::ACPINVSMemory:
+                case BootloaderParameters::MemoryMapEntryType::ACPINVSMemory:
                     type = "ACPINVS";
                     break;
                 default:
@@ -80,10 +81,10 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     void PrintBootloaderParametersOption::FetchState(String::StringBuffer&) const {}
 
     void PrintBootloaderParametersOption::Enter() {
-        Bootloader::Logging::GetTerminalManager()->ClearScreen();
+        Logging::GetTerminalManager()->ClearScreen();
         FB_LOG_INFO("Bootloader params");
 
-        const auto& args = Bootloader::GetBootloader()->GetBootloaderParameters();
+        const auto& args = Bootloader::Get().GetBootloaderParameters();
 
         FB_LOG_INFO_F("     - BootDriveNumber = 0x%02x", args.BootDriveNumber);
         FB_LOG_INFO_F("     - BootPartition = 0x%02x", args.BootPartition);
@@ -108,9 +109,9 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     void PrintBootDiskParameters::FetchState(String::StringBuffer&) const {}
 
     void PrintBootDiskParameters::Enter() {
-        Bootloader::Logging::GetTerminalManager()->ClearScreen();
+        Logging::GetTerminalManager()->ClearScreen();
 
-        const auto& args = Bootloader::GetBootloader()->GetBootloaderParameters();
+        const auto& args = Bootloader::Get().GetBootloaderParameters();
         Driver::Drive::BiosDriveInterface interface(args.BootDriveNumber);
 
         FB_LOG_INFO("Boot drive parameters");

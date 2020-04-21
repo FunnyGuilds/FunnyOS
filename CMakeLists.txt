@@ -14,12 +14,7 @@ if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif ()
 
 # Options
-option(F_COMPILE64        "Build FunnyOS in 64-bit mode?"     ON)
 option(F_BUILD_TESTS      "Should the testes be built?"       ON)
-
-if (NOT F_COMPILE64)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-endif ()
 
 if (F_BUILD_TESTS)
     find_package(GTest)
@@ -38,7 +33,7 @@ set(WARNING_OPTIONS
 )
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel -no-pie ${WARNING_OPTIONS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel ${WARNING_OPTIONS}")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
 if (CMAKE_BUILD_TYPE EQUAL "")

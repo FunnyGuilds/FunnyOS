@@ -3,8 +3,8 @@
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
-#include <FunnyOS/BootloaderCommons/Sleep.hpp>
+#include "Logging.hpp"
+#include "Sleep.hpp"
 
 namespace FunnyOS::Bootloader32::A20 {
     using namespace HW::InputOutput;
@@ -55,7 +55,7 @@ namespace FunnyOS::Bootloader32::A20 {
     void TryEnable() {
         for (size_t i = 0; i < 3; i++) {
             EnableA20Traditionally();
-            Bootloader::Sleep(100);
+            Sleep(100);
 
             FB_LOG_DEBUG_F("Trying to enable A20 via keyboard controller... (Try %d/3)", i + 1);
 
@@ -68,7 +68,7 @@ namespace FunnyOS::Bootloader32::A20 {
 
         FB_LOG_DEBUG("Using the fast A20 gate");
         EnableA20WithFastA20();
-        Bootloader::Sleep(100);
+        Sleep(100);
 
         if (IsEnabled()) {
             return;
@@ -77,7 +77,7 @@ namespace FunnyOS::Bootloader32::A20 {
 
         FB_LOG_DEBUG("Using the EE port");
         EnableA20ViaEEPort();
-        Bootloader::Sleep(100);
+        Sleep(100);
 
         if (IsEnabled()) {
             return;

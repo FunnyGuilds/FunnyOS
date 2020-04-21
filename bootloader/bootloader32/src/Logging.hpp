@@ -1,10 +1,10 @@
-#ifndef FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_LOGGING_HPP
-#define FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_LOGGING_HPP
+#ifndef FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP
+#define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP
 
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
-namespace FunnyOS::Bootloader::Logging {
+namespace FunnyOS::Bootloader32::Logging {
 
     /**
      * Severity level of a log message.
@@ -46,17 +46,17 @@ namespace FunnyOS::Bootloader::Logging {
      */
     void PostLogFormatted(LogLevel level, const char* format, ...);
 
-}  // namespace FunnyOS::Bootloader::Logging
+}  // namespace FunnyOS::Bootloader32::Logging
 
-#define FB_LOG(level, message)                                                                         \
-    do {                                                                                               \
-        FunnyOS::Bootloader::Logging::PostLog(FunnyOS::Bootloader::Logging::LogLevel::level, message); \
+#define FB_LOG(level, message)                                                                             \
+    do {                                                                                                   \
+        FunnyOS::Bootloader32::Logging::PostLog(FunnyOS::Bootloader32::Logging::LogLevel::level, message); \
     } while (0)
 
-#define FB_LOG_F(level, message, ...)                                                                          \
-    do {                                                                                                       \
-        FunnyOS::Bootloader::Logging::PostLogFormatted(FunnyOS::Bootloader::Logging::LogLevel::level, message, \
-                                                       __VA_ARGS__);                                           \
+#define FB_LOG_F(level, message, ...)                                                                              \
+    do {                                                                                                           \
+        FunnyOS::Bootloader32::Logging::PostLogFormatted(FunnyOS::Bootloader32::Logging::LogLevel::level, message, \
+                                                         __VA_ARGS__);                                             \
     } while (0)
 
 #define FB_LOG_INFO(message) FB_LOG(Info, message)
@@ -79,4 +79,4 @@ namespace FunnyOS::Bootloader::Logging {
 #define FB_LOG_DEBUG_F(message, ...)
 #endif
 
-#endif  // FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_LOGGING_HPP
+#endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP

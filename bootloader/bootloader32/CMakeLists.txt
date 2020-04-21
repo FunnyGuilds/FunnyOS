@@ -12,10 +12,15 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         $<TARGET_OBJECTS:FunnyOS_Bootloader_Bootloader32_ASM>
         src/A20Line.cpp
         src/Bootloader32.cpp
+        src/BootloaderABI.cpp
+        src/BootloaderStdlibPlatformImpl.cpp
         src/DebugMenu.cpp
         src/DebugMenuOptions.cpp
         src/Entry.cpp
         src/Interrupts.cpp
+        src/Logging.cpp
+        src/LowMemoryAllocator.cpp
+        src/Sleep.cpp
 )
 
 set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES
@@ -30,7 +35,8 @@ set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES
 target_link_libraries(FunnyOS_Bootloader_Bootloader32
         PUBLIC
             FunnyOS::Stdlib::Base32_Static_LL
-            FunnyOS::Bootloader::Commons32
+            FunnyOS::Misc::Hardware32
+            FunnyOS::Misc::TerminalManager32
             FunnyOS::Driver::Drive::BIOS32
 )
 

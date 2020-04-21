@@ -1,11 +1,11 @@
 #include "DebugMenu.hpp"
 
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 
 #include "DebugMenuOptions.hpp"
+#include "Logging.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
     using namespace Stdlib;
@@ -26,7 +26,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         bool g_exitRequested = false;
 
         void DrawFramePart(char sides, char center) {
-            auto* terminalManager = Bootloader::Logging::GetTerminalManager();
+            auto* terminalManager = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
             String::StringBuffer buffer = Memory::AllocateBuffer<char>(screenWidth + 1);
@@ -43,7 +43,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         void PrintHeader(const char* header) {
-            auto* terminalManager = Bootloader::Logging::GetTerminalManager();
+            auto* terminalManager = Logging::GetTerminalManager();
             terminalManager->ClearScreen();
             DrawFramePart('+', '=');
             DrawFramePart('|', ' ');
@@ -58,7 +58,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         void PrintOption(const MenuOption* option) {
-            auto* terminalManager = Bootloader::Logging::GetTerminalManager();
+            auto* terminalManager = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
             String::StringBuffer buffer = Memory::AllocateBufferInitialized<char>(screenWidth + 1);
@@ -88,7 +88,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
                 return;
             }
 
-            auto* terminalManager = Bootloader::Logging::GetTerminalManager();
+            auto* terminalManager = Logging::GetTerminalManager();
             PrintHeader("FunnyOS v" FUNNYOS_VERSION " Debug menu");
             terminalManager->PrintLine();
 
@@ -149,7 +149,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO("Entering debug menu...");
         g_menuEnabled = true;
 
-        auto terminalManager = Bootloader::Logging::GetTerminalManager();
+        auto terminalManager = Logging::GetTerminalManager();
         auto savedScreenData = terminalManager->GetInterface()->SaveScreenData();
         terminalManager->ClearScreen();
         DrawMenu();

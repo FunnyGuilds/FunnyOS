@@ -2,9 +2,9 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
-#include <FunnyOS/BootloaderCommons/LowMemoryAllocator.hpp>
+#include "LowMemoryAllocator.hpp"
 
-namespace FunnyOS::Bootloader {
+namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
     MemoryMetaBlock* MemoryMetaBlock::GetNext() noexcept {

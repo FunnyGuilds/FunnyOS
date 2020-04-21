@@ -15,11 +15,9 @@ target_link_libraries(FunnyOS_Driver_Drive_BIOS32
 
 add_library(FunnyOS::Driver::Drive::BIOS32 ALIAS FunnyOS_Driver_Drive_BIOS32)
 
-if (F_COMPILE64)
-    setup_library(FunnyOS_Driver_Drive_BIOS64)
-    target_link_libraries(FunnyOS_Misc_Hardware64
-            PUBLIC
-                FunnyOS::Misc::Hardware64
-    )
-    add_library(FunnyOS::Driver::Drive::BIOS64 ALIAS FunnyOS_Driver_Drive_BIOS64)
-endif ()
+setup_library(FunnyOS_Driver_Drive_BIOS64)
+target_link_libraries(FunnyOS_Misc_Hardware64
+        PUBLIC
+            FunnyOS::Misc::Hardware64
+)
+add_library(FunnyOS::Driver::Drive::BIOS64 ALIAS FunnyOS_Driver_Drive_BIOS64)

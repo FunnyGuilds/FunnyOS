@@ -27,7 +27,5 @@ set_target_properties(FunnyOS_Stdlib_Base32_Tests PROPERTIES
 )
 add_executable(FunnyOS::Stdlib::Base32_Tests ALIAS FunnyOS_Stdlib_Base32_Tests)
 
-if (F_COMPILE64)
-    setup_tests(FunnyOS_Stdlib_Base64_Tests FunnyOS::Stdlib::Base64_Static)
-    add_executable(FunnyOS::Stdlib::Base64_Tests ALIAS FunnyOS_Stdlib_Base64_Tests)
-endif()
+setup_tests(FunnyOS_Stdlib_Base64_Tests FunnyOS::Stdlib::Base64_Static)
+add_executable(FunnyOS::Stdlib::Base64_Tests ALIAS FunnyOS_Stdlib_Base64_Tests)

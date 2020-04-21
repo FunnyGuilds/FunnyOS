@@ -1,10 +1,10 @@
-#include <FunnyOS/BootloaderCommons/Sleep.hpp>
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include "Sleep.hpp"
+#include "Logging.hpp"
 
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/InputOutput.hpp>
 
-namespace FunnyOS::Bootloader {
+namespace FunnyOS::Bootloader32 {
     unsigned int sleepTimer;
 
     void SetupPIT() {
@@ -33,4 +33,4 @@ namespace FunnyOS::Bootloader {
         sleepTimer--;
     }
 
-}  // namespace FunnyOS::Bootloader
+}  // namespace FunnyOS::Bootloader32

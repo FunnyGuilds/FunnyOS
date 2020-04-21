@@ -35,18 +35,15 @@ setup_library(FunnyOS_Stdlib_Base32_Static_LL STATIC)
 target_compile_options(FunnyOS_Stdlib_Base32_Static_LL PUBLIC -m32 ${LL_FLAGS})
 add_library(FunnyOS::Stdlib::Base32_Static_LL ALIAS FunnyOS_Stdlib_Base32_Static_LL)
 
+# Compile 64-bit base
+setup_library(FunnyOS_Stdlib_Base64_Static STATIC)
+target_compile_definitions(FunnyOS_Stdlib_Base64_Static PUBLIC F_64=1)
+add_library(FunnyOS::Stdlib::Base64_Static ALIAS FunnyOS_Stdlib_Base64_Static)
 
-if (F_COMPILE64)
-    # Compile 64-bit base
-    setup_library(FunnyOS_Stdlib_Base64_Static STATIC)
-    target_compile_definitions(FunnyOS_Stdlib_Base64_Static PUBLIC F_64=1)
-    add_library(FunnyOS::Stdlib::Base64_Static ALIAS FunnyOS_Stdlib_Base64_Static)
-
-    # 64-bit base low level
-    setup_library(FunnyOS_Stdlib_Base64_Static_LL STATIC)
-    target_compile_options(FunnyOS_Stdlib_Base64_Static_LL PUBLIC ${LL_FLAGS})
-    add_library(FunnyOS::Stdlib::Base64_Static_LL ALIAS FunnyOS_Stdlib_Base64_Static_LL)
-endif ()
+# 64-bit base low level
+setup_library(FunnyOS_Stdlib_Base64_Static_LL STATIC)
+target_compile_options(FunnyOS_Stdlib_Base64_Static_LL PUBLIC ${LL_FLAGS})
+add_library(FunnyOS::Stdlib::Base64_Static_LL ALIAS FunnyOS_Stdlib_Base64_Static_LL)
 
 if (F_BUILD_TESTS)
     add_subdirectory("test")

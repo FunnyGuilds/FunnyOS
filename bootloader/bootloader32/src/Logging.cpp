@@ -1,11 +1,10 @@
-#include <FunnyOS/BootloaderCommons/Logging.hpp>
+#include "Logging.hpp"
 
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/VGA.hpp>
-#include <FunnyOS/Hardware/Serial.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
-namespace FunnyOS::Bootloader::Logging {
+namespace FunnyOS::Bootloader32::Logging {
     using namespace Misc::TerminalManager;
 
     namespace {
@@ -78,4 +77,4 @@ namespace FunnyOS::Bootloader::Logging {
 
         PostLog(level, ret ? bufferData : format);
     }
-}  // namespace FunnyOS::Bootloader::Logging
+}  // namespace FunnyOS::Bootloader32::Logging
