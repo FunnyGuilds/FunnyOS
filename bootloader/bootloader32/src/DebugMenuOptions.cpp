@@ -1,6 +1,6 @@
 #include "DebugMenuOptions.hpp"
 
-#include <FunnyOS/Hardware/CPU.hpp>
+#include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
 #include "DebugMenu.hpp"
 
@@ -101,6 +101,39 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
     PrintBootloaderParametersOption PrintBootloaderParametersOption::s_instance{};
 
+    void PrintBootDiskParameters::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Print bootable drive information");
+    }
+
+    void PrintBootDiskParameters::FetchState(String::StringBuffer&) const {}
+
+    void PrintBootDiskParameters::Enter() {
+        Bootloader::Logging::GetTerminalManager()->ClearScreen();
+
+        const auto& args = Bootloader::GetBootloader()->GetBootloaderParameters();
+        Driver::Drive::BiosDriveInterface interface(args.BootDriveNumber);
+
+        FB_LOG_INFO("Boot drive parameters");
+        FB_LOG_INFO_F("     - DriveIdentification = 0x%02x", interface.GetDriveIdentification());
+        FB_LOG_INFO_F("     - TotalSectorCount = 0x%02x", interface.GetTotalSectorCount());
+        FB_LOG_INFO_F("     - SectorSize = 0x%04x", interface.GetSectorSize());
+        FB_LOG_INFO_F("     - HasExtendedDiskAccess = %s", interface.HasExtendedDiskAccess() ? "yes" : "no");
+        FB_LOG_INFO_F("     - HasEnhancedDiskDriveFunctions = %s",
+                      interface.HasEnhancedDiskDriveFunctions() ? "yes" : "no");
+        FB_LOG_INFO_F("     - SupportsFlat64Addresses = %s", interface.SupportsFlat64Addresses() ? "yes" : "no");
+        FB_LOG_INFO_F("     - SectorsPerTrack = 0x%02x", interface.GetSectorsPerTrack());
+        FB_LOG_INFO_F("     - HeadsPerCylinder = 0x%02x", interface.GetHeadsPerCylinder());
+        FB_LOG_INFO_F("     - MaxCylinderNumber = 0x%04x", interface.GetMaxCylinderNumber());
+    }
+
+    void PrintBootDiskParameters::HandleKey(HW::PS2::ScanCode code) {
+        if (code == HW::PS2::ScanCode::Enter_Released) {
+            SelectCurrentSubmenu(-1);
+        }
+    }
+
+    PrintBootDiskParameters PrintBootDiskParameters::s_instance{};
+
     void QuitMenuOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Quit menu");
     }
@@ -115,6 +148,5 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     void QuitMenuOption::HandleKey(HW::PS2::ScanCode) {}
 
     QuitMenuOption QuitMenuOption::s_instance{};
-
 
 }  // namespace FunnyOS::Bootloader32::DebugMenu

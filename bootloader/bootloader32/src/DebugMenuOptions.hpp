@@ -51,6 +51,15 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         static PrintBootloaderParametersOption s_instance;
     };
 
+    class PrintBootDiskParameters : public MenuOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void FetchState(String::StringBuffer& buffer) const override;
+        void Enter() override;
+        void HandleKey(HW::PS2::ScanCode code) override;
+
+        static PrintBootDiskParameters s_instance;
+    };
 
     class QuitMenuOption : public MenuOption {
        public:
@@ -66,6 +75,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         &DebugModeOption::s_instance,
         &PrintMemoryMapOption::s_instance,
         &PrintBootloaderParametersOption::s_instance,
+        &PrintBootDiskParameters::s_instance,
         &QuitMenuOption::s_instance,
     };
 }  // namespace FunnyOS::Bootloader32::DebugMenu

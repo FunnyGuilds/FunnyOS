@@ -31,6 +31,7 @@ target_link_libraries(FunnyOS_Bootloader_Bootloader32
         PUBLIC
             FunnyOS::Stdlib::Base32_Static_LL
             FunnyOS::Bootloader::Commons32
+            FunnyOS::Driver::Drive::BIOS32
 )
 
 add_executable(FunnyOS::Bootloader::Bootloader32 ALIAS FunnyOS_Bootloader_Bootloader32)
