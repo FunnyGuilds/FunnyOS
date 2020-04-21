@@ -3,8 +3,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(TestAlgorithm, TestMinMax)
-{
+TEST(TestAlgorithm, TestMinMax) {
     using namespace FunnyOS::Stdlib;
 
     EXPECT_EQ(Min(1, 2), 1);
@@ -24,4 +23,10 @@ TEST(TestAlgorithm, TestMinMax)
 
     EXPECT_EQ(Max(23, 23), 23);
     EXPECT_EQ(Max(23, 23), 23);
+
+    EXPECT_EQ(Min(1, 2, 3, 4), 1);
+    EXPECT_EQ(Min(2, 1, 4, 3), 1);
+
+    EXPECT_EQ(Max(1, 0, 2, 3, 8, 4), 8);
+    EXPECT_EQ(Max(2, 7, 1, 4, 9, 3), 9);
 }

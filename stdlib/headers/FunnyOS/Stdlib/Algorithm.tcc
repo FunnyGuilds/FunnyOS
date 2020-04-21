@@ -15,6 +15,24 @@ namespace FunnyOS::Stdlib {
     constexpr const T& Max(const T& a, const T& b) noexcept(noexcept(a > b)) {
         return a > b ? a : b;
     }
+
+    template <typename T, typename... Args>
+    [[nodiscard]] constexpr const T& Min(T value1, T value2, Args... args) {
+        T min = Min(value1, value2);
+
+        if (sizeof...(Args) > 0) {
+            return Min(min, args...);
+        }
+    }
+
+    template <typename T, typename... Args>
+    [[nodiscard]] constexpr const T& Max(T value1, T value2, Args... args) {
+        T max = Max(value1, value2);
+
+        if (sizeof...(Args) > 0) {
+            return Max(max, args...);
+        }
+    }
 }  // namespace FunnyOS::Stdlib
 
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_ALGORITHM_TCC
