@@ -32,23 +32,24 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     void PrintMemoryMapOption::FetchState(String::StringBuffer&) const {}
 
     void PrintMemoryMapOption::Enter() {
+        using Bootparams::MemoryMapEntryType;
         Logging::GetTerminalManager()->ClearScreen();
+        const auto& memoryMap = Bootloader::Get().GetBootloaderParameters().MemoryMap;
 
-        const auto& args = Bootloader::Get().GetBootloaderParameters();
-        for (size_t i = 0; i < args.MemoryMapEntriesCount; i++) {
-            auto* entry = reinterpret_cast<BootloaderParameters::MemoryMapEntry*>(args.MemoryMapStart) + i;
+        for (size_t i = 0; i < memoryMap.Count; i++) {
+            auto& entry = memoryMap[i];
             const char* type;
-            switch (entry->Type) {
-                case BootloaderParameters::MemoryMapEntryType::AvailableMemory:
+            switch (entry.Type) {
+                case MemoryMapEntryType::AvailableMemory:
                     type = "Available";
                     break;
-                case BootloaderParameters::MemoryMapEntryType::ReservedMemory:
+                case MemoryMapEntryType::ReservedMemory:
                     type = "Reserved";
                     break;
-                case BootloaderParameters::MemoryMapEntryType::ACPIReclaimMemory:
+                case MemoryMapEntryType::ACPIReclaimMemory:
                     type = "ACPIReclaimable";
                     break;
-                case BootloaderParameters::MemoryMapEntryType::ACPINVSMemory:
+                case MemoryMapEntryType::ACPINVSMemory:
                     type = "ACPINVS";
                     break;
                 default:
@@ -57,12 +58,12 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             }
 
             char acpi[8] = "N/A";
-            if (args.MemoryMapHasAcpiExtendedAttribute) {
+            if (memoryMap.HasAcpiExtendedAttribute) {
                 String::StringBuffer acpiBuffer{acpi, 8};
-                String::IntegerToString(acpiBuffer, entry->ACPIFlags, 2);
+                String::IntegerToString(acpiBuffer, entry.ACPIFlags, 2);
             }
 
-            FB_LOG_INFO_F("O 0x%016llx L 0x%016llx T %15s A %02s", entry->BaseAddress, entry->Length, type, acpi);
+            FB_LOG_INFO_F("O 0x%016llx L 0x%016llx T %15s A %02s", entry.BaseAddress, entry.Length, type, acpi);
         }
     }
 
@@ -86,12 +87,13 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
         const auto& args = Bootloader::Get().GetBootloaderParameters();
 
-        FB_LOG_INFO_F("     - BootDriveNumber = 0x%02x", args.BootDriveNumber);
-        FB_LOG_INFO_F("     - BootPartition = 0x%02x", args.BootPartition);
-        FB_LOG_INFO_F("     - MemoryMapHasAcpiExtendedAttribute = %s",
-                      args.MemoryMapHasAcpiExtendedAttribute ? "yes" : "no");
-        FB_LOG_INFO_F("     - MemoryMapStart = 0x%04X", args.MemoryMapStart);
-        FB_LOG_INFO_F("     - MemoryMapEntriesCount = %d", args.MemoryMapEntriesCount);
+        FB_LOG_INFO("  - BootInfo: ");
+        FB_LOG_INFO_F("    - BootDriveNumber = 0x%02x", args.BootInfo.BootDriveNumber);
+        FB_LOG_INFO_F("    - BootPartition = 0x%02x", args.BootInfo.BootPartition);
+        FB_LOG_INFO("  - MemoryMap: ");
+        FB_LOG_INFO_F("    - HasAcpiExtendedAttribute = %s", args.MemoryMap.HasAcpiExtendedAttribute ? "yes" : "no");
+        FB_LOG_INFO_F("    - First = 0x%04X", args.MemoryMap.First);
+        FB_LOG_INFO_F("    - EntriesCount = %d", args.MemoryMap.Count);
     }
 
     void PrintBootloaderParametersOption::HandleKey(HW::PS2::ScanCode code) {
@@ -112,7 +114,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         Logging::GetTerminalManager()->ClearScreen();
 
         const auto& args = Bootloader::Get().GetBootloaderParameters();
-        Driver::Drive::BiosDriveInterface interface(args.BootDriveNumber);
+        Driver::Drive::BiosDriveInterface interface(args.BootInfo.BootDriveNumber);
 
         FB_LOG_INFO("Boot drive parameters");
         FB_LOG_INFO_F("     - DriveIdentification = 0x%02x", interface.GetDriveIdentification());

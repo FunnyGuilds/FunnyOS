@@ -17,16 +17,21 @@
 #define _NO_RETURN for (;;)
 
 // Defined in real_mode_intro.asm
-extern const FunnyOS::Bootloader32::BootloaderParameters g_bootloaderParameters;
+extern FunnyOS::Bootparams::BootDriveInfo g_bootInfo;
+extern FunnyOS::Bootparams::MemoryMapDescription g_memoryMap;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
-    const BootloaderParameters& Bootloader::GetBootloaderParameters() {
-        return g_bootloaderParameters;
+    Bootparams::Parameters& Bootloader::GetBootloaderParameters() {
+        static Bootparams::Parameters c_bootloaderParameters;
+        return c_bootloaderParameters;
     }
 
     [[noreturn]] void Bootloader::Main() {
+        GetBootloaderParameters().BootInfo = g_bootInfo;
+        GetBootloaderParameters().MemoryMap = g_memoryMap;
+
         // Initialization stuff
         GetAllocator().Initialize(0x00040000, 0x0007FFFF);
         SetupInterrupts();

@@ -6,13 +6,13 @@ SECTION .intro
 
     intro:
         ; Setup bootloader_parameters
-        mov [bootloader_parameters__boot_drive_id], dl
-        mov [bootloader_parameters__boot_parttition], ch
+        mov [boot_info__boot_drive_id], dl
+        mov [boot_info__boot_parttition], ch
 
         call make_memory_map
-        mov [bootloader_parameters__acpi_extended], al
-        mov [bootloader_parameters__memory_map_start], ebx
-        mov [bootloader_parameters__memory_map_count], cx
+        mov [memory_map__acpi_extended], al
+        mov [memory_map__first], ebx
+        mov [memory_map__count], cx
 
         ; Setup video mode
         mov ah, 0x00
@@ -63,13 +63,16 @@ SECTION .real.data
     gdt_end:
 
     ; Parameters to be passed to the bootloader
-    GLOBAL g_bootloaderParameters
-    g_bootloaderParameters:
-        bootloader_parameters__boot_drive_id:        db 0                  ; Boot drive ID
-        bootloader_parameters__boot_parttition:      db 0                  ; Boot partition
-        bootloader_parameters__acpi_extended:        db 0                  ; Memory map has ACPI extend attributes
-        bootloader_parameters__memory_map_start:     dd 0                  ; Memory map start
-        bootloader_parameters__memory_map_count:     dw 0                  ; Memory map number of entries
+    GLOBAL g_bootInfo
+    g_bootInfo:
+        boot_info__boot_drive_id:        db 0            ; Boot drive ID
+        boot_info__boot_parttition:      db 0            ; Boot partition
+
+    GLOBAL g_memoryMap
+    g_memoryMap:
+        memory_map__acpi_extended:       db 0            ; Memory map has ACPI extend attributes
+        memory_map__first:               dd 0            ; Address of the first element in the memory map
+        memory_map__count:               dw 0            ; Memory map number of entries
 
 SECTION .magic
     dd 0x46554E42

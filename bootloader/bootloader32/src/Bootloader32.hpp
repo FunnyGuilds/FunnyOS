@@ -1,7 +1,7 @@
 #ifndef FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_BOOTLOADER32_HPP
 #define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_BOOTLOADER32_HPP
 
-#include "BootloaderParameters.hpp"
+#include <FunnyOS/Bootparams/Parameters.hpp>
 #include "LowMemoryAllocator.hpp"
 
 namespace FunnyOS::Bootloader32 {
@@ -12,11 +12,11 @@ namespace FunnyOS::Bootloader32 {
     class Bootloader {
        public:
         /**
-         * Returns arguments collected by the pre-bootloader asm code.
+         * Returns the whole bootparams structure.
          *
-         * @return arguments collected by the pre-bootloader asm code
+         * @return the whole the whole bootparams structure
          */
-        [[nodiscard]] const BootloaderParameters& GetBootloaderParameters();
+        [[nodiscard]] Bootparams::Parameters& GetBootloaderParameters();
 
         /**
          * Bootloader entry point

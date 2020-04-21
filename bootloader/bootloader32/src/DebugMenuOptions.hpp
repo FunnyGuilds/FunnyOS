@@ -1,10 +1,9 @@
 #ifndef FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DEBUGMENUOPTIONS_HPP
 #define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DEBUGMENUOPTIONS_HPP
-
+#include <FunnyOS/Bootparams/Parameters.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include "Bootloader32.hpp"
-#include "BootloaderParameters.hpp"
 #include "Logging.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {

@@ -6,7 +6,6 @@ add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
 )
 target_compile_options(FunnyOS_Bootloader_Bootloader32_ASM PRIVATE -f elf)
 
-
 # Create .elf executable
 add_executable(FunnyOS_Bootloader_Bootloader32
         $<TARGET_OBJECTS:FunnyOS_Bootloader_Bootloader32_ASM>
@@ -35,6 +34,7 @@ set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES
 target_link_libraries(FunnyOS_Bootloader_Bootloader32
         PUBLIC
             FunnyOS::Stdlib::Base32_Static_LL
+            FunnyOS::Misc::Bootparams
             FunnyOS::Misc::Hardware32
             FunnyOS::Misc::TerminalManager32
             FunnyOS::Driver::Drive::BIOS32
