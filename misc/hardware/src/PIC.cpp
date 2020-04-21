@@ -56,17 +56,20 @@ namespace FunnyOS::HW::PIC {
 
     void Remap() {
         HW::NoInterruptsBlock noInterrupts;
-        const uint8_t masterMask = InputByte(PORT_MASTER_PIC_DATA);
-        const uint8_t slaveMask = InputByte(PORT_SLAVE_PIC_DATA);
-
         PicRemapRoutine();
-
-        OutputByte(PORT_MASTER_PIC_DATA, masterMask);
-        OutputByte(PORT_SLAVE_PIC_DATA, slaveMask);
     }
 
     void SendEndOfInterrupt(bool master) {
-        const size_t ocw2 = 1 << 5; // End of interrupt
+        const size_t ocw2 = 1 << 5;  // End of interrupt
         OutputByte(master ? PORT_MASTER_PIC_COMMAND : PORT_SLAVE_PIC_COMMAND, ocw2);
+    }
+
+    void SetEnabledInterrupts(uint16_t mask) {
+        OutputByte(PORT_MASTER_PIC_DATA, ((~mask) >> 0) & 0xFF);
+        OutputByte(PORT_SLAVE_PIC_DATA, ((~mask) >> 8) & 0xFF);
+    }
+
+    uint16_t GetEnabledInterrupts() {
+        return ~(InputByte(PORT_MASTER_PIC_DATA) | InputByte(PORT_SLAVE_PIC_DATA) << 8);
     }
 }  // namespace FunnyOS::HW::PIC

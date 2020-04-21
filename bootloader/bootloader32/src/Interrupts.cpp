@@ -112,32 +112,16 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
-    void NoOpHandler(HW::InterruptData* d) {
-        Stdlib::System::ReportError("Int %u", d->Type);
-    }
-
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &Bootloader::PITInterruptHandler);
         HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &KeyboardHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CascadeInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM2_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_COM1_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT2_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_FloppyInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_LPT1_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CMOS_RealTimeClockInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_ACPI_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_10_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_11_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PS2_MouseInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_CoProcessor_FPU_IPI_Interrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PrimaryAtaHardDriveInterrupt, &NoOpHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_SecondaryAtaHardDriveInterrupt, &NoOpHandler);
 
         HW::SetupInterrupts();
         HW::PIC::Remap();
+        HW::PIC::SetEnabledInterrupts(0b111);
+
         HW::EnableHardwareInterrupts();
         HW::EnableNonMaskableInterrupts();
     }

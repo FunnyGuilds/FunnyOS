@@ -94,12 +94,18 @@ namespace FunnyOS::HW {
     }
 
     NoInterruptsBlock::NoInterruptsBlock()
-        : m_hadInterrupts(HardwareInterruptsEnabled()), m_hadNMIs(NonMaskableInterruptsEnabled()) {
+        : m_hadInterrupts(HardwareInterruptsEnabled()),
+          m_hadNMIs(NonMaskableInterruptsEnabled()),
+          m_picMask(PIC::GetEnabledInterrupts()) {
+
         if (m_hadInterrupts) {
             DisableHardwareInterrupts();
         }
         if (m_hadNMIs) {
             DisableNonMaskableInterrupts();
+        }
+        if (m_picMask != 0) {
+            PIC::SetEnabledInterrupts(0);
         }
     }
 
@@ -109,6 +115,9 @@ namespace FunnyOS::HW {
         }
         if (m_hadInterrupts) {
             EnableHardwareInterrupts();
+        }
+        if (m_picMask != 0) {
+            PIC::SetEnabledInterrupts(m_picMask);
         }
     }
 

@@ -35,6 +35,23 @@ namespace FunnyOS::HW::PIC {
      * @param master if true the end of interrupt will be send to master PIC, if false it will be send to slave PIC
      */
     void SendEndOfInterrupt(bool master);
+
+    /**
+     * Sets mask describing for what IRQs PIC should generate an interrupt.
+     * I.e. mask: 0b101 will only enable IRQs 0 and 2
+     *
+     * @param mask mask to set
+     */
+    void SetEnabledInterrupts(uint16_t mask);
+
+    /**
+     * Returns ask describing for what IRQs PIC should generate an interrupt.
+     *
+     * I.e. mask: 0b101 will only enable IRQs 0 and 2
+     *
+     * @return current mask
+     */
+    uint16_t GetEnabledInterrupts();
 }  // namespace FunnyOS::HW::PIC
 
 #endif  // FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_PIC_HPP

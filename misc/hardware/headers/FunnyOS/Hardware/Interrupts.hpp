@@ -265,6 +265,7 @@ namespace FunnyOS::HW {
        private:
         bool m_hadInterrupts;
         bool m_hadNMIs;
+        uint16_t m_picMask;
     };
 
 }  // namespace FunnyOS::HW
