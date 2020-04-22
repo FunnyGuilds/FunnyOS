@@ -37,7 +37,7 @@ namespace FunnyOS::Driver::Drive {
         char errorBuffer[128];
 
         void CheckErrors(const char* when, const Registers16& regs) {
-            if ((regs.FLAGS.Value16 & CPU::Flags::CarryFlag) == 0) {
+            if ((regs.FLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0) {
                 return;
             }
 
@@ -154,7 +154,8 @@ namespace FunnyOS::Driver::Drive {
         regs.BX.Value16 = 0x55AA;
         regs.DX.Value8.Low = m_drive;
         RealModeInt(0x13, regs);
-        if ((regs.FLAGS.Value16 & CPU::Flags::CarryFlag) == 0 && regs.BX.Value16 == 0xAA55) {
+
+        if ((regs.FLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0 && regs.BX.Value16 == 0xAA55) {
             m_hasExtendedDiskAccess = (regs.CX.Value16 & 0b1) != 0;
             m_hasEnhancedDiskDriveFunctions = (regs.CX.Value16 & 0b100) != 0;
             m_supportsFlat64Addresses = (regs.CX.Value16 & 0b1000) != 0;
@@ -190,9 +191,9 @@ namespace FunnyOS::Driver::Drive {
             RealModeInt(0x13, regs);
             CheckErrors("getting drive parameters", regs);
 
-            m_sectorsPerTrack = regs.CX.Value8.Low & 0b00111111;
-            m_maxCylinderNumber = (((regs.CX.Value8.Low & 0b1100000) >> 6) << 8) | regs.CX.Value8.High;
-            m_headsPerCylinder = regs.DX.Value8.High;
+            m_sectorsPerTrack = regs.CX.Value8.Low & 0b0011'1111;
+            m_maxCylinderNumber = ((((regs.CX.Value8.Low & 0b1100'0000) >> 6) << 8) | regs.CX.Value8.High) + 1;
+            m_headsPerCylinder = regs.DX.Value8.High + 1;
             m_sectorCount = m_sectorsPerTrack * m_headsPerCylinder * m_maxCylinderNumber;
         }
     }

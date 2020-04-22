@@ -4,6 +4,7 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
+#include <FunnyOS/Stdlib/System.hpp>
 
 namespace FunnyOS::HW {
     using namespace Stdlib;
@@ -16,6 +17,12 @@ namespace FunnyOS::HW {
 
         uint16_t Value16;
         Parts Value8;
+
+        NON_MOVEABLE(Register16);
+        COPYABLE(Register16);
+
+        Register16(uint16_t value);
+
     } F_DONT_ALIGN;
 
     struct Registers16 {

@@ -11,6 +11,15 @@ extern uint8_t g_realBufferTop;
 F_CDECL extern void do_real_mode_interrupt();
 
 namespace FunnyOS::HW {
+    Register16::Register16(const Register16& other) : Value16(other.Value16) {}
+
+    Register16& Register16::operator=(const Register16& other) {
+        Value16 = other.Value16;
+        return *this;
+    }
+
+    Register16::Register16(uint16_t value) : Value16(value) {}
+
     void SetupRealModeInterrupts(GDTInfo gdtInfo) {
         g_gdtInfo = gdtInfo;
     }
