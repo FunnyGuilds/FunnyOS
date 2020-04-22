@@ -4,7 +4,7 @@ configure_file(
         @ONLY
 )
 
-set(LL_FLAGS -Os -fno-pie -ffunction-sections -fdata-sections -mno-sse)
+set(LL_FLAGS -O2 -fno-pie -ffunction-sections -fdata-sections -mno-sse)
 
 function(setup_library name type)
     add_library(${name} STATIC

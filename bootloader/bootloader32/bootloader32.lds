@@ -52,8 +52,6 @@ SECTIONS
         KEEP(*(.magic))
     }
 
-    /DISCARD/ :
-    {
-        *(.*)
-    }
+    . = ADDR(.bss) + SIZEOF(.bss);
+    . = ALIGN(0x400);
 }
