@@ -15,7 +15,7 @@ namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
     inline void DecodeEflagPart(String::StringBuffer& buf, HW::Register flags, HW::CPU::Flags flag, const char* str) {
-        if ((flags & flag) != 0) {
+        if ((flags & static_cast<uintmax_t>(flag)) != 0) {
             String::Concat(buf, buf.Data, str);
             String::Concat(buf, buf.Data, " ");
         }

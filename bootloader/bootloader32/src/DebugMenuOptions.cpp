@@ -1,6 +1,7 @@
 #include "DebugMenuOptions.hpp"
 
 #include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
+#include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
 #include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
@@ -136,6 +137,53 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     }
 
     PrintBootDiskParameters PrintBootDiskParameters::s_instance{};
+
+    void CPUIDInfo::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Print CPUID");
+    }
+
+    void CPUIDInfo::FetchState(String::StringBuffer& buffer) const {
+        if (!HW::CPU::SupportsCpuid()) {
+            String::Append(buffer, "NOT SUPPORTED");
+        }
+    }
+
+    void CPUIDInfo::Enter() {
+        if (!HW::CPU::SupportsCpuid()) {
+            SelectCurrentSubmenu(-1);
+            return;
+        }
+        Logging::GetTerminalManager()->ClearScreen();
+
+        char string[256];
+        String::StringBuffer buffer{string, 256};
+
+        FB_LOG_INFO("CPUID");
+        HW::CPU::GetVendorId(buffer);
+        FB_LOG_INFO_F("  - Vendor ID: %s", string);
+
+        string[0] = 0;
+        if (HW::CPU::GetBrandString(buffer)) {
+            FB_LOG_INFO_F("  - Brand string: %s", string);
+        } else {
+            FB_LOG_INFO("  - Brand string: unsupported");
+        }
+
+        FB_LOG_INFO_F("  - CpuidMaxFeature: 0x%08x", HW::CPU::GetCpuidMaxFeature());
+        FB_LOG_INFO_F("  - CpuidMaxExtendedFeature: 0x%08x", HW::CPU::GetCpuidMaxExtendedFeature());
+
+        string[0] = 0;
+        HW::CPU::DecodeExtendedFeatureBits(HW::CPU::GetExtendedFeatureBits(), buffer);
+        FB_LOG_INFO_F("  - CpuidExtendedFeatureBits: %s", string);
+    }
+
+    void CPUIDInfo::HandleKey(HW::PS2::ScanCode code) {
+        if (code == HW::PS2::ScanCode::Enter_Released) {
+            SelectCurrentSubmenu(-1);
+        }
+    }
+
+    CPUIDInfo CPUIDInfo::s_instance{};
 
     void QuitMenuOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Quit menu");

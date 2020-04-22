@@ -53,6 +53,7 @@ namespace FunnyOS::Bootloader32 {
 
         for (int i = 0; i < 3; i++) {
             if (HW::PS2::InitializeKeyboard()) {
+                FB_LOG_OK("Keyboard initialized!");
                 break;
             }
 
@@ -76,15 +77,23 @@ namespace FunnyOS::Bootloader32 {
                 Halt();
             }
 
-            FB_LOG_DEBUG("A20 enabled");
+            FB_LOG_OK("A20 line enabled!");
         }
 
-        String::StringBuffer buf = Memory::AllocateBuffer<char>(10);
-        for (size_t i = 0; i < 10; i++) {
-            String::IntegerToString(buf, i);
-            FB_LOG_INFO(buf.Data);
-            Sleep(1000);
+        if (!HW::CPU::SupportsCpuid()) {
+            FB_LOG_FATAL("CPUID instruction is not supported, booting failed.");
+            Halt();
         }
+
+        if ((HW::CPU::GetExtendedFeatureBits() & static_cast<uint64_t>(HW::CPU::CPUIDExtendedFeatures::LM)) == 0) {
+            FB_LOG_FATAL("Long mode is not supported, booting failed.");
+            Halt();
+        }
+
+        char vendorId[13];
+        String::StringBuffer vendorIdBuffer{vendorId, 13};
+        HW::CPU::GetVendorId(vendorIdBuffer);
+        FB_LOG_INFO_F("CPU Vendor ID: %s", vendorId);
 
         Halt();
         _NO_RETURN;
@@ -114,7 +123,7 @@ namespace FunnyOS::Bootloader32 {
     }
 
     [[noreturn]] void Bootloader::Halt() {
-        //        HW::DisableHardwareInterrupts(); TODO
+        HW::DisableHardwareInterrupts();
 
         for (;;) {
             HW::CPU::Halt();

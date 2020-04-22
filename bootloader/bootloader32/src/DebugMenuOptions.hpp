@@ -60,6 +60,16 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         static PrintBootDiskParameters s_instance;
     };
 
+    class CPUIDInfo : public MenuOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void FetchState(String::StringBuffer& buffer) const override;
+        void Enter() override;
+        void HandleKey(HW::PS2::ScanCode code) override;
+
+        static CPUIDInfo s_instance;
+    };
+
     class QuitMenuOption : public MenuOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;
@@ -75,6 +85,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         &PrintMemoryMapOption::s_instance,
         &PrintBootloaderParametersOption::s_instance,
         &PrintBootDiskParameters::s_instance,
+        &CPUIDInfo::s_instance,
         &QuitMenuOption::s_instance,
     };
 }  // namespace FunnyOS::Bootloader32::DebugMenu

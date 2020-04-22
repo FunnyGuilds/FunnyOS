@@ -23,9 +23,8 @@ namespace FunnyOS::HW {
     }
 #endif
 
-
     inline bool HardwareInterruptsEnabled() {
-        return (CPU::GetFlagsRegister() & CPU::Flags::InterruptFlag) != 0;
+        return (CPU::GetFlagsRegister() & static_cast<uintmax_t>(CPU::Flags::InterruptFlag)) != 0;
     }
 
     inline void EnableNonMaskableInterrupts() {
