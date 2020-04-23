@@ -14,15 +14,15 @@
  */
 namespace FunnyOS::_Platform {
 
-    [[nodiscard]] _EXTERN void* AllocateMemoryAligned(size_t size, size_t aligned);
+    [[nodiscard]] _EXTERN void* AllocateMemoryAligned(size_t size, size_t aligned) noexcept;
 
-    [[nodiscard]] _EXTERN void* ReallocateMemory(void* memory, size_t size);
+    [[nodiscard]] _EXTERN void* ReallocateMemory(void* memory, size_t size) noexcept;
 
-    _EXTERN void FreeMemory(void* memory);
+    _EXTERN void FreeMemory(void* memory) noexcept;
 
-    _EXTERN void ReportError(const char* error);
+    _EXTERN void ReportError(const char* error) noexcept;
 
-    [[noreturn]] _EXTERN void Terminate(const char* error);
+    [[noreturn]] _EXTERN void Terminate(const char* error) noexcept;
 
 }  // namespace FunnyOS::_Platform
 

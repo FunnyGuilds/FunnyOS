@@ -11,7 +11,7 @@ namespace FunnyOS::Bootparams {
      */
     namespace ACPI30Flags {
         /**
-         *If it is not set the memory block should be ignored, as it it was reserved
+         * If it is not set the memory block should be ignored, as it it was reserved
          */
         constexpr static uint32_t DONT_IGNORE = 1 << 0;
 

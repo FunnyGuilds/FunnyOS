@@ -17,7 +17,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
      *
      * @return  whether was the debug menu requested
      */
-    bool MenuRequested();
+    [[nodiscard]] bool MenuRequested();
 
     /**
      * Enters the debug menu. This function will block for as long as the menu is open.

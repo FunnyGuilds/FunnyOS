@@ -13,9 +13,7 @@ namespace FunnyOS::Stdlib {
      * @return an rvalue reference to T
      */
     template <typename T>
-    constexpr RemoveReference<T>&& Move(T&& value) noexcept {
-        return static_cast<RemoveReference<T>&&>(value);
-    }
+    [[nodiscard]] constexpr RemoveReference<T>&& Move(T&& value) noexcept;
 
     /**
      * Forwards an lvalue as either an lvalue or as an rvalue, depending on T.
@@ -25,9 +23,7 @@ namespace FunnyOS::Stdlib {
      * @return the forwarded value
      */
     template <typename T>
-    constexpr T&& Forward(RemoveReference<T>& value) noexcept {
-        return static_cast<T&&>(value);
-    }
+    [[nodiscard]] constexpr T&& Forward(RemoveReference<T>& value) noexcept;
 
     /**
      * Forwards rvalues as rvalues and prohibits forwarding of rvalues as lvalues
@@ -35,16 +31,25 @@ namespace FunnyOS::Stdlib {
      * @tparam T type of the argument rvalue
      * @param value rvalue to forward
      * @return the forwarded value
-     * @return
      */
     template <typename T>
-    constexpr T&& Forward(T&& value) noexcept {
-        return static_cast<T&&>(value);
-    }
+    [[nodiscard]] constexpr T&& Forward(T&& value) noexcept;
 
+    /**
+     * Represents a global tag that can be used to use a function variant supporting in-place construction.
+     */
     struct InPlaceConstructor {
         constexpr static const InPlaceConstructor* Value = static_cast<const InPlaceConstructor*>(nullptr);
+
+       private:
+        InPlaceConstructor() = delete;
     };
+
+    /**
+     * Indicates whether or not T is one a global Stdlib tag.
+     */
+    template <typename T>
+    constexpr bool IsGlobalTag = IsSame<T, InPlaceConstructor>;
 
     /**
      * Represents an arbitrary object wrapper that may or may not be initialized.
@@ -90,21 +95,21 @@ namespace FunnyOS::Stdlib {
          *
          * @return the underlying object
          */
-        [[nodiscard]] inline T& GetObject();
+        [[nodiscard]] inline T& GetObject() noexcept;
 
         /**
          * Converts this storage to the type of the underlying object
          *
          * @return the underlying object
          */
-        [[nodiscard]] inline const T& GetObject() const;
+        [[nodiscard]] inline const T& GetObject() const noexcept;
 
         /**
          * Returns whether or not this storage was initialized.
          *
          * @return whether or not this storage was initialized.
          */
-        [[nodiscard]] bool IsInitialized() const;
+        [[nodiscard]] bool IsInitialized() const noexcept;
 
        private:
         void Destroy();

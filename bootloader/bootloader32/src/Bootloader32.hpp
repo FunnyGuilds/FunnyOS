@@ -42,6 +42,7 @@ namespace FunnyOS::Bootloader32 {
 
         /**
          * Gets the global instance of the Bootloader class.
+         *
          * @return the global instance of the Bootloader class
          */
         static Bootloader& Get();

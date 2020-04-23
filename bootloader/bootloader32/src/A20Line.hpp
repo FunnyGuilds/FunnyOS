@@ -8,7 +8,7 @@ namespace FunnyOS::Bootloader32::A20 {
      *
      * @return if A20 line is enabled
      */
-    bool IsEnabled();
+    [[nodiscard]] bool IsEnabled();
 
     /**
      * Tries to enable the A20 gate via the fast A20 gate port.

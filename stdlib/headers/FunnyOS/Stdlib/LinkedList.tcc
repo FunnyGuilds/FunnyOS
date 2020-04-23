@@ -13,34 +13,34 @@
 namespace FunnyOS::Stdlib {
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++() {
+    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++() noexcept {
         m_element = m_element->Next;
         return *this;
     }
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++(int) {
+    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++(int) noexcept {
         m_element = m_element->Next;
         return *this;
     }
 
     template <typename T>
-    const T& LinkedList<T>::ConstIterator::operator*() const {
+    const T& LinkedList<T>::ConstIterator::operator*() const noexcept {
         return m_element->Data.GetObject();
     }
 
     template <typename T>
-    const T* LinkedList<T>::ConstIterator::operator->() const {
+    const T* LinkedList<T>::ConstIterator::operator->() const noexcept {
         return m_element->Data.GetObject();
     }
 
     template <typename T>
-    bool LinkedList<T>::ConstIterator::operator==(const LinkedList::ConstIterator& other) {
+    bool LinkedList<T>::ConstIterator::operator==(const LinkedList::ConstIterator& other) noexcept {
         return m_element == other.m_element;
     }
 
     template <typename T>
-    bool LinkedList<T>::ConstIterator::operator!=(const LinkedList::ConstIterator& other) {
+    bool LinkedList<T>::ConstIterator::operator!=(const LinkedList::ConstIterator& other) noexcept {
         return m_element != other.m_element;
     }
 
@@ -49,12 +49,12 @@ namespace FunnyOS::Stdlib {
         : m_list(list), m_element(element) {}
 
     template <typename T>
-    T& LinkedList<T>::Iterator::operator*() {
+    T& LinkedList<T>::Iterator::operator*() noexcept {
         return this->m_element->Data.GetObject();
     }
 
     template <typename T>
-    T* LinkedList<T>::Iterator::operator->() {
+    T* LinkedList<T>::Iterator::operator->() noexcept {
         return this->m_element->Data.GetObject();
     }
 
@@ -280,22 +280,22 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    typename LinkedList<T>::Iterator LinkedList<T>::Begin() {
+    typename LinkedList<T>::Iterator LinkedList<T>::Begin() noexcept {
         return Iterator(*this, m_head->Next);
     }
 
     template <typename T>
-    typename LinkedList<T>::Iterator LinkedList<T>::End() {
+    typename LinkedList<T>::Iterator LinkedList<T>::End() noexcept {
         return Iterator(*this, nullptr);
     }
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator LinkedList<T>::Begin() const {
+    typename LinkedList<T>::ConstIterator LinkedList<T>::Begin() const noexcept {
         return ConstIterator(*this, m_head->Next);
     }
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator LinkedList<T>::End() const {
+    typename LinkedList<T>::ConstIterator LinkedList<T>::End() const noexcept {
         return ConstIterator(*this, nullptr);
     }
 

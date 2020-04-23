@@ -13,7 +13,7 @@ namespace FunnyOS::Stdlib {
     Optional<T>::Optional() noexcept : m_storage() {}
 
     template <typename T>
-    Optional<T>::Optional(const NullOptionalType* /*unused*/) noexcept : m_storage() {}
+    Optional<T>::Optional(const NullOptionalTag* /*unused*/) noexcept : m_storage() {}
 
     template <typename T>
     template <typename... Args>
@@ -76,18 +76,18 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    Optional<T>::operator bool() {
+    Optional<T>::operator bool() noexcept {
         return HasValue();
     }
 
     template <typename T>
-    Optional<T>::operator bool() const {
+    Optional<T>::operator bool() const noexcept {
         return HasValue();
     }
 
     template <typename T>
     inline Optional<T> EmptyOptional() noexcept {
-        return Optional<T>{NullOptionalType::Value};
+        return Optional<T>{NullOptionalTag::Value};
     }
 
     template <typename T, typename... Args>

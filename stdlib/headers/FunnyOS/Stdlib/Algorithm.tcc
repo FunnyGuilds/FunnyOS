@@ -17,7 +17,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T, typename... Args>
-    [[nodiscard]] constexpr const T& Min(T value1, T value2, Args... args) {
+    [[nodiscard]] constexpr const T& Min(T value1, T value2, Args... args) noexcept(noexcept(Min(value1, value2))) {
         T min = Min(value1, value2);
 
         if (sizeof...(Args) > 0) {
@@ -26,7 +26,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T, typename... Args>
-    [[nodiscard]] constexpr const T& Max(T value1, T value2, Args... args) {
+    [[nodiscard]] constexpr const T& Max(T value1, T value2, Args... args) noexcept(noexcept(Max(value1, value2))) {
         T max = Max(value1, value2);
 
         if (sizeof...(Args) > 0) {

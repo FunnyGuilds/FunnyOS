@@ -9,32 +9,67 @@ namespace FunnyOS::Driver::Drive {
     using namespace HW;
     using namespace Stdlib;
 
-    F_TRIVIAL_EXCEPTION_WITH_MESSAGE(BiosException);
-
+    /**
+     * IDriveInterface implementation for disk IO using BIOS int13
+     *
+     * Supports and defaults to the Enhanced Disk Drive 3.0 specification if available.
+     */
     class BiosDriveInterface : public IDriveInterface {
        public:
+        /**
+         * Setups a new drive interface for the drive identified by the given ID.
+         *
+         * @param drive drive identification number.
+         */
         explicit BiosDriveInterface(DriveIdentification drive);
 
        public:
-        DriveIdentification GetDriveIdentification() const override;
-
-        SectorNumber GetTotalSectorCount() const override;
-
-        size_t GetSectorSize() const override;
-
+        [[nodiscard]] DriveIdentification GetDriveIdentification() const override;
+        [[nodiscard]] SectorNumber GetTotalSectorCount() const override;
+        [[nodiscard]] size_t GetSectorSize() const override;
         void ReadSectors(SectorNumber sector, SectorNumber count, Memory::SizedBuffer<uint8_t>& buffer) override;
 
-        bool HasExtendedDiskAccess() const;
+        /**
+         * Returns whether or not the EDD Fixed Disk Access Subset is available.
+         *
+         * @return whether or not the EDD Fixed Disk Access Subset is available.
+         */
+        [[nodiscard]] bool HasExtendedDiskAccess() const;
 
-        bool HasEnhancedDiskDriveFunctions() const;
+        /**
+         * Returns whether or not the Enhanced Disk Drive (EDD) Support Subset is available.
+         *
+         * @return whether or not the Enhanced Disk Drive (EDD) Support Subset is available.
+         */
+        [[nodiscard]] bool HasEnhancedDiskDriveFunctions() const;
 
-        bool SupportsFlat64Addresses() const;
+        /**
+         * Returns whether or not flat 64-bit addresses are supported in EDD disk address packet.
+         *
+         * @return whether or not flat 64-bit addresses are supported in EDD disk address packet.
+         */
+        [[nodiscard]] bool SupportsFlat64Addresses() const;
 
-        uint8_t GetSectorsPerTrack() const;
+        /**
+         * Returns the amount of sectors per single track on the drive.
+         *
+         * @return  the amount of sectors per single track on the drive.
+         */
+        [[nodiscard]] uint8_t GetSectorsPerTrack() const;
 
-        uint16_t GetMaxCylinderNumber() const;
+        /**
+         * Returns the maximum cylinder number on the drive.
+         *
+         * @return the maximum cylinder number on the drive.
+         */
+        [[nodiscard]] uint16_t GetMaxCylinderNumber() const;
 
-        uint8_t GetHeadsPerCylinder() const;
+        /**
+         * Returns the amount of heads per single cylinder on the drive.
+         *
+         * @return  the amount of heads per single cylinder on the drive.
+         */
+        [[nodiscard]] uint8_t GetHeadsPerCylinder() const;
 
        private:
         void Query();

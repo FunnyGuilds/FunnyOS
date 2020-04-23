@@ -8,23 +8,23 @@
 namespace FunnyOS::_Platform {
     using namespace FunnyOS::Stdlib;
 
-    void* AllocateMemoryAligned(size_t size, size_t aligned) {
+    void* AllocateMemoryAligned(size_t size, size_t aligned) noexcept {
         return aligned_alloc(aligned, size);
     }
 
-    void* ReallocateMemory(void* memory, size_t size) {
+    void* ReallocateMemory(void* memory, size_t size) noexcept {
         return realloc(memory, size);
     }
 
-    void FreeMemory(void* memory) {
+    void FreeMemory(void* memory) noexcept {
         return free(memory);
     }
 
-    void ReportError(const char* error) {
+    void ReportError(const char* error) noexcept {
         fprintf(stderr, "%s", error);
     }
 
-    void Terminate(const char* error) {
+    void Terminate(const char* error) noexcept {
         ReportError(error);
         std::terminate();
     }

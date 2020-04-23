@@ -9,24 +9,24 @@ namespace FunnyOS::_Platform {
     using namespace FunnyOS::Stdlib;
     using namespace FunnyOS::Bootloader32;
 
-    void* AllocateMemoryAligned(size_t size, size_t /*aligned*/) {
+    void* AllocateMemoryAligned(size_t size, size_t /*aligned*/) noexcept {
         // We don't really support alignments in bootloader, let's hope nobody's gonna be angry about this.
         return Bootloader::Get().GetAllocator().Allocate(size);
     }
 
-    void* ReallocateMemory(void* memory, size_t size) {
+    void* ReallocateMemory(void* memory, size_t size) noexcept {
         return Bootloader::Get().GetAllocator().Reallocate(memory, size);
     }
 
-    void FreeMemory(void* memory) {
+    void FreeMemory(void* memory) noexcept {
         return Bootloader::Get().GetAllocator().Free(memory);
     }
 
-    void ReportError(const char* error) {
+    void ReportError(const char* error) noexcept {
         FB_LOG_ERROR(error);
     }
 
-    void Terminate(const char* error) {
+    void Terminate(const char* error) noexcept {
         Bootloader::Get().Panic(error);
         for (;;) {
         }

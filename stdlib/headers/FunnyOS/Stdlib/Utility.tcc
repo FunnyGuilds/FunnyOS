@@ -6,6 +6,22 @@
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_UTILITY_TCC
 
 namespace FunnyOS::Stdlib {
+
+    template <typename T>
+    [[nodiscard]] constexpr RemoveReference<T>&& Move(T&& value) noexcept {
+        return static_cast<RemoveReference<T>&&>(value);
+    }
+
+    template <typename T>
+    [[nodiscard]] constexpr T&& Forward(RemoveReference<T>& value) noexcept {
+        return static_cast<T&&>(value);
+    }
+
+    template <typename T>
+    [[nodiscard]] constexpr T&& Forward(T&& value) noexcept {
+        return static_cast<T&&>(value);
+    }
+
     template <typename T>
     Storage<T>::Storage() noexcept : m_initialized(false){};
 
@@ -90,21 +106,21 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    T& Storage<T>::GetObject() {
+    T& Storage<T>::GetObject() noexcept {
         T* ptr = reinterpret_cast<T*>(&m_data);
         return reinterpret_cast<T&>(*ptr);
     }
 
     template <typename T>
-    const T& Storage<T>::GetObject() const {
+    const T& Storage<T>::GetObject() const noexcept {
         const T* ptr = reinterpret_cast<const T*>(&m_data);
         return reinterpret_cast<const T&>(*ptr);
     }
 
     template <typename T>
-    bool Storage<T>::IsInitialized() const {
+    bool Storage<T>::IsInitialized() const noexcept {
         return m_initialized;
     }
-}
+}  // namespace FunnyOS::Stdlib
 
 #endif

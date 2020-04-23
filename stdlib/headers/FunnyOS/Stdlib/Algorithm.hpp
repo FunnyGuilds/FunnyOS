@@ -36,7 +36,7 @@ namespace FunnyOS::Stdlib {
      * @return the lowest value
      */
     template <typename T, typename... Args>
-    [[nodiscard]] constexpr const T& Min(T value1, T value2, Args... args);
+    [[nodiscard]] constexpr const T& Min(T value1, T value2, Args... args) noexcept(noexcept(Min(value1, value2)));
 
     /**
      * Returns the highest value from all of the supplied.
@@ -49,7 +49,7 @@ namespace FunnyOS::Stdlib {
      * @return the highest value
      */
     template <typename T, typename... Args>
-    [[nodiscard]] constexpr const T& Max(T value1, T value2, Args... args);
+    [[nodiscard]] constexpr const T& Max(T value1, T value2, Args... args) noexcept(noexcept(Max(value1, value2)));
 }  // namespace FunnyOS::Stdlib
 
 #include "Algorithm.tcc"

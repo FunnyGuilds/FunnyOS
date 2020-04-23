@@ -10,6 +10,8 @@ extern uint8_t g_realBufferTop;
 
 F_CDECL extern void do_real_mode_interrupt();
 
+// TODO: Synchronization of some sort.
+
 namespace FunnyOS::HW {
     Register16::Register16(const Register16& other) : Value16(other.Value16) {}
 

@@ -39,28 +39,28 @@ namespace FunnyOS::Stdlib {
              *
              * @return *this
              */
-            ConstIterator& operator++();
+            ConstIterator& operator++() noexcept;
 
             /**
              * Increment this iterator by one.
              *
              * @return *this
              */
-            ConstIterator& operator++(int);
+            ConstIterator& operator++(int) noexcept;
 
             /**
              * Gets the value that this iterator is pointing at the moment.
              *
              * @return value that this iterator is pointing at the moment.
              */
-            const T& operator*() const;
+            const T& operator*() const noexcept;
 
             /**
              * Gets a pointer to the value that this iterator is pointing at the moment.
              *
              * @return a pointer to the value that this iterator is pointing at the moment.
              */
-            const T* operator->() const;
+            const T* operator->() const noexcept;
 
             /**
              * Checks whether or not the [other] iterator is pointing at the exact same element as this one.
@@ -68,7 +68,7 @@ namespace FunnyOS::Stdlib {
              * @param other other iterator to compare
              * @return whether or not the other iterator is pointing at the same element
              */
-            bool operator==(const ConstIterator& other);
+            bool operator==(const ConstIterator& other) noexcept;
 
             /**
              * Checks whether or not the [other] iterator is not pointing at the exact same element as this one.
@@ -76,7 +76,7 @@ namespace FunnyOS::Stdlib {
              * @param other other iterator to compare
              * @return whether or not the other iterator is not pointing at the same element
              */
-            bool operator!=(const ConstIterator& other);
+            bool operator!=(const ConstIterator& other) noexcept;
 
            protected:
             ConstIterator(const LinkedList& list, Element* element);
@@ -100,14 +100,14 @@ namespace FunnyOS::Stdlib {
              *
              * @return value that this iterator is pointing at the moment.
              */
-            T& operator*();
+            T& operator*() noexcept;
 
             /**
              * Gets a pointer to the value that this iterator is pointing at the moment.
              *
              * @return a pointer to the value that this iterator is pointing at the moment.
              */
-            T* operator->();
+            T* operator->() noexcept;
 
            protected:
             Iterator(LinkedList& list, Element* element);
@@ -296,28 +296,28 @@ namespace FunnyOS::Stdlib {
          *
          * @return iterator pointing at the beginning of the list.
          */
-        Iterator Begin();
+        Iterator Begin() noexcept;
 
         /**
          * Returns an iterator pointing at the end of the list. (The element 1 after the last element of the list)
          *
          * @return iterator pointing at the end of the list.
          */
-        Iterator End();
+        Iterator End() noexcept;
 
         /**
          * Returns an iterator pointing at the beginning of the list.
          *
          * @return iterator pointing at the beginning of the list.
          */
-        ConstIterator Begin() const;
+        ConstIterator Begin() const noexcept;
 
         /**
          * Returns an iterator pointing at the end of the list. (The element 1 after the last element of the list)
          *
          * @return iterator pointing at the end of the list.
          */
-        ConstIterator End() const;
+        ConstIterator End() const noexcept;
 
         HAS_STANDARD_ITERATORS;
 

@@ -39,8 +39,11 @@ namespace FunnyOS::Stdlib {
     /**
      * Represents a type that can be passed to an optional constructor to create an empty optional.
      */
-    struct NullOptionalType {
-        constexpr static const NullOptionalType* Value = static_cast<const NullOptionalType*>(nullptr);
+    struct NullOptionalTag {
+        constexpr static const NullOptionalTag* Value = static_cast<const NullOptionalTag*>(nullptr);
+
+       private:
+        NullOptionalTag() = delete;
     };
 
     /**
@@ -55,6 +58,12 @@ namespace FunnyOS::Stdlib {
         TRIVIALLY_MOVEABLE(Optional);
 
         /**
+         * Value indicating whether or not U is a constructor tag.
+         */
+        template <typename U>
+        static constexpr bool IsTag = IsGlobalTag<T> || IsSame<U, NullOptionalTag>;
+
+        /**
          * Constructs an empty optional.
          */
         inline Optional() noexcept;
@@ -67,17 +76,18 @@ namespace FunnyOS::Stdlib {
         /**
          * Constructs an empty optional
          */
-        inline explicit Optional(const NullOptionalType* /*unused*/) noexcept;
+        inline explicit Optional(const NullOptionalTag* /*unused*/) noexcept;
 
         /**
          * Constructs an optional and initializes it using the provided value.
          */
-        template <typename U = T, typename = EnableIf<!IsSame<U, NullOptionalType>>>
+        template <typename U = T, typename = EnableIf<!IsTag<U>>>
         inline Optional(U&& value);
 
         /**
-         * Returns whether or not this optional has a value
-         * @return whether or not this optional has a value
+         * Returns whether or not this optional has a value.
+         *
+         * @return whether or not this optional has a value.
          */
         [[nodiscard]] inline bool HasValue() const noexcept;
 
@@ -130,14 +140,14 @@ namespace FunnyOS::Stdlib {
          *
          * @return the value of this optional
          */
-        [[nodiscard]] inline operator bool();
+        [[nodiscard]] inline operator bool() noexcept;
 
         /**
          * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
          *
          * @return the value of this optional
          */
-        [[nodiscard]] inline operator bool() const;
+        [[nodiscard]] inline operator bool() const noexcept ;
 
        private:
         template <typename T2, typename... Args>
@@ -151,7 +161,7 @@ namespace FunnyOS::Stdlib {
     };
 
     /**
-     * An empty optional of type T
+     * Creates an empty optional of type T.
      *
      * @tparam T type of the optional
      */

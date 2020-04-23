@@ -7,7 +7,7 @@ namespace FunnyOS::Stdlib::Memory {
         void* g_zeroMemory = reinterpret_cast<void*>(NumeralTraits::Info<uintptr_t>::MaximumValue);
     }
 
-    void* Allocate(size_t size) {
+    void* Allocate(size_t size) noexcept {
         if (size == 0) {
             return g_zeroMemory;
         }
@@ -15,7 +15,7 @@ namespace FunnyOS::Stdlib::Memory {
         return _Platform::AllocateMemoryAligned(size, 1);
     }
 
-    void* AllocateAligned(size_t size, size_t alignment) {
+    void* AllocateAligned(size_t size, size_t alignment) noexcept {
         if (size == 0) {
             return g_zeroMemory;
         }
@@ -23,19 +23,19 @@ namespace FunnyOS::Stdlib::Memory {
         return _Platform::AllocateMemoryAligned(size, alignment);
     }
 
-    void* AllocateInitialized(size_t size) {
+    void* AllocateInitialized(size_t size) noexcept {
         SizedBuffer<uint8_t> memory = AllocateBuffer<uint8_t>(size);
         Memory::Set(memory, static_cast<uint8_t>(0));
         return memory.Data;
     }
 
-    void* AllocateAlignedAndInitialized(size_t size, size_t alignment) {
+    void* AllocateAlignedAndInitialized(size_t size, size_t alignment) noexcept {
         SizedBuffer<uint8_t> memory = AllocateBufferAligned<uint8_t>(size, alignment);
         Memory::Set(memory, static_cast<uint8_t>(0));
         return memory.Data;
     }
 
-    void* Reallocate(void* data, size_t size) {
+    void* Reallocate(void* data, size_t size) noexcept {
         if (data == nullptr || data == g_zeroMemory) {
             return Memory::Allocate(size);
         }
@@ -48,7 +48,7 @@ namespace FunnyOS::Stdlib::Memory {
         return _Platform::ReallocateMemory(data, size);
     }
 
-    void Free(void* data) {
+    void Free(void* data) noexcept {
         if (data == nullptr || data == g_zeroMemory) {
             return;
         }

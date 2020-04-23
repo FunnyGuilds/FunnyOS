@@ -261,28 +261,28 @@ namespace FunnyOS::Stdlib {
          *
          * @return iterator pointing at the beginning of the vector.
          */
-        Iterator Begin();
+        Iterator Begin() noexcept;
 
         /**
          * Returns an iterator pointing at the end of the vector. (The element 1 after the last element of the vector)
          *
          * @return iterator pointing at the end of the vector.
          */
-        Iterator End();
+        Iterator End() noexcept;
 
         /**
          * Returns an iterator pointing at the beginning of the vector.
          *
          * @return iterator pointing at the beginning of the vector.
          */
-        ConstIterator Begin() const;
+        ConstIterator Begin() const noexcept;
 
         /**
          * Returns an iterator pointing at the end of the vector. (The element 1 after the last element of the vector)
          *
          * @return iterator pointing at the end of the vector.
          */
-        ConstIterator End() const;
+        ConstIterator End() const noexcept;
 
         HAS_STANDARD_ITERATORS;
 

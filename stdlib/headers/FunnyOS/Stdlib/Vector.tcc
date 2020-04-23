@@ -52,10 +52,8 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     Vector<T>::Vector() : Vector(0) {}
 
-
     template <typename T>
-    Vector<T>::Vector(size_t initialCapacity) : Vector(initialCapacity, DEFAULT_GROWTH_FACTOR) {
-    }
+    Vector<T>::Vector(size_t initialCapacity) : Vector(initialCapacity, DEFAULT_GROWTH_FACTOR) {}
 
     template <typename T>
     Vector<T>::Vector(size_t initialCapacity, float growthFactor)
@@ -232,7 +230,7 @@ namespace FunnyOS::Stdlib {
         EnsureCapacity(m_size + size);
         Shift(index, size);
 
-        for (size_t i = index ; i < index + size ; i++) {
+        for (size_t i = index; i < index + size; i++) {
             new (m_data.Data + i) T(*value);
             value++;
         }
@@ -250,22 +248,22 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    typename Vector<T>::Iterator Vector<T>::Begin() {
+    typename Vector<T>::Iterator Vector<T>::Begin() noexcept {
         return m_data.Data;
     }
 
     template <typename T>
-    typename Vector<T>::Iterator Vector<T>::End() {
+    typename Vector<T>::Iterator Vector<T>::End() noexcept {
         return m_data.Data + m_size;
     }
 
     template <typename T>
-    typename Vector<T>::ConstIterator Vector<T>::Begin() const {
+    typename Vector<T>::ConstIterator Vector<T>::Begin() const noexcept {
         return m_data.Data;
     }
 
     template <typename T>
-    typename Vector<T>::ConstIterator Vector<T>::End() const {
+    typename Vector<T>::ConstIterator Vector<T>::End() const noexcept {
         return m_data.Data + m_size;
     }
 

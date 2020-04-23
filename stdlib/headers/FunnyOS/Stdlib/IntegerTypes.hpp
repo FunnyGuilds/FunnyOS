@@ -128,6 +128,9 @@ namespace FunnyOS::Stdlib {
              * Maximum value that the type can store.
              */
             constexpr const static Type MaximumValue = MinimumValue - 1;
+
+           private:
+            Info() = delete;
         };
         #pragma GCC diagnostic pop
 
