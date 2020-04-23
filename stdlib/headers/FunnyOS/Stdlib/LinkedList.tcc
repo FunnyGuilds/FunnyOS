@@ -303,7 +303,7 @@ namespace FunnyOS::Stdlib {
     void LinkedList<T>::CheckBounds(size_t num) const {
         if (num >= m_size) {
             String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
-            String::Format(errorBuffer, "%llu > %llu", num, m_size);
+            String::Format(errorBuffer, "%zu > %zu", num, m_size);
             throw LinkedListIndexOutOfBounds(errorBuffer.Data);
         }
     }

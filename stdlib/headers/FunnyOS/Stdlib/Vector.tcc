@@ -271,7 +271,7 @@ namespace FunnyOS::Stdlib {
     void Vector<T>::CheckBounds(size_t index) const {
         if (index >= m_size) {
             String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
-            String::Format(errorBuffer, "%llu >= %llu", index, m_size);
+            String::Format(errorBuffer, "%zu >= %zu", index, m_size);
             throw VectorIndexOutOfBounds(errorBuffer.Data);
         }
     }
