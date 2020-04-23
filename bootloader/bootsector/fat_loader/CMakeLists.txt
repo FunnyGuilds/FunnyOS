@@ -19,4 +19,6 @@ set_target_properties(FunnyOS_Bootloader_FatLoader PROPERTIES
         LINK_OPTIONS "${F_BOOTLOADER_LINK_FLAGS};-T;${CMAKE_CURRENT_SOURCE_DIR}/fat_loader.lds;-m32"
 )
 
+target_link_libraries(FunnyOS_Bootloader_FatLoader PUBLIC FunnyOS::Misc::QuickFat32)
+
 add_executable(FunnyOS::Bootloader::FatLoader ALIAS FunnyOS_Bootloader_FatLoader)

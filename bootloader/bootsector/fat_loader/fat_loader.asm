@@ -119,12 +119,8 @@ SECTION .text
         mov eax, [ebp + 4 * 2]
         mov [load_from_disk__lba], eax
 
-        ; Drive
-        mov eax, [ebp + 4 * 3]
-        mov [load_from_disk__drive], eax
-
         ; Buffer**
-        mov esi, [ebp + 4 * 4]
+        mov esi, [ebp + 4 * 3]
         mov [esi], dword load_from_disk__buffer
 
         push_addr_16 fl_load_from_disk_16
@@ -133,7 +129,7 @@ SECTION .text
         [bits 16]
 
         mov si, load_from_disk__lba
-        mov dl, [load_from_disk__drive]
+        mov dl, [g_boot_drive]
         mov cl, 1
         xor bx, bx
         mov es, bx
@@ -217,7 +213,6 @@ SECTION .bss
     stack_end:
 
     load_from_disk__lba:                  resd 1
-    load_from_disk__drive:                resb 1
     load_from_disk__buffer:               resd 0x200
 
 SECTION .magic
