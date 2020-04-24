@@ -2,9 +2,24 @@
 
 //
 // TODO:
-// - LFN support
 // - subdirectories support
 //
+#define QUICK_FAT_LFN_ATTR 0x0F
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
+
+#ifndef bool
+#define bool _Bool
+#endif
+
+#ifndef true
+#define true ((_Bool)1)
+#endif
+
+#ifndef false
+#define false ((_Bool)0)
+#endif
 
 typedef struct PACKED {
     uint8_t drive_attributes;
@@ -55,13 +70,24 @@ typedef struct PACKED {
 
 typedef struct PACKED {
     char file_name_and_ext[8 + 3];
-    uint8_t file_data_1[9];
+    uint8_t attribute;
+    uint8_t file_data_1[8];
     uint16_t cluster_num_high;
     uint8_t file_data_2[4];
     uint16_t cluster_num_low;
     uint32_t file_size_bytes;
 } QuickFat_directory_entry;
 
+typedef struct PACKED {
+    uint8_t sequence_number;
+    char name1[10];
+    uint8_t attribute;
+    uint8_t type;
+    uint8_t dos_checksum;
+    char name2[12];
+    uint16_t first_cluster;
+    char name3[4];
+} QuickFat_lfn_entry;
 
 int quickfat_init_context(QuickFat_Context* context, const QuickFat_initialization_data* init) {
     context->read_function = init->read_function;
@@ -82,7 +108,7 @@ int quickfat_init_context(QuickFat_Context* context, const QuickFat_initializati
     }
 
     context->partition_start_lba = mbr->partition_entries[init->partition_entry - 1].first_lba;
-    mbr = 0;
+    mbr = NULL;
 
     if ((error = context->read_function(context->partition_start_lba, &buffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_LOAD_BPB | error;
@@ -114,11 +140,36 @@ static void quickfat_memcpy(void* destination, const void* source, unsigned int 
 }
 
 /**
+ * Copies [size] LFN characters from [destination] to [source], ignores high bit
+ */
+static void quickfat_lfncpy(void* destination, const void* source, unsigned int size) {
+    for (unsigned int i = 0; i < size; i++) {
+        // ignore high bytes
+        *(((uint8_t*)destination) + i) = *(((uint8_t*)source) + (i * 2));
+    }
+}
+
+/**
+ * Checks if the two strings are equal.
+ *
+ * @return 1 if strings are equal, 0 if not
+ */
+static int quickfat_strequal(const char* str1, const char* str2) {
+    while (*str1 && *str2) {
+        if (*(str1++) != *(str2++)) {
+            return 0;
+        }
+    }
+
+    return *str1 == *str2;
+}
+
+/**
  * Checks if the two strings on size [size] are equal.
  *
  * @return 1 if strings are equal, 0 if not
  */
-static int quickfat_strequal(const char* str1, const char* str2, unsigned int size) {
+static int quickfat_strnequal(const char* str1, const char* str2, unsigned int size) {
     for (unsigned int i = 0; i < size; i++) {
         if (str1[i] != str2[i]) {
             return 0;
@@ -171,6 +222,9 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
     uint32_t current_cluster_number = context->root_directory_cluster;
     QuickFat_directory_entry* file_entry = 0;
 
+    char current_lfn[13 * 5 + 1];
+    bool has_lfn = false;
+
     do {
         if ((err = quickfat_load_fat_cluster_to_memory(context, current_cluster_number, &buffer)) != 0) {
             return err;
@@ -184,9 +238,45 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
                 break;
             }
 
-            if (quickfat_strequal(directory_entries[i].file_name_and_ext, fileName, 8 + 3)) {
+            if (directory_entries[i].attribute == QUICK_FAT_LFN_ATTR) {
+                has_lfn = true;
+
+                QuickFat_lfn_entry* lfn = (QuickFat_lfn_entry*)&directory_entries[i];
+
+                if (lfn->sequence_number & 0b01000000) {  // Is first entry in the table
+                    for (int j = 0; j < sizeof(current_lfn) / sizeof(current_lfn[0]); j++) {
+                        current_lfn[j] = ' ';
+                    }
+                }
+
+                const unsigned int lfn_index = ((lfn->sequence_number & 0b00011111) - 1) * 13;
+                quickfat_lfncpy(current_lfn + lfn_index + 00, lfn->name1, 5);
+                quickfat_lfncpy(current_lfn + lfn_index + 05, lfn->name2, 6);
+                quickfat_lfncpy(current_lfn + lfn_index + 11, lfn->name3, 2);
+                continue;
+            }
+
+            if (has_lfn) {
+                // remove trailing spaces
+                for (int j = sizeof(current_lfn) / sizeof(current_lfn[0]) - 2; j >= -1; j--) {
+                    if (j == -1 || current_lfn[j] != ' ') {
+                        current_lfn[j + 1] = 0;
+                        break;
+                    }
+                }
+            }
+            current_lfn[sizeof(current_lfn) - 1] = 0;
+
+            directory_entries[i].attribute = 0;
+
+            if ((has_lfn && quickfat_strequal(current_lfn, fileName)) ||
+                quickfat_strnequal(directory_entries[i].file_name_and_ext, fileName, 8 + 3)) {
                 file_entry = &directory_entries[i];
                 break;
+            }
+
+            if (has_lfn) {
+                has_lfn = false;
             }
         }
 
