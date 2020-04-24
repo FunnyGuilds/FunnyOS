@@ -40,10 +40,12 @@ setup_library(FunnyOS_Stdlib_Base64_Static STATIC)
 target_compile_definitions(FunnyOS_Stdlib_Base64_Static PUBLIC F_64=1)
 add_library(FunnyOS::Stdlib::Base64_Static ALIAS FunnyOS_Stdlib_Base64_Static)
 
-# 64-bit base low level
-setup_library(FunnyOS_Stdlib_Base64_Static_LL STATIC)
-target_compile_options(FunnyOS_Stdlib_Base64_Static_LL PUBLIC ${LL_FLAGS})
-add_library(FunnyOS::Stdlib::Base64_Static_LL ALIAS FunnyOS_Stdlib_Base64_Static_LL)
+# 64-bit base for kernel
+setup_library(FunnyOS_Stdlib_Base64_Kernel SHARED)
+target_compile_definitions(FunnyOS_Stdlib_Base64_Kernel PUBLIC F_64=1)
+target_compile_options(FunnyOS_Stdlib_Base64_Kernel PUBLIC -O2 -mno-sse -fPIC -ffreestanding)
+target_link_libraries(FunnyOS_Stdlib_Base64_Kernel PUBLIC -nostartfiles -nodefaultlibs -nostdlib)
+add_library(FunnyOS::Stdlib::Base64_Kernel ALIAS FunnyOS_Stdlib_Base64_Kernel)
 
 if (F_BUILD_TESTS)
     add_subdirectory("test")
