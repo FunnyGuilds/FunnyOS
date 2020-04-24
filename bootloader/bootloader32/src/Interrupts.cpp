@@ -63,11 +63,11 @@ namespace FunnyOS::Bootloader32 {
             Bootloader::Get().Panic("Interrupt info collection failed");
         }
 
-        char eflags[33];
+        char eflags[33] = {0};
         String::StringBuffer eflagsBuffer{eflags, 33};
         String::IntegerToString(eflagsBuffer, data->EFLAGS, 2);
 
-        char decodedEflags[43];
+        char decodedEflags[43] = {0};
         String::StringBuffer decodedEflagsBuffer{decodedEflags, 43};
         DecodeEflags(decodedEflagsBuffer, data->EFLAGS);
 
