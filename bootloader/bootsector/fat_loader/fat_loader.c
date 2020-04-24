@@ -63,30 +63,24 @@ void fl_print_int(unsigned int number) {
 /**
  * Prints an error code and hangs the CPU indefinitely.
  */
+#define CHECK_ERROR(code, error) \
+    if ((error_code & (code)) == (code)) fl_print((error))
+
 void _Noreturn fl_error(unsigned int error_code) {
-    if (error_code & QUICKFAT_ERROR_FAILED_LOAD_MBR) {
-        fl_print(" ** Failed to load the MBR into memory");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH) {
-        fl_print(" ** The MBR signature is invalid");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_LOAD_BPB) {
-        fl_print(" ** Failed to load the BPB into memory");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH) {
-        fl_print(" ** The BPB signature is invalid");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP) {
-        fl_print(" ** Failed to load cluster info from FAT");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER) {
-        fl_print(" ** Failed to load cluster from disk");
-    } else if (error_code & QUICKFAT_ERROR_FAILED_TO_FIND_FILE) {
-        fl_print(" ** " FILE_DISPLAY_NAME " not found.\r\n");
-    } else {
-        fl_print(" ** Unknown error.");
-    }
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR, " ** Failed to load the MBR into memory");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH, " ** The MBR signature is invalid");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB, " ** Failed to load the BPB into memory");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH, " ** The BPB signature is invalid");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP, " ** Failed to load cluster info from FAT");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER, " ** Failed to load cluster from disk");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_FIND_FILE, " ** " FILE_NAME " not found.");
 
     fl_print("\r\n ** Loading error: 0x");
     fl_print_int(error_code);
     fl_print("\r\n");
     fl_hang();
 }
+#undef CHECK_ERROR
 
 /**
  * Main function
