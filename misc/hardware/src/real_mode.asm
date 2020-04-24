@@ -1,6 +1,7 @@
 [bits 32]
+DEFAULT REL
 
-SECTION .real.data
+SECTION .real
     GLOBAL g_gdtInfo        ; Symbol for C++
     g_gdtInfo:
         g_gdtInfo_selectorCode32: dw 0
@@ -46,30 +47,36 @@ SECTION .real.data
         times 0x1000 db 0x00
     g_realBufferTop:
 
-SECTION .real.text
     GLOBAL do_real_mode_interrupt
     do_real_mode_interrupt:
+        xchg bx, bx
         ; Save registers, prepare new stack
         push ebp
-        mov [stackCache], esp
+
+        ; Fetch section start into ebp
+        call do_real_mode_interrupt_fetch_base_pointer
+        do_real_mode_interrupt_fetch_base_pointer:
+        pop ebp
+        sub ebp, do_real_mode_interrupt_fetch_base_pointer - $$
 
         ; Setup new stack
+        mov [ebp + (stackCache - $$)], esp
         xor esp, esp
-        xor ebp, ebp
-        mov sp, stack16_end
-        mov bp, sp
+        lea esp, [ebp + (stack16_end - $$)]
 
-        mov eax, [stackCache]       ; Update int opcode
+        ; Update int opcode
+        mov eax, [ebp + (stackCache - $$)]
         mov eax, [eax + 4 * 2]
-        mov [interrupt_number], al
+        mov [ebp + (interrupt_number - $$)], al
 
         ; Jump to 16-bit mode
-        mov eax, [g_gdtInfo_selectorData16]
+        mov eax, [ebp + (g_gdtInfo_selectorData16 - $$)]
         mov ds, ax
         mov ss, ax
 
-        push dword [g_gdtInfo_selectorCode16]
-        push dword protected_16
+        push dword [ebp + (g_gdtInfo_selectorCode16 - $$)]
+        lea eax, [ebp + (protected_16 - $$)]
+        push dword eax
         retf
 
         protected_16:
@@ -78,7 +85,11 @@ SECTION .real.text
         mov eax, cr0
         and eax, ~1
         mov cr0, eax
-        jmp 0x00:real_16
+
+        push word 0
+        lea ax, [ebp + (real_16 - $$)]
+        push word ax
+        retf
 
         real_16:
         xor ax, ax
@@ -86,22 +97,22 @@ SECTION .real.text
         mov ss, ax
 
         ; Replace IDT for the interrupt
-        sidt [g_storedIdt]
-        lidt [g_biosIdt]
+        sidt [ebp + (g_storedIdt - $$)]
+        lidt [ebp + (g_biosIdt - $$)]
 
         ; Set registers
-        push word [saved_EFLAGS]
+        push word [ebp + (saved_EFLAGS - $$)]
         popf
 
-        mov ax, [saved_AX]
-        mov cx, [saved_CX]
-        mov dx, [saved_DX]
-        mov bx, [saved_BX]
-        mov si, [saved_SI]
-        mov di, [saved_DI]
-        mov es, [saved_ES]
-        mov fs, [saved_FS]
-        mov gs, [saved_GS]
+        mov ax, [ebp + (saved_AX - $$)]
+        mov cx, [ebp + (saved_CX - $$)]
+        mov dx, [ebp + (saved_DX - $$)]
+        mov bx, [ebp + (saved_BX - $$)]
+        mov si, [ebp + (saved_SI - $$)]
+        mov di, [ebp + (saved_DI - $$)]
+        mov es, [ebp + (saved_ES - $$)]
+        mov fs, [ebp + (saved_FS - $$)]
+        mov gs, [ebp + (saved_GS - $$)]
 
         ; Execute interrupt
         interrupt_opcode: db 0xCD
@@ -109,39 +120,40 @@ SECTION .real.text
 
         ; Read registers
         pushf
-        pop word [saved_EFLAGS]
+        pop word [ebp + (saved_EFLAGS - $$)]
 
-        mov [saved_AX], ax
-        mov [saved_CX], cx
-        mov [saved_DX], dx
-        mov [saved_BX], bx
-        mov [saved_SI], si
-        mov [saved_DI], di
-        mov [saved_ES], es
-        mov [saved_FS], fs
-        mov [saved_GS], gs
+        mov [ebp + (saved_AX - $$)], ax
+        mov [ebp + (saved_CX - $$)], cx
+        mov [ebp + (saved_DX - $$)], dx
+        mov [ebp + (saved_BX - $$)], bx
+        mov [ebp + (saved_SI - $$)], si
+        mov [ebp + (saved_DI - $$)], di
+        mov [ebp + (saved_ES - $$)], es
+        mov [ebp + (saved_FS - $$)], fs
+        mov [ebp + (saved_GS - $$)], gs
 
         ; Restore previous IDT
-        lidt [g_storedIdt]
+        lidt [ebp + (g_storedIdt - $$)]
 
         ; Back to protected
         mov eax, cr0
         or eax, 1
         mov cr0, eax
 
-        push word [g_gdtInfo_selectorCode32]
-        push word protected_32
+        push word [ebp + (g_gdtInfo_selectorCode32 - $$)]
+        lea ax, [ebp + (protected_32 - $$)]
+        push word ax
         retf
 
         protected_32:
         [bits 32]
-        mov eax, [g_gdtInfo_selectorData32]
+        mov eax, [ebp + (g_gdtInfo_selectorData32 - $$)]
         mov ds, ax
         mov ss, ax
         mov es, ax
         mov fs, ax
         mov gs, ax
 
-        mov esp, [stackCache]
+        mov esp, [ebp + (stackCache - $$)]
         pop ebp
         ret

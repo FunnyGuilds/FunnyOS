@@ -8,10 +8,11 @@
 namespace FunnyOS::HW::InterruptSetup {
 
     /**
-     * Interrupt routine address, matching the structure in interrupt_setup.asm
+     * Interrupt routine address
      */
     struct InterruptRoutinesData {
-        uint32_t FirstRoutineAddress;
+        uintmax_t InterruptHandlerAddress;
+        uintmax_t FirstRoutineAddress;
         uint8_t InterruptRoutineSize;
     } F_DONT_ALIGN;
 
@@ -20,7 +21,12 @@ namespace FunnyOS::HW::InterruptSetup {
      */
     const InterruptRoutinesData& GetInterruptRoutinesData();
 
-#ifndef F_64
+#ifdef F_64
+    struct InterruptGateDescriptor {};
+
+    struct IDT {
+    } F_DONT_ALIGN;
+#else
     /**
      * IDT 32-bit Interrupt Gate Descriptor.
      */

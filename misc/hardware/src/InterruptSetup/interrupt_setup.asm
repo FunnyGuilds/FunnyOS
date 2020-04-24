@@ -6,6 +6,8 @@
     %fatal "Unknown output format"
 %endif
 
+DEFAULT rel
+
 SECTION .text
     ; Define an ISR
     ; Parameter %1 - interrupt number
@@ -89,23 +91,41 @@ SECTION .text
     %endmacro
 %endif
 
-    EXTERN interrupt_routine
+    GLOBAL setup_routines:function
+    setup_routines:
+        %if __BITS__ == 32
+            push eax
+            push ebx
+            mov ebx, [esp + 4 * 3]
+            mov eax, [ebx]
+            mov [interrupt_routine], eax
+            lea eax, [REL isr_routine0]
+            mov [ebx + 4], eax
+            mov [ebx + 8], byte (isr_routine1 - isr_routine0)
+            pop ebx
+            pop eax
+            ret
+        %elif __BITS__ == 64
+        %endif
+
+    interrupt_routine:
+        %if __BITS__ == 32
+            dd 1
+        %elif __BITS__ == 64
+            dq 1
+        %endif
+
     isr_routine:
         PUSH_REGISTERS
-        call interrupt_routine
+        call [interrupt_routine]
         POP_REGISTERS
 
         ; Cleanup the values pushed in ISR_HANDLER
-        add esp, ((__BITS__ / 8) * 2)
 
         %if __BITS__ == 32
+            add esp, 4 * 2
             iretd
         %elif __BITS__ == 64
+            add rsp, 8 * 2
             iretq
         %endif
-
-SECTION .rodata
-    GLOBAL g_interruptRoutinesData
-    g_interruptRoutinesData:
-        dd isr_routine0
-        db (isr_routine1 - isr_routine0)

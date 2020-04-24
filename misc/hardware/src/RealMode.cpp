@@ -43,6 +43,8 @@ namespace FunnyOS::HW {
     void RealModeInt(uint8_t interrupt, Registers16& registers) {
         HW::NoInterruptsBlock noInterrupts;
 
+#ifdef F_64
+#else
         g_savedRegisters = registers;
 #ifdef __GNUC__
         asm(
@@ -66,6 +68,7 @@ namespace FunnyOS::HW {
             "popfd\n"
             :
             : "a"(static_cast<uintmax_t>(interrupt)));
+#endif
 #endif
 
         registers = g_savedRegisters;

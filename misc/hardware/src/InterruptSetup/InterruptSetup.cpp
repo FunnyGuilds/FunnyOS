@@ -1,7 +1,6 @@
 #include "InterruptSetup.hpp"
 
-// Defined in interrupt_setup.asm
-extern FunnyOS::HW::InterruptSetup::InterruptRoutinesData g_interruptRoutinesData;
+extern "C" void setup_routines(FunnyOS::HW::InterruptSetup::InterruptRoutinesData* data) F_CDECL;
 
 namespace FunnyOS::HW::InterruptSetup {
     namespace {
@@ -14,6 +13,13 @@ namespace FunnyOS::HW::InterruptSetup {
          * Location of the IDT in memory.
          */
         InterruptGateDescriptor* g_idt = nullptr;
+
+        InterruptRoutinesData g_interruptRoutinesData;
+
+        // Called from interrupt_setup.asm
+        void F_CDECL interrupt_routine(FunnyOS::HW::InterruptData data) {
+            FunnyOS::HW::InterruptSetup::g_handler(&data);
+        }
     }  // namespace
 
     const InterruptRoutinesData& GetInterruptRoutinesData() {
@@ -25,7 +31,11 @@ namespace FunnyOS::HW::InterruptSetup {
     }
 
     namespace {
-#ifndef F_64
+#ifdef F_64
+        void SetupInterruptGateDescriptor(size_t i, InterruptGateDescriptor* descriptor) {}
+
+        void LoadIDT() {}
+#else
         void SetupInterruptGateDescriptor(size_t i, InterruptGateDescriptor* descriptor) {
             // Flags for the entries
             static const uint8_t c_flags = (0b110 << 0) |  // Entry type: 0b110 = Interrupt gate type
@@ -48,10 +58,8 @@ namespace FunnyOS::HW::InterruptSetup {
         }
 
         void LoadIDT() {
-#ifndef F_64
             IDT idt{static_cast<uint16_t>(sizeof(InterruptGateDescriptor) * INTERRUPTS_COUNT - 1),
                     reinterpret_cast<uint32_t>(g_idt)};
-#endif
 
 #ifdef __GNUC__
             asm volatile("lidt [%0]" : : "m"(idt));
@@ -61,6 +69,9 @@ namespace FunnyOS::HW::InterruptSetup {
     }  // namespace
 
     void SetupInterruptTable(InterruptHandler handler) {
+        g_interruptRoutinesData.InterruptHandlerAddress = reinterpret_cast<uintmax_t>(&interrupt_routine);
+        setup_routines(&g_interruptRoutinesData);
+
         // Setup handler
         g_handler = handler;
 
@@ -77,10 +88,3 @@ namespace FunnyOS::HW::InterruptSetup {
     }
 
 }  // namespace FunnyOS::HW::InterruptSetup
-
-extern "C" {
-// Called from interrupt_setup.asm
-void F_CDECL interrupt_routine(FunnyOS::HW::InterruptData data) {
-    FunnyOS::HW::InterruptSetup::g_handler(&data);
-}
-}
