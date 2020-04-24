@@ -49,7 +49,6 @@ SECTION .real
 
     GLOBAL do_real_mode_interrupt
     do_real_mode_interrupt:
-        xchg bx, bx
         ; Save registers, prepare new stack
         push ebp
 
