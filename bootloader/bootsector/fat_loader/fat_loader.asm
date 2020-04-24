@@ -204,12 +204,11 @@ SECTION .data
 
 
 SECTION .bss
-    GLOBAL g_boot_drive
     GLOBAL g_boot_partition
     g_boot_drive:                         resb 1
     g_boot_partition:                     resb 1
 
-    stack:                                resb 0x200
+    stack:                                resb 0x400
     stack_end:
 
     load_from_disk__lba:                  resd 1

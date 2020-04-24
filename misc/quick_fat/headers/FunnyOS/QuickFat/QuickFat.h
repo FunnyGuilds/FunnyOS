@@ -109,11 +109,11 @@ int quickfat_init_context(QuickFat_Context* context, const QuickFat_initializati
  *
  * @param context initialized QuickFat_Context
  * @param file file description struct to write to
- * @param fileName name of the file
+ * @param file_path absolute path of the file, may contain trailing /
  *
  * @return 0 on success, non-zero error code on fail
  */
-int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const char* fileName);
+int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const char* file_path);
 
 /**
  * Reads a file into memory.

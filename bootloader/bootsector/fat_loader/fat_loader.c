@@ -8,8 +8,7 @@
 /**
  * Name of the file to boot
  */
-#define FILE_NAME "BOOTLD32BIN"
-#define FILE_DISPLAY_NAME "BOOTLD32.BIN"
+#define FILE_NAME "/boot/bootload32"
 #define FILE_MAGIC 0x46554E42
 
 /**
@@ -103,7 +102,7 @@ void _Noreturn fat_loader(void) {
     }
 
     // Open file
-    fl_print(" * Searching for " FILE_DISPLAY_NAME "\r\n");
+    fl_print(" * Searching for " FILE_NAME "\r\n");
 
     QuickFat_File file;
     if ((error = quickfat_open_file(&context, &file, FILE_NAME)) != 0) {

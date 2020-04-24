@@ -171,7 +171,7 @@ static int quickfat_strequal(const char* str1, const char* str2) {
  */
 static int quickfat_strnequal(const char* str1, const char* str2, unsigned int size) {
     for (unsigned int i = 0; i < size; i++) {
-        if (str1[i] != str2[i]) {
+        if (!str1[0] || !str2[1] || str1[i] != str2[i]) {
             return 0;
         }
     }
@@ -216,10 +216,10 @@ static int quickfat_load_fat_cluster_to_memory(QuickFat_Context* context, uint32
     return 0;
 }
 
-int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const char* fileName) {
+int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, QuickFat_File* file, const char* name) {
     uint8_t* buffer;
     int err;
-    uint32_t current_cluster_number = context->root_directory_cluster;
+    uint32_t current_cluster_number = directory->cluster;
     QuickFat_directory_entry* file_entry = 0;
 
     char current_lfn[13 * 5 + 1];
@@ -250,6 +250,10 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
                 }
 
                 const unsigned int lfn_index = ((lfn->sequence_number & 0b00011111) - 1) * 13;
+                if (lfn_index >= 5) {
+                    continue;
+                }
+
                 quickfat_lfncpy(current_lfn + lfn_index + 00, lfn->name1, 5);
                 quickfat_lfncpy(current_lfn + lfn_index + 05, lfn->name2, 6);
                 quickfat_lfncpy(current_lfn + lfn_index + 11, lfn->name3, 2);
@@ -267,10 +271,8 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
             }
             current_lfn[sizeof(current_lfn) - 1] = 0;
 
-            directory_entries[i].attribute = 0;
-
-            if ((has_lfn && quickfat_strequal(current_lfn, fileName)) ||
-                quickfat_strnequal(directory_entries[i].file_name_and_ext, fileName, 8 + 3)) {
+            if ((has_lfn && quickfat_strequal(current_lfn, name)) ||
+                quickfat_strnequal(directory_entries[i].file_name_and_ext, name, 8 + 3)) {
                 file_entry = &directory_entries[i];
                 break;
             }
@@ -301,6 +303,51 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
     }
 
     return 0;
+}
+
+int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const char* file_path) {
+    int error;
+    char current_index = 0;
+    char current_part[128];
+    QuickFat_File current_directory;
+    current_directory.cluster = context->root_directory_cluster;
+
+    // Skip trailing slashes
+    while (file_path[current_index] == '/') {
+        current_index++;
+    }
+
+    // Walk the directory tree
+    for (;;) {
+        bool expect_directory = true;
+
+        for (int i = 0; i < sizeof(current_part) / sizeof(current_part[0]); i++) {
+            if (file_path[i + current_index] == 0) {
+                quickfat_memcpy(current_part, file_path + current_index, i);
+                current_part[i] = 0;
+                expect_directory = false;
+                break;
+            }
+
+            if (file_path[i + current_index] == '/') {
+                quickfat_memcpy(current_part, file_path + current_index, i);
+                current_part[i] = 0;
+                current_index += i + 1;
+                expect_directory = true;
+                break;
+            }
+        }
+
+        if ((error = quickfat_open_file_in(context, &current_directory, file, current_part)) != 0) {
+            return error;
+        }
+
+        if (expect_directory) {
+            current_directory = *file;
+        } else {
+            return 0;
+        }
+    }
 }
 
 int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* destination) {

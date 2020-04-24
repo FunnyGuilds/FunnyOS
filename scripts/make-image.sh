@@ -63,8 +63,10 @@ MOUNT=$(mktemp -d /tmp/funnyos-mount-XXXXXXXX)
 sudo mount $PARTITION $MOUNT
 echo "Mouting at $MOUNT"
 
-# Put 32-bit bootloader on the partition
-sudo cp ./bootloader/bootloader32/bootloader32.bin $MOUNT/BOOTLD32.BIN
+# System partition structure
+sudo mkdir $MOUNT/boot
+sudo mkdir $MOUNT/system
+sudo cp ./bootloader/bootloader32/bootloader32.bin $MOUNT/boot/bootload32
 
 if command -v fatattr > /dev/null; then
   echo "Setting FAT file attributes"
