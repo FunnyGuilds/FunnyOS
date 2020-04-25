@@ -42,10 +42,10 @@ namespace FunnyOS::HW {
 
     void RealModeInt(uint8_t interrupt, Registers16& registers) {
         HW::NoInterruptsBlock noInterrupts;
+        Memory::Copy(static_cast<void*>(&g_savedRegisters), static_cast<void*>(&registers), sizeof(Registers16));
 
 #ifdef F_64
 #else
-        g_savedRegisters = registers;
 #ifdef __GNUC__
         asm(
             // Save state
@@ -71,7 +71,7 @@ namespace FunnyOS::HW {
 #endif
 #endif
 
-        registers = g_savedRegisters;
+        Memory::Copy(static_cast<void*>(&registers), static_cast<void*>(&g_savedRegisters), sizeof(Registers16));
     }
 
 }  // namespace FunnyOS::HW
