@@ -21,8 +21,8 @@ namespace FunnyOS::Driver::Drive {
         uint8_t Reserved;
         uint8_t NumberOfBlocks;
         uint8_t Reserved2;
-        uint16_t DestinationSegment;
         uint16_t DestinationOffset;
+        uint16_t DestinationSegment;
         uint64_t StartLBA;
         uint64_t Address64;
         uint32_t Unused[2];
@@ -88,13 +88,14 @@ namespace FunnyOS::Driver::Drive {
 
             return;
         }
+        const SectorNumber bufferSize = GetRealModeBuffer().Size / m_sectorSize;
 
         if (m_hasExtendedDiskAccess) {
             auto& buf = GetRealModeBuffer();
             F_ASSERT(buf.Size >= m_sectorSize, "real mode buffer to small to hold a sector");
 
             while (leftToRead > 0) {
-                const SectorNumber currentReadSize = Min(leftToRead, EDD_MAX_READ);
+                const SectorNumber currentReadSize = Min(leftToRead, Min(EDD_MAX_READ, bufferSize));
                 uint16_t destinationSegment = 0;
                 uint16_t destinationOffset = 0;
                 GetRealModeBufferAddress(destinationSegment, destinationOffset);
@@ -121,7 +122,8 @@ namespace FunnyOS::Driver::Drive {
             const uint8_t currentSector = (currentLba % m_sectorsPerTrack) + 1;
             F_ASSERT(currentSector <= 63, "sector > 63");
 
-            const SectorNumber currentReadSize = Min<SectorNumber>(leftToRead, m_sectorsPerTrack - sector + 1);
+            const SectorNumber leftSectorsOnTrack = m_sectorsPerTrack - sector + 1;
+            const SectorNumber currentReadSize = Min(leftToRead, Min(leftSectorsOnTrack, bufferSize));
 
             Registers16 regs;
             regs.AX.Value8.High = 0x02;
@@ -207,6 +209,7 @@ namespace FunnyOS::Driver::Drive {
         Registers16 regs;
         regs.AX.Value8.High = 0x42;
         regs.BX.Value16 = 0x55AA;
+        regs.SI.Value16 = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(&g_eddPacket));
         regs.DX.Value8.Low = m_drive;
         RealModeInt(0x13, regs);
         CheckErrors(when, regs);
