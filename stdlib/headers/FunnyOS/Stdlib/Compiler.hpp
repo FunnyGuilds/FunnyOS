@@ -9,6 +9,7 @@
 #   define F_CDECL                              __attribute__((__cdecl__))
 #   define F_SECTION(sectionName)               __attribute__((section(sectionName)))
 #   define F_UNUSED                             __attribute__((unused))
+#   define F_NAKED                              __attribute__((naked))
 
 // Struct alignment
 #   define F_DONT_ALIGN                         __attribute__((packed))
