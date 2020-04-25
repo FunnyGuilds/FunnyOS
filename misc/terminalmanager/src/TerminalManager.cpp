@@ -182,6 +182,10 @@ namespace FunnyOS::Misc::TerminalManager {
             case '\r':
                 cursor.X = 0;
                 break;
+            case '\t':
+                // TODO: customizable tab size maybe
+                cursor.X += 4 - (cursor.X % 4);
+                break;
             default:
                 // not supported
                 break;
