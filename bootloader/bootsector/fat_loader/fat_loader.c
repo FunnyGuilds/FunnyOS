@@ -82,6 +82,29 @@ void _Noreturn fl_error(unsigned int error_code) {
 #undef CHECK_ERROR
 
 /**
+ * Wrapper for fl_load_from_disk for QuickFat
+ */
+extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, uint8_t* out) {
+    int error;
+    uint8_t* tmp_buf;
+
+    for (uint32_t i = 0; i < count; i++) {
+        if ((error = fl_load_from_disk(lba + i, &tmp_buf)) != 0) {
+            return error;
+        }
+
+        const uint32_t sector_size = ((QuickFat_Context*)data)->sector_size;
+        for (uint32_t j = 0 ; j < sector_size; j++) {
+            out[j] = tmp_buf[j];
+        }
+
+        out += sector_size;
+    }
+
+    return 0;
+}
+
+/**
  * Main function
  */
 void _Noreturn fat_loader(void) {
@@ -89,12 +112,13 @@ void _Noreturn fat_loader(void) {
 
     // Init context
     fl_print(" * Initializing the QuickFat library\r\n");
+    QuickFat_Context context;
     QuickFat_initialization_data init;
     init.sector_size = SECTOR_SIZE;
     init.partition_entry = g_boot_partition;
-    init.read_function = fl_load_from_disk;
+    init.read_function_data = &context;
+    init.read_function = fl_load_from_disk_wrapper;
 
-    QuickFat_Context context;
     int error;
 
     if ((error = quickfat_init_context(&context, &init)) != 0) {

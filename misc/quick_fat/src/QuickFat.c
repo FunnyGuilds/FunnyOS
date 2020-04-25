@@ -1,9 +1,5 @@
 #include <FunnyOS/QuickFat/QuickFat.h>
 
-//
-// TODO:
-// - subdirectories support
-//
 #define QUICK_FAT_LFN_ATTR 0x0F
 #ifndef NULL
 #define NULL ((void*)0)
@@ -89,19 +85,25 @@ typedef struct PACKED {
     char name3[4];
 } QuickFat_lfn_entry;
 
+static int quickfat_do_read(QuickFat_Context* context, uint32_t lba, uint32_t count, uint8_t* out) {
+    return context->read_function(context->read_function_data, lba, count, out);
+}
+
+static uint8_t g_sectorBuffer[512];
+
 int quickfat_init_context(QuickFat_Context* context, const QuickFat_initialization_data* init) {
     context->read_function = init->read_function;
+    context->read_function_data = init->read_function_data;
     context->sector_size = init->sector_size;
     context->entries_per_sector = context->sector_size / 32;
 
-    uint8_t* buffer;
     int error;
 
-    if ((error = init->read_function(0, &buffer)) != 0) {
+    if ((error = quickfat_do_read(context, 0, 1, (uint8_t*)&g_sectorBuffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_LOAD_MBR | error;
     }
 
-    QuickFat_MBR* mbr = (QuickFat_MBR*)buffer;
+    QuickFat_MBR* mbr = (QuickFat_MBR*)&g_sectorBuffer;
 
     if (mbr->boot_signature != QUICKFAT_MBR_SIGNATURE) {
         return QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH;
@@ -110,11 +112,11 @@ int quickfat_init_context(QuickFat_Context* context, const QuickFat_initializati
     context->partition_start_lba = mbr->partition_entries[init->partition_entry - 1].first_lba;
     mbr = NULL;
 
-    if ((error = context->read_function(context->partition_start_lba, &buffer)) != 0) {
+    if ((error = quickfat_do_read(context, context->partition_start_lba, 1, (uint8_t*)&g_sectorBuffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_LOAD_BPB | error;
     }
 
-    QuickFat_FAT32BPB* bpb = (QuickFat_FAT32BPB*)buffer;
+    QuickFat_FAT32BPB* bpb = (QuickFat_FAT32BPB*)&g_sectorBuffer;
     if (bpb->boot_signature != QUICKFAT_MBR_SIGNATURE || (bpb->signature != 0x28 && bpb->signature != 0x29)) {
         return QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH;
     }
@@ -186,14 +188,13 @@ static int quickfat_load_fat_cluster_from_map(QuickFat_Context* context, uint32_
     uint32_t sector = number / (context->sector_size / 4);
     uint32_t offset = number % (context->sector_size / 4);
 
-    unsigned char* buffer;
     int error;
 
-    if ((error = context->read_function(context->fat_start_lba + sector, &buffer)) != 0) {
+    if ((error = quickfat_do_read(context, context->fat_start_lba + sector, 1, (uint8_t*)&g_sectorBuffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP | error;
     }
 
-    uint32_t* clusters = (uint32_t*)buffer;
+    uint32_t* clusters = (uint32_t*)&g_sectorBuffer;
 
     *out = clusters[offset] & 0x0FFFFFFF;
     return 0;
@@ -204,12 +205,13 @@ static int quickfat_load_fat_cluster_from_map(QuickFat_Context* context, uint32_
  *
  * @return pointer to where the cluster was loaded
  */
-static int quickfat_load_fat_cluster_to_memory(QuickFat_Context* context, uint32_t cluster_number, uint8_t** buffer) {
+static int quickfat_load_fat_cluster_to_memory(QuickFat_Context* context, uint32_t cluster_number, uint32_t count,
+                                               uint8_t* buffer) {
     int error;
 
     const unsigned int cluster_lba = context->data_start_lba + (cluster_number - 2) * context->sectors_per_cluster;
 
-    if ((error = context->read_function(cluster_lba, buffer)) != 0) {
+    if ((error = quickfat_do_read(context, cluster_lba, count, buffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER | error;
     }
 
@@ -217,8 +219,7 @@ static int quickfat_load_fat_cluster_to_memory(QuickFat_Context* context, uint32
 }
 
 int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, QuickFat_File* file, const char* name) {
-    uint8_t* buffer;
-    int err;
+    int error;
     uint32_t current_cluster_number = directory->cluster;
     QuickFat_directory_entry* file_entry = 0;
 
@@ -226,11 +227,12 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
     bool has_lfn = false;
 
     do {
-        if ((err = quickfat_load_fat_cluster_to_memory(context, current_cluster_number, &buffer)) != 0) {
-            return err;
+        error = quickfat_load_fat_cluster_to_memory(context, current_cluster_number, 1, (uint8_t*)&g_sectorBuffer);
+        if (error != 0) {
+            return error;
         }
 
-        QuickFat_directory_entry* directory_entries = (QuickFat_directory_entry*)buffer;
+        QuickFat_directory_entry* directory_entries = (QuickFat_directory_entry*)&g_sectorBuffer;
 
         for (unsigned int i = 0; i < context->entries_per_sector; i++) {
             if (directory_entries[i].file_name_and_ext[0] == 0x00) {
@@ -286,8 +288,9 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
             break;
         }
 
-        if ((err = quickfat_load_fat_cluster_from_map(context, current_cluster_number, &current_cluster_number)) != 0) {
-            return err;
+        error = quickfat_load_fat_cluster_from_map(context, current_cluster_number, &current_cluster_number);
+        if (error != 0) {
+            return error;
         }
     } while (current_cluster_number >= 0x00000002 && current_cluster_number <= 0x0FFFFEF);
 
@@ -352,20 +355,32 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
 
 int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* destination) {
     int error;
-    uint8_t* buffer;
 
-    for (uint32_t i = 0; i < file->sector_size; i++) {
-        if ((error = quickfat_load_fat_cluster_to_memory(context, file->cluster + i, &buffer)) != 0) {
-            return error;
-        }
-        uint32_t copy_size = context->sector_size;
-        if (i == file->sector_size - 1 && file->size % context->sector_size != 0) {
-            copy_size = file->size % context->sector_size;
-        }
-
-        quickfat_memcpy(destination, buffer, copy_size);
-        destination += copy_size;
+    // File is sector-aligned
+    if ((file->size % context->sector_size) == 0) {
+        return quickfat_load_fat_cluster_to_memory(context, file->cluster, file->sector_size, destination);
     }
 
-    return 0;
+    // Read whatever is aligned
+    const uint32_t initial_sector_read_size = file->sector_size - 1;
+    if (initial_sector_read_size > 0) {
+        error = quickfat_load_fat_cluster_to_memory(context, file->cluster, initial_sector_read_size, destination);
+
+        if (error != 0) {
+            return error;
+        }
+
+        destination += context->sector_size * initial_sector_read_size;
+    }
+
+    // Read the rest
+    error = quickfat_load_fat_cluster_to_memory(context, file->cluster + initial_sector_read_size, 1,
+                                                (uint8_t*)&g_sectorBuffer);
+    if (error != 0) {
+        return error;
+    }
+
+    quickfat_memcpy(destination, &g_sectorBuffer, file->size % context->sector_size);
+
+    return error;
 }

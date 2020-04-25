@@ -31,17 +31,18 @@ typedef int int32_t;
 #define QUICKFAT_ERROR_FAILED_TO_FIND_FILE 0xFF800000
 
 /**
- * Pointer to a function that loads a sector at [lba] from a driver and puts output buffer address into [out].
+ * Pointer to a function that loads a [count] sectors, statring at [lba] from a driver into location [out]
  *
  * @return 0 on success, non-zero error code on fail
  */
-typedef int (*QuickFat_ReadFunction)(uint32_t lba, uint8_t** out);
+typedef int (*QuickFat_ReadFunction)(void* data, uint32_t lba, uint32_t count, uint8_t* out);
 
 /**
  * QuickFat context. Must be initialized via quickfat_init_context
  */
 typedef struct {
     QuickFat_ReadFunction read_function;
+    void* read_function_data;
     uint32_t sector_size;
     uint32_t partition_start_lba;
     uint32_t entries_per_sector;
@@ -75,6 +76,11 @@ typedef struct {
      * Pointer to a function that will be used to read data from a drive.
      */
     QuickFat_ReadFunction read_function;
+
+    /**
+     * Argument to be passed to the read function on each call.
+     */
+    void* read_function_data;
 } QuickFat_initialization_data;
 
 /**
