@@ -36,7 +36,7 @@ dd if=/dev/zero of=${OUTPUT} bs=1 count=0 seek=256M
 sfdisk $OUTPUT < $DIR/funnyos.sfdisk
 
 # Mount the device
-sudo losetup -d $LOOP 2> /dev/null
+sudo losetup -d $LOOP || true
 sudo losetup -P $LOOP $OUTPUT
 
 # Format partition
@@ -67,10 +67,12 @@ echo "Mouting at $MOUNT"
 sudo mkdir $MOUNT/boot
 sudo mkdir $MOUNT/system
 sudo cp ./bootloader/bootloader32/bootloader32.bin $MOUNT/boot/bootload32
+sudo cp ./bootloader/env64/env64.bin $MOUNT/boot/env64
 
 if command -v fatattr > /dev/null; then
   echo "Setting FAT file attributes"
-  sudo fatattr +rhs $MOUNT/BOOTLD32.BIN
+  sudo fatattr +rhs $MOUNT/boot/bootload32
+  sudo fatattr +rhs $MOUNT/boot/env64
 fi
 
 # Unmount
