@@ -16,7 +16,7 @@ namespace FunnyOS::_Platform {
 
     [[nodiscard]] _EXTERN void* AllocateMemoryAligned(size_t size, size_t aligned) noexcept;
 
-    [[nodiscard]] _EXTERN void* ReallocateMemory(void* memory, size_t size) noexcept;
+    [[nodiscard]] _EXTERN void* ReallocateMemoryAligned(void* memory, size_t size, size_t alignment) noexcept;
 
     _EXTERN void FreeMemory(void* memory) noexcept;
 

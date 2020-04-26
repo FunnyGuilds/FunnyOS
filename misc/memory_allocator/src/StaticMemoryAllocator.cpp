@@ -1,10 +1,10 @@
+#include <FunnyOS/Misc/MemoryAllocator/StaticMemoryAllocator.hpp>
+
 #include <FunnyOS/Stdlib/Algorithm.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
-#include "LowMemoryAllocator.hpp"
-
-namespace FunnyOS::Bootloader32 {
+namespace FunnyOS::Misc::MemoryAllocator {
     using namespace FunnyOS::Stdlib;
 
     MemoryMetaBlock* MemoryMetaBlock::GetNext() noexcept {
@@ -15,14 +15,16 @@ namespace FunnyOS::Bootloader32 {
         /**
          * Converts a pointer to  memoryaddress_t
          */
-        template <typename T> inline memoryaddress_t PtrToAddress(T* ptr) {
+        template <typename T>
+        inline memoryaddress_t PtrToAddress(T* ptr) {
             return reinterpret_cast<uintptr_t>(ptr);
         }
 
         /**
          * Converts a memoryaddress_t to pointer of the given type.
          */
-        template <typename T> inline T* AddressToPtr(memoryaddress_t address) {
+        template <typename T>
+        inline T* AddressToPtr(memoryaddress_t address) {
             return reinterpret_cast<T*>(address);
         }
 
@@ -41,13 +43,35 @@ namespace FunnyOS::Bootloader32 {
             auto* blockAddress = static_cast<uint8_t*>(ptr);
             return reinterpret_cast<MemoryMetaBlock*>(blockAddress - sizeof(MemoryMetaBlock));
         }
+
+        bool IsAlignedTo(void* memory, size_t alignment) {
+            return (reinterpret_cast<memoryaddress_t>(memory) % alignment) == 0;
+        }
+
+        bool IsAlignedTo(memoryaddress_t address, size_t alignment) {
+            return (address % alignment) == 0;
+        }
+
+        memoryaddress_t AlignAddress(memoryaddress_t address, size_t alignment) {
+            if (IsAlignedTo(address, alignment)) {
+                return address;
+            }
+
+            return address + (alignment - (address % alignment));
+        }
+
+        memoryaddress_t AlignAddress(void* memory, size_t alignment) {
+            return AlignAddress(reinterpret_cast<memoryaddress_t>(memory), alignment);
+        }
+
     }  // namespace
 
-    void LowMemoryAllocator::Initialize(memoryaddress_t memoryStart, memoryaddress_t memoryEnd) noexcept {
+    void StaticMemoryAllocator::Initialize(memoryaddress_t memoryStart, memoryaddress_t memoryEnd) noexcept {
         m_currentMemory = memoryStart;
         m_memoryEnd = memoryEnd;
 
         m_firstFreeBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
+        m_lastFreeBlock = m_firstFreeBlock;
         m_firstFreeBlock->Status = MemoryMetaStatus::Freed;
         m_firstFreeBlock->BlockSize = 0;
         m_firstFreeBlock->NextFreeBlock = 0;
@@ -55,9 +79,9 @@ namespace FunnyOS::Bootloader32 {
         m_currentMemory += sizeof(MemoryMetaBlock);
     }
 
-    void* LowMemoryAllocator::Allocate(size_t size) noexcept {
+    void* StaticMemoryAllocator::Allocate(size_t size, size_t alignment) noexcept {
         // Find a suitable free block
-        auto* freeBlockPredecessor = FindFreeBlockPredecessor(size);
+        auto* freeBlockPredecessor = FindFreeBlockPredecessor(size, alignment);
 
         // If found split it if possible, mark as taken and return.
         if (freeBlockPredecessor != nullptr) {
@@ -66,7 +90,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         // If no free blocks with suitable size are found, allocate new one.
-        MemoryMetaBlock* newBlock = AllocateNewBlock(size);
+        MemoryMetaBlock* newBlock = AllocateNewBlock(size, alignment);
         if (newBlock == nullptr) {
             return nullptr;
         }
@@ -74,7 +98,7 @@ namespace FunnyOS::Bootloader32 {
         return GetBlockMemory(newBlock);
     }
 
-    void LowMemoryAllocator::Free(void* ptr) noexcept {
+    void StaticMemoryAllocator::Free(void* ptr) noexcept {
         auto* block = GetMemoryBlock(ptr);
 
         if (block->Status == MemoryMetaStatus::Freed) {
@@ -93,6 +117,10 @@ namespace FunnyOS::Bootloader32 {
         block->NextFreeBlock = blockToInsertAfter->NextFreeBlock;
         blockToInsertAfter->NextFreeBlock = PtrToAddress(block);
 
+        if (block->NextFreeBlock == 0) {
+            m_lastFreeBlock = block;
+        }
+
         // Mark it as free
         block->Status = MemoryMetaStatus::Freed;
 
@@ -100,7 +128,7 @@ namespace FunnyOS::Bootloader32 {
         MergeMemory();
     }
 
-    void* LowMemoryAllocator::Reallocate(void* ptr, size_t size) noexcept {
+    void* StaticMemoryAllocator::Reallocate(void* ptr, size_t size, size_t alignment) noexcept {
         auto* oldMemoryBlock = GetMemoryBlock(ptr);
         F_ASSERT(oldMemoryBlock->Status == MemoryMetaStatus::Taken, "attempting to reallocate invalid block");
 
@@ -110,7 +138,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         // Allocate new block
-        void* newMemory = Allocate(size);
+        void* newMemory = Allocate(size, alignment);
         if (newMemory == nullptr) {
             return nullptr;
         }
@@ -123,7 +151,11 @@ namespace FunnyOS::Bootloader32 {
         return newMemory;
     }
 
-    MemoryMetaBlock* LowMemoryAllocator::FindFreeBlockPredecessor(size_t size) noexcept {
+    memoryaddress_t StaticMemoryAllocator::GetCurrentMemoryTop() {
+        return m_currentMemory;
+    }
+
+    MemoryMetaBlock* StaticMemoryAllocator::FindFreeBlockPredecessor(size_t size, size_t alignment) noexcept {
         MemoryMetaBlock* previousBlock;
         MemoryMetaBlock* currentBlock = m_firstFreeBlock;
 
@@ -138,6 +170,10 @@ namespace FunnyOS::Bootloader32 {
                 continue;
             }
 
+            if (!IsAlignedTo(GetBlockMemory(currentBlock), alignment)) {
+                continue;
+            }
+
             // Found suitable block
             return previousBlock;
         }
@@ -146,8 +182,8 @@ namespace FunnyOS::Bootloader32 {
         return nullptr;
     }
 
-    MemoryMetaBlock* LowMemoryAllocator::SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor,
-                                                                       size_t size) noexcept {
+    MemoryMetaBlock* StaticMemoryAllocator::SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor,
+                                                                          size_t size) noexcept {
         F_ASSERT(predecessor->NextFreeBlock != 0, "predecessor has no actual next value");
 
         auto* currentBlock = predecessor->GetNext();
@@ -179,15 +215,41 @@ namespace FunnyOS::Bootloader32 {
         return currentBlock;
     }
 
-    MemoryMetaBlock* LowMemoryAllocator::AllocateNewBlock(size_t size) noexcept {
+    MemoryMetaBlock* StaticMemoryAllocator::AllocateNewBlock(size_t size, size_t alignment) noexcept {
+        F_ASSERT(alignment > 0, "allignment == 0");
+
+        // Create new memory block at the end of current memory
+        auto* newMetaBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
+
+        if (!IsAlignedTo(GetBlockMemory(newMetaBlock), alignment)) {
+            memoryaddress_t newAlignedAddress = AlignAddress(GetBlockMemory(newMetaBlock), alignment);
+
+            // As long as the aligning block is smaller than its meta block there is no point in creating in there
+            while (newAlignedAddress - PtrToAddress(GetBlockMemory(newMetaBlock)) <= sizeof(MemoryMetaBlock)) {
+                // Just skip to the next aligned address
+                newAlignedAddress += alignment;
+            }
+
+            // Create alignment block
+            newMetaBlock->Status = MemoryMetaStatus::Freed;
+            newMetaBlock->BlockSize = newAlignedAddress - m_currentMemory - sizeof(MemoryMetaBlock) * 2;
+            newMetaBlock->NextFreeBlock = 0;
+
+            m_lastFreeBlock->NextFreeBlock = PtrToAddress(newMetaBlock);
+            m_lastFreeBlock = newMetaBlock;
+            m_currentMemory += newMetaBlock->BlockSize + sizeof(MemoryMetaBlock);
+
+            // Update meta block
+            newMetaBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
+        }
+
         const memoryaddress_t lastByte = m_currentMemory + sizeof(MemoryMetaBlock) + size;
+        F_ASSERT(IsAlignedTo(GetBlockMemory(newMetaBlock), alignment), "alignment failed");
+
         if (lastByte > m_memoryEnd) {
             // Oops, we reached end of our memory space.
             return nullptr;
         }
-
-        // Create new memory block at the end of current memory
-        auto* newMetaBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
 
         // Increment current memory to be pointing just after the newMetaBlock
         m_currentMemory = lastByte;
@@ -199,7 +261,7 @@ namespace FunnyOS::Bootloader32 {
         return newMetaBlock;
     }
 
-    bool LowMemoryAllocator::MergeMemory() noexcept {
+    bool StaticMemoryAllocator::MergeMemory() noexcept {
         MemoryMetaBlock* currentBlock = m_firstFreeBlock;
 
         // Never merge the first block, it is only a marker.
@@ -242,4 +304,4 @@ namespace FunnyOS::Bootloader32 {
         return didMerge;
     }
 
-}  // namespace FunnyOS::Bootloader
+}  // namespace FunnyOS::Misc::MemoryAllocator

@@ -132,7 +132,7 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
-    LowMemoryAllocator& Bootloader::GetAllocator() {
+    Misc::MemoryAllocator::StaticMemoryAllocator& Bootloader::GetAllocator() {
         return m_allocator;
     }
 

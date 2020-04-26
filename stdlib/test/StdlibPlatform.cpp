@@ -3,7 +3,10 @@
 
 #include "Common.hpp"
 
+#include <algorithm>
 #include <memory>
+#include <cstring>
+#include <malloc.h>
 
 namespace FunnyOS::_Platform {
     using namespace FunnyOS::Stdlib;
@@ -12,8 +15,15 @@ namespace FunnyOS::_Platform {
         return aligned_alloc(aligned, size);
     }
 
-    void* ReallocateMemory(void* memory, size_t size) noexcept {
-        return realloc(memory, size);
+    void* ReallocateMemoryAligned(void* memory, size_t size, size_t alignment) noexcept {
+        void* newMem = AllocateMemoryAligned(size, alignment);
+        if (newMem == nullptr) {
+            return nullptr;
+        }
+
+        memcpy(newMem, memory, std::min(size, malloc_usable_size(memory)));
+        free(memory);
+        return newMem;
     }
 
     void FreeMemory(void* memory) noexcept {

@@ -231,6 +231,20 @@ namespace FunnyOS::Stdlib::Memory {
     [[nodiscard]] void* Reallocate(void* data, size_t size) noexcept;
 
     /**
+     * Reallocates the given memory previously allocated via any Allocate* or Reallocate* methods.
+     * The contents of the newly allocated memory will be copied from the old memory.
+     * The new memory address will be aligned to [alignment].
+     *
+     * If the returned value != nullptr then the old memory will be freed as if Free(data) was called.
+     *
+     * @param[in, out] ptr memory to reallocate, is freed when returned value != nullptr
+     * @param[in] size size of the memory block.
+     * @param[in] alignment memory alignment
+     * @return the newly allocated chunk or nullptr if not enough memory.
+     */
+    [[nodiscard]] void* ReallocateAligned(void* data, size_t size, size_t alignment) noexcept;
+
+    /**
      * Frees a chunk of memory previously allocated via any Allocate* or Reallocate* methods.
      * Any other parameter will cause an undefined behaviour.
      *

@@ -2,7 +2,7 @@
 #define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_BOOTLOADER32_HPP
 
 #include <FunnyOS/Bootparams/Parameters.hpp>
-#include "LowMemoryAllocator.hpp"
+#include <FunnyOS/Misc/MemoryAllocator/StaticMemoryAllocator.hpp>
 
 namespace FunnyOS::Bootloader32 {
 
@@ -38,7 +38,7 @@ namespace FunnyOS::Bootloader32 {
         /**
          * Returns the reference for the memory allocator used by the bootloader.
          */
-        [[nodiscard]] LowMemoryAllocator& GetAllocator();
+        [[nodiscard]] Misc::MemoryAllocator::StaticMemoryAllocator& GetAllocator();
 
         /**
          * Gets the global instance of the Bootloader class.
@@ -48,7 +48,7 @@ namespace FunnyOS::Bootloader32 {
         static Bootloader& Get();
 
        private:
-        LowMemoryAllocator m_allocator;
+        Misc::MemoryAllocator::StaticMemoryAllocator m_allocator;
     };
 
 }  // namespace FunnyOS::Bootloader32

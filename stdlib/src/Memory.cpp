@@ -36,6 +36,10 @@ namespace FunnyOS::Stdlib::Memory {
     }
 
     void* Reallocate(void* data, size_t size) noexcept {
+        return ReallocateAligned(data, size, 1);
+    }
+
+    void* ReallocateAligned(void* data, size_t size, size_t alignment) noexcept {
         if (data == nullptr || data == g_zeroMemory) {
             return Memory::Allocate(size);
         }
@@ -45,7 +49,7 @@ namespace FunnyOS::Stdlib::Memory {
             return g_zeroMemory;
         }
 
-        return _Platform::ReallocateMemory(data, size);
+        return _Platform::ReallocateMemoryAligned(data, size, alignment);
     }
 
     void Free(void* data) noexcept {

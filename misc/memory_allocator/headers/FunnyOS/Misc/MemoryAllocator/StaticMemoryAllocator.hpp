@@ -1,21 +1,21 @@
-#ifndef FUNNYOS_BOOTLOADER_COMMONS_SRC_LOWMEMORYALLOCATOR_HPP
-#define FUNNYOS_BOOTLOADER_COMMONS_SRC_LOWMEMORYALLOCATOR_HPP
+#ifndef FUNNYOS_MISC_MEMORY_ALLOCATOR_HEADERS_FUNNYOS_MISC_MEMORYALLOCATOR_STATICMEMORYALLOCATOR_HPP
+#define FUNNYOS_MISC_MEMORY_ALLOCATOR_HEADERS_FUNNYOS_MISC_MEMORYALLOCATOR_STATICMEMORYALLOCATOR_HPP
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-namespace FunnyOS::Bootloader32 {
+namespace FunnyOS::Misc::MemoryAllocator {
 
     /**
-     * We don't really need larger memory addresses since we are operating in the 0x00007C00 - 0x0007FFFF memory section
+     * Memory address integer representation.
      */
-    using memoryaddress_t = uint32_t;
+    using memoryaddress_t = uintmax_t;
 
     /**
      * Type of a memory.
      * The values in this enum should be random constants because if the block would be accidentally overridden those
      * values will be also overwritten thus indicating an issue with the block.
      */
-    enum class MemoryMetaStatus : memoryaddress_t { Taken = 0x94EF, Freed = 0x72BE, Invalid = 0 };
+    enum class MemoryMetaStatus : memoryaddress_t { Taken = 0xA594EDF9, Freed = 0xBB4272BE, Invalid = 0 };
 
     /**
      * Memory meta block. This block is guaranteed to be present just before an allocated memory region.
@@ -47,7 +47,7 @@ namespace FunnyOS::Bootloader32 {
     /**
      * Simple and efficient memory allocator, tracking all free blocks and merging them if possible.
      */
-    class LowMemoryAllocator {
+    class StaticMemoryAllocator {
        public:
         /**
          * Initializes the memory allocator.
@@ -61,9 +61,10 @@ namespace FunnyOS::Bootloader32 {
          * Allocates a chunk of memory.
          *
          * @param[in] size size of the memory
+         * @param[in] alignment memory alignment
          * @return the newly allocated chunk or nullptr if not enough memory.
          */
-        [[nodiscard]] void* Allocate(size_t size) noexcept;
+        [[nodiscard]] void* Allocate(size_t size, size_t alignment) noexcept;
 
         /**
          * Frees a chunk of memory previously allocated via Allocate or Reallocate.
@@ -80,9 +81,18 @@ namespace FunnyOS::Bootloader32 {
          *
          * @param[in,out] ptr memory, is is freed when return value of this function is not nullptr
          * @param[in] size size of the memory block.
+         * @param[in] alignment memory alignment
          * @return the newly allocated chunk or nullptr if not enough memory.
          */
-        [[nodiscard]] void* Reallocate(void* ptr, size_t size) noexcept;
+        [[nodiscard]] void* Reallocate(void* ptr, size_t size, size_t alignment) noexcept;
+
+        /**
+         * Gets the highest memory address that this allocator ever allocated.
+         * That is the (highest address + 1) of the top-most block.
+         *
+         * @return highest memory address used by the allocator.
+         */
+        memoryaddress_t GetCurrentMemoryTop();
 
        private:
         /**
@@ -92,7 +102,7 @@ namespace FunnyOS::Bootloader32 {
          * @param[in] size minimum size of the block
          * @return suitable block predecessor or nullptr
          */
-        [[nodiscard]] MemoryMetaBlock* FindFreeBlockPredecessor(size_t size) noexcept;
+        [[nodiscard]] MemoryMetaBlock* FindFreeBlockPredecessor(size_t size, size_t alignment) noexcept;
 
         /**
          * Splits the successor of the given free block in two blocks.
@@ -117,7 +127,7 @@ namespace FunnyOS::Bootloader32 {
          * @param[in] size size of the block to be allocated
          * @return the allocated block of size [size], marked as Taken
          */
-        [[nodiscard]] MemoryMetaBlock* AllocateNewBlock(size_t size) noexcept;
+        [[nodiscard]] MemoryMetaBlock* AllocateNewBlock(size_t size, size_t alignment) noexcept;
 
         /**
          * Merges clumps of Freed marked zones in the free memory list to bigger clumps.
@@ -128,10 +138,11 @@ namespace FunnyOS::Bootloader32 {
 
        private:
         MemoryMetaBlock* m_firstFreeBlock;
+        MemoryMetaBlock* m_lastFreeBlock;
         memoryaddress_t m_currentMemory;
         memoryaddress_t m_memoryEnd;
     };
 
-}  // namespace FunnyOS::Bootloader32
+}  // namespace FunnyOS::Misc::MemoryAllocator
 
-#endif  // FUNNYOS_BOOTLOADER_COMMONS_SRC_LOWMEMORYALLOCATOR_HPP
+#endif  // FUNNYOS_MISC_MEMORY_ALLOCATOR_HEADERS_FUNNYOS_MISC_MEMORYALLOCATOR_STATICMEMORYALLOCATOR_HPP
