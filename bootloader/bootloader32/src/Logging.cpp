@@ -80,6 +80,13 @@ namespace FunnyOS::Bootloader32::Logging {
     }
 
     void PostLog(LogLevel level, const char* message) {
+        if (IsSerialLoggingEnabled()) {
+            WriteToSerial(g_logLevelNames[static_cast<int>(level)]);
+            WriteToSerial(": ");
+            WriteToSerial(message);
+            WriteToSerial("\r\n");
+        }
+
         if (level == LogLevel::Debug && !g_debugModeEnabled) {
             return;
         }
@@ -87,13 +94,6 @@ namespace FunnyOS::Bootloader32::Logging {
         TerminalManager* terminal = GetTerminalManager();
 
         const Color preservedColor = terminal->GetForegroundColor();
-
-        if (IsSerialLoggingEnabled()) {
-            WriteToSerial(g_logLevelNames[static_cast<int>(level)]);
-            WriteToSerial(": ");
-            WriteToSerial(message);
-            WriteToSerial("\r\n");
-        }
 
         // Tag start
         terminal->ChangeForegroundColor(Color::White);
