@@ -68,11 +68,13 @@ sudo mkdir $MOUNT/boot
 sudo mkdir $MOUNT/system
 sudo cp ./bootloader/bootloader32/bootloader32.bin $MOUNT/boot/bootload32
 sudo cp ./bootloader/env64/env64.bin $MOUNT/boot/env64
+sudo cp ./bootloader/temp_kernel/temp_kernel.bin $MOUNT/system/temp_kernel.bin
 
 if command -v fatattr > /dev/null; then
   echo "Setting FAT file attributes"
   sudo fatattr +rhs $MOUNT/boot/bootload32
   sudo fatattr +rhs $MOUNT/boot/env64
+  sudo fatattr +r   $MOUNT/system/temp_kernel.bin
 fi
 
 # Unmount

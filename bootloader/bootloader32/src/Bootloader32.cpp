@@ -213,11 +213,14 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_DEBUG_F("Allocate memory with page tables: %u bytes", kernelMemoryLocation, kernelMemorySize);
 
         // Get kernel entry point
-        auto kernelEntryPointPhysical = reinterpret_cast<uint64_t>(tempKernel);
-        auto kernelEntryPointVirtual = GetKernelVirtualLocation() + (kernelEntryPointPhysical - kernelMem.BaseAddress);
+        const auto kernelEntryPointPhysical = reinterpret_cast<uint64_t>(tempKernel);
+        const auto kernelPageOffset = kernelEntryPointPhysical - kernelMem.BaseAddress;
+        const auto kernelEntryPointVirtual = GetKernelVirtualLocation() + kernelPageOffset;
         FB_LOG_DEBUG_F("Kernel entry point: Physical: %08llx, offset = %08llx, virtual = %16llx",
-                       kernelEntryPointPhysical, kernelEntryPointPhysical - kernelMem.BaseAddress,
-                       kernelEntryPointVirtual);
+                       kernelEntryPointPhysical, kernelPageOffset, kernelEntryPointVirtual);
+
+        const auto kernelEntryPointLow = static_cast<uint32_t>(kernelEntryPointVirtual & 0xFFFFFFFF);
+        const auto kernelEntryPointHigh = static_cast<uint32_t>(kernelEntryPointVirtual >> 32ULL);
 
         // Load env64
         void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64");
@@ -232,8 +235,7 @@ namespace FunnyOS::Bootloader32 {
             "push %0\n"  // PML4 base
             "jmp ebx\n"
             :
-            : "r"(pml4base), "r"(kernelEntryPointVirtual & 0xFFFFFFFF), "r"(kernelEntryPointVirtual >> 32ULL),
-              "b"(env64));
+            : "r"(pml4base), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh), "b"(env64));
 
         _NO_RETURN;
     }
