@@ -67,7 +67,7 @@ namespace FunnyOS::HW::CPU {
         /**
          * Physical Address Extension
          */
-        APE = (1ULL << 6),
+        PAE = (1ULL << 6),
 
         /**
          * Machine Check Exception

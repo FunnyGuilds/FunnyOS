@@ -135,7 +135,7 @@ namespace FunnyOS::HW::CPU {
         DECODE_HELPER(PSE)
         DECODE_HELPER(TSC)
         DECODE_HELPER(MSR)
-        DECODE_HELPER(APE)
+        DECODE_HELPER(PAE)
         DECODE_HELPER(MCE)
         DECODE_HELPER(CX8)
         DECODE_HELPER(APIC)
