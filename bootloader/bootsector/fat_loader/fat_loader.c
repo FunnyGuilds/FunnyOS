@@ -146,7 +146,7 @@ void _Noreturn fat_loader(void) {
     // Die, horribly
     if (*magic_location != FILE_MAGIC) {
         fl_print(" ** Verification failed. \n\r");
-        fl_error(0xFFFFFFFF);
+        fl_error(1);
     }
 
     fl_jump_to_bootloader((void*)LOCATION);

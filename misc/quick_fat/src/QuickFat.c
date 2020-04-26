@@ -252,7 +252,7 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
                 }
 
                 const unsigned int lfn_index = ((lfn->sequence_number & 0b00011111) - 1) * 13;
-                if (lfn_index >= 5) {
+                if (lfn_index >= 5 * 13) {
                     continue;
                 }
 
@@ -270,8 +270,10 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
                         break;
                     }
                 }
+
+                // null byte
+                current_lfn[sizeof(current_lfn) - 1] = 0;
             }
-            current_lfn[sizeof(current_lfn) - 1] = 0;
 
             if ((has_lfn && quickfat_strequal(current_lfn, name)) ||
                 quickfat_strnequal(directory_entries[i].file_name_and_ext, name, 8 + 3)) {
