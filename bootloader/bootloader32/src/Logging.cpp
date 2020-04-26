@@ -2,6 +2,7 @@
 
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/VGA.hpp>
+#include <FunnyOS/Hardware/Serial.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
 namespace FunnyOS::Bootloader32::Logging {
@@ -21,7 +22,15 @@ namespace FunnyOS::Bootloader32::Logging {
             " DBG", "INFO", " OK ", "WARN", " ERR", "FAIL",
         };
 
+        constexpr HW::Serial::COMPort SERIAL_PORT = HW::Serial::COMPort::COM1;
+
+#ifdef F_DEBUG
+        bool g_debugModeEnabled = true;
+        bool g_outputToSerial = true;
+#else
         bool g_debugModeEnabled = false;
+        bool g_outputToSerial = false;
+#endif
     }  // namespace
 
     bool IsDebugModeEnabled() {
@@ -30,6 +39,37 @@ namespace FunnyOS::Bootloader32::Logging {
 
     void SetDebugModeEnabled(bool enabled) {
         g_debugModeEnabled = enabled;
+    }
+
+    bool IsSerialLoggingEnabled() {
+        return g_outputToSerial;
+    }
+
+    void SetSerialLoggingEnabled(bool enabled) {
+        g_outputToSerial = enabled;
+    }
+
+    void InitSerialLogging() {
+        using namespace HW::Serial;
+
+        if (!IsSerialLoggingEnabled()) {
+            return;
+        }
+
+        InitializeCOMPort(SERIAL_PORT, DataBits::BITS_8, StopBits::STOP_1, ParityBits::NONE, 115200);
+    }
+
+    void WriteToSerial(const char* message) {
+        using namespace HW::Serial;
+
+        while (*message != 0) {
+            while (!CanWrite(SERIAL_PORT)) {
+                // Wait
+            }
+
+            Write(SERIAL_PORT, *message);
+            message++;
+        }
     }
 
     Misc::TerminalManager::TerminalManager* GetTerminalManager() {
@@ -47,6 +87,13 @@ namespace FunnyOS::Bootloader32::Logging {
         TerminalManager* terminal = GetTerminalManager();
 
         const Color preservedColor = terminal->GetForegroundColor();
+
+        if (IsSerialLoggingEnabled()) {
+            WriteToSerial(g_logLevelNames[static_cast<int>(level)]);
+            WriteToSerial(": ");
+            WriteToSerial(message);
+            WriteToSerial("\r\n");
+        }
 
         // Tag start
         terminal->ChangeForegroundColor(Color::White);

@@ -5,26 +5,61 @@
 #include <FunnyOS/Hardware/PS2.hpp>
 #include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
+#include "FileLoader.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
     using namespace Stdlib;
+
+    void SimpleSwitchModeOption::FetchState(String::StringBuffer& buffer) const {
+        String::Append(buffer, GetMode() ? "ON" : "OFF");
+    }
+
+    void SimpleSwitchModeOption::Enter() {
+        SetMode(!GetMode());
+        SelectCurrentSubmenu(-1);
+    }
+
+    void SimpleSwitchModeOption::HandleKey(HW::PS2::ScanCode) {}
 
     void DebugModeOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Debug mode");
     }
 
-    void DebugModeOption::FetchState(String::StringBuffer& buffer) const {
-        String::Append(buffer, Logging::IsDebugModeEnabled() ? "ON" : "OFF");
+    void DebugModeOption::SetMode(bool mode) {
+        Logging::SetDebugModeEnabled(mode);
     }
 
-    void DebugModeOption::Enter() {
-        Logging::SetDebugModeEnabled(!Logging::IsDebugModeEnabled());
-        SelectCurrentSubmenu(-1);
+    bool DebugModeOption::GetMode() const {
+        return Logging::IsDebugModeEnabled();
     }
 
-    void DebugModeOption::HandleKey(HW::PS2::ScanCode) {}
+    void LogToSerial::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Log messages to COM1");
+    }
 
-    DebugModeOption DebugModeOption::s_instance{};
+    void LogToSerial::SetMode(bool mode) {
+        Logging::SetSerialLoggingEnabled(mode);
+    }
+
+    bool LogToSerial::GetMode() const {
+        return Logging::IsSerialLoggingEnabled();
+    }
+
+    void DebugDiskIOOption::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Debug disk I/O");
+    }
+
+    void DebugDiskIOOption::SetMode(bool mode) {
+        FileLoader::SetDebugReads(mode);
+
+        if (mode) {
+            Logging::SetDebugModeEnabled(true);
+        }
+    }
+
+    bool DebugDiskIOOption::GetMode() const {
+        return FileLoader::IsDebugReads();
+    }
 
     void PrintMemoryMapOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Print memory map");
@@ -74,8 +109,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
     }
 
-    PrintMemoryMapOption PrintMemoryMapOption::s_instance{};
-
     void PrintBootloaderParametersOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Print bootloader parameters");
     }
@@ -102,8 +135,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             SelectCurrentSubmenu(-1);
         }
     }
-
-    PrintBootloaderParametersOption PrintBootloaderParametersOption::s_instance{};
 
     void PrintBootDiskParameters::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Print bootable drive information");
@@ -135,8 +166,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             SelectCurrentSubmenu(-1);
         }
     }
-
-    PrintBootDiskParameters PrintBootDiskParameters::s_instance{};
 
     void CPUIDInfo::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Print CPUID");
@@ -183,8 +212,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
     }
 
-    CPUIDInfo CPUIDInfo::s_instance{};
-
     void QuitMenuOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Quit menu");
     }
@@ -198,6 +225,29 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
     void QuitMenuOption::HandleKey(HW::PS2::ScanCode) {}
 
-    QuitMenuOption QuitMenuOption::s_instance{};
+    Memory::SizedBuffer<MenuOption*> GetMenuOptions() {
+        static DebugModeOption c_debugModeOption{};
+        static LogToSerial c_logToSerial{};
+        static DebugDiskIOOption c_debugDiskIOOption{};
+        static PrintMemoryMapOption c_printMemoryMapOption{};
+        static PrintBootloaderParametersOption c_printBootloaderParametersOption{};
+        static PrintBootDiskParameters c_printBootDiskParameters{};
+        static CPUIDInfo c_cPUIDInfo{};
+        static QuitMenuOption c_quitMenuOption{};
 
+        static MenuOption* c_menuOptions[] = {
+            &c_debugModeOption,
+            &c_logToSerial,
+            &c_debugDiskIOOption,
+            &c_printMemoryMapOption,
+            &c_printBootloaderParametersOption,
+            &c_printBootDiskParameters,
+            &c_cPUIDInfo,
+            &c_quitMenuOption,
+        };
+
+        static Memory::SizedBuffer<MenuOption*> c_buffer = {c_menuOptions,
+                                                            sizeof(c_menuOptions) / sizeof(c_menuOptions[0])};
+        return c_buffer;
+    }
 }  // namespace FunnyOS::Bootloader32::DebugMenu

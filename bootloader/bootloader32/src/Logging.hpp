@@ -25,6 +25,25 @@ namespace FunnyOS::Bootloader32::Logging {
     void SetDebugModeEnabled(bool enabled);
 
     /**
+     * Returns whether or not logging to serial port (COM1) is enabled.
+     *
+     * @return whether or not logging to serial port is enabled.
+     */
+    [[nodiscard]] bool IsSerialLoggingEnabled();
+
+    /**
+     * Sets whether or not logging to serial port (COM1) is enabled.
+     *
+     * @return whether or not logging to serial port is enabled.
+     */
+    void SetSerialLoggingEnabled(bool enabled);
+
+    /**
+     * Initializes the serial logging if it's enabled.
+     */
+    void InitSerialLogging();
+
+    /**
      * Gets the TerminalManager instance used by the logging system.
      */
     Misc::TerminalManager::TerminalManager* GetTerminalManager();
@@ -70,13 +89,7 @@ namespace FunnyOS::Bootloader32::Logging {
 #define FB_LOG_WARNING_F(message, ...) FB_LOG_F(Warning, message, __VA_ARGS__)
 #define FB_LOG_ERROR_F(message, ...) FB_LOG_F(Error, message, __VA_ARGS__)
 #define FB_LOG_FATAL_F(message, ...) FB_LOG_F(Fatal, message, __VA_ARGS__)
-
-#ifdef F_DEBUG
 #define FB_LOG_DEBUG(message) FB_LOG(Debug, message)
 #define FB_LOG_DEBUG_F(message, ...) FB_LOG_F(Debug, message, __VA_ARGS__)
-#else
-#define FB_LOG_DEBUG(message)
-#define FB_LOG_DEBUG_F(message, ...)
-#endif
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP

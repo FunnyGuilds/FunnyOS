@@ -25,11 +25,18 @@ namespace FunnyOS::Bootloader32 {
 
         const QuickFat_File& GetFile() const;
 
+       public:
+        static bool IsDebugReads();
+
+        static void SetDebugReads(bool debugReads);
+
        private:
         static int QuickFatRead(void* data, uint32_t lba, uint32_t count, uint8_t* out);
 
         void DieOnError(const char* error, int code);
        private:
+        static bool s_debugReads;
+
         char m_errorBuffer[256];
         Stdlib::String::StringBuffer m_bufferInfo;
         HW::IDriveInterface& m_driveInterface;

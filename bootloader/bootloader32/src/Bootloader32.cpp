@@ -44,6 +44,8 @@ namespace FunnyOS::Bootloader32 {
             .SelectorData16 = 0x08 * 4,
         });
 
+        Logging::InitSerialLogging();
+
         FB_LOG_INFO("FunnyOS Bootloader, hello!");
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 

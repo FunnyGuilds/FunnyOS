@@ -20,14 +20,37 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         virtual void HandleKey(HW::PS2::ScanCode code) = 0;
     };
 
-    class DebugModeOption : public MenuOption {
+    class SimpleSwitchModeOption : public MenuOption {
        public:
-        void FetchName(String::StringBuffer& buffer) const override;
+        virtual void SetMode(bool mode) = 0;
+
+        virtual bool GetMode() const = 0;
+
+       public:
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
+    };
 
-        static DebugModeOption s_instance;
+    class DebugModeOption : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        bool GetMode() const override;
+    };
+
+    class LogToSerial : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        bool GetMode() const override;
+    };
+
+    class DebugDiskIOOption : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        bool GetMode() const override;
     };
 
     class PrintMemoryMapOption : public MenuOption {
@@ -36,8 +59,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
-
-        static PrintMemoryMapOption s_instance;
     };
 
     class PrintBootloaderParametersOption : public MenuOption {
@@ -46,8 +67,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
-
-        static PrintBootloaderParametersOption s_instance;
     };
 
     class PrintBootDiskParameters : public MenuOption {
@@ -56,8 +75,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
-
-        static PrintBootDiskParameters s_instance;
     };
 
     class CPUIDInfo : public MenuOption {
@@ -66,8 +83,6 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
-
-        static CPUIDInfo s_instance;
     };
 
     class QuitMenuOption : public MenuOption {
@@ -76,19 +91,9 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void FetchState(String::StringBuffer& buffer) const override;
         void Enter() override;
         void HandleKey(HW::PS2::ScanCode code) override;
-
-        static QuitMenuOption s_instance;
     };
 
-    inline MenuOption* g_menuOptions[] = {
-        &DebugModeOption::s_instance,
-        &PrintMemoryMapOption::s_instance,
-        &PrintBootloaderParametersOption::s_instance,
-        &PrintBootDiskParameters::s_instance,
-        &CPUIDInfo::s_instance,
-        &QuitMenuOption::s_instance,
-    };
+    Memory::SizedBuffer<MenuOption*> GetMenuOptions();
 }  // namespace FunnyOS::Bootloader32::DebugMenu
 
-#undef SIMPLE_MENU_OPTION
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DEBUGMENUOPTIONS_HPP

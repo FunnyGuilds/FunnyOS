@@ -92,8 +92,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             PrintHeader("FunnyOS v" FUNNYOS_VERSION " Debug menu");
             terminalManager->PrintLine();
 
-            for (size_t i = 0; i < sizeof(g_menuOptions) / sizeof(g_menuOptions[0]); i++) {
-                const auto& option = g_menuOptions[i];
+            for (size_t i = 0; i < GetMenuOptions().Size; i++) {
+                const auto* option = GetMenuOptions().Data[i];
 
                 if (g_currentSelection == i) {
                     terminalManager->ChangeColor(Color::LightGray, Color::Black);
@@ -121,19 +121,17 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         if (g_currentSubmenu != -1) {
-            g_menuOptions[g_currentSubmenu]->HandleKey(code);
+            GetMenuOptions().Data[g_currentSubmenu]->HandleKey(code);
             return;
         }
 
-        constexpr const size_t optionsCount = sizeof(g_menuOptions) / sizeof(g_menuOptions[0]);
-
-        if (code == ScanCode::CursorDown_Released && g_currentSelection < optionsCount - 1) {
+        if (code == ScanCode::CursorDown_Released && g_currentSelection < GetMenuOptions().Size - 1) {
             g_currentSelection++;
         } else if (code == ScanCode::CursorUp_Released && g_currentSelection > 0) {
             g_currentSelection--;
         } else if (code == ScanCode::Enter_Released) {
             SelectCurrentSubmenu(g_currentSelection);
-            g_menuOptions[g_currentSelection]->Enter();
+            GetMenuOptions().Data[g_currentSubmenu]->Enter();
         } else {
             return;
         }

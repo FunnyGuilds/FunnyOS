@@ -34,6 +34,10 @@ namespace FunnyOS::Bootloader32 {
     }
 
     int FileLoader::QuickFatRead(void* data, uint32_t lba, uint32_t count, uint8_t* out) {
+        if (IsDebugReads()) {
+            FB_LOG_DEBUG_F("Requested read of %u from %u", count, lba);
+        }
+
         auto& interface = static_cast<FileLoader*>(data)->m_driveInterface;
         Stdlib::Memory::SizedBuffer<uint8_t> buffer{out, count * interface.GetSectorSize()};
         interface.ReadSectors(lba, count, buffer);
@@ -50,6 +54,16 @@ namespace FunnyOS::Bootloader32 {
                                "\r\n\t\t(file: %s)",
                                code, error, m_fileName);
         throw FileLoadException(m_errorBuffer);
+    }
+
+    bool FileLoader::s_debugReads = false;
+
+    bool FileLoader::IsDebugReads() {
+        return s_debugReads;
+    }
+
+    void FileLoader::SetDebugReads(bool debugReads) {
+        s_debugReads = debugReads;
     }
 
 }  // namespace FunnyOS::Bootloader32
