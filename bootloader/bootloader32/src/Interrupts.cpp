@@ -90,6 +90,17 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::Get().Panic(panicBuffer.Data);
     }
 
+    void Env64InterruptHandler(HW::InterruptData* data) {
+        if (data->EAX == 0x01) {
+            FB_LOG_DEBUG_F("ENV64 message: %s", data->ESI);
+            return;
+        }
+
+        String::StringBuffer buffer = Memory::AllocateBuffer<char>(32);
+        String::Format(buffer, "ENV 64 interrupt. Code: 0x%02x. Detail: 0x%02x", data->EAX, data->EDX);
+        Bootloader::Get().Panic(buffer.Data);
+    }
+
     void KeyboardHandler(HW::InterruptData* data) {
         using HW::PS2::ScanCode;
 
@@ -114,8 +125,9 @@ namespace FunnyOS::Bootloader32 {
     void SetupInterrupts() {
         HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_PIT_Interrupt, &PITInterruptHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType ::IRQ_KeyboardInterrupt, &KeyboardHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType::IRQ_PIT_Interrupt, &PITInterruptHandler);
+        HW::RegisterInterruptHandler(HW::InterruptType::IRQ_KeyboardInterrupt, &KeyboardHandler);
 
         HW::SetupInterrupts();
         HW::PIC::Remap();

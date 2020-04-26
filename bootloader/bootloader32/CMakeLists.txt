@@ -15,10 +15,12 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/BootloaderStdlibPlatformImpl.cpp
         src/DebugMenu.cpp
         src/DebugMenuOptions.cpp
+        src/ElfLoader.cpp
         src/Entry.cpp
+        src/FileLoader.cpp
         src/Interrupts.cpp
         src/Logging.cpp
-        src/LowMemoryAllocator.cpp
+        src/Paging.cpp
         src/Sleep.cpp
 )
 
@@ -36,7 +38,9 @@ target_link_libraries(FunnyOS_Bootloader_Bootloader32
             FunnyOS::Stdlib::Base32_Static_LL
             FunnyOS::Misc::Bootparams
             FunnyOS::Misc::Hardware32
+            FunnyOS::Misc::MemoryAllocator32
             FunnyOS::Misc::TerminalManager32
+            FunnyOS::Misc::QuickFat32
             FunnyOS::Driver::Drive::BIOS32
 )
 
