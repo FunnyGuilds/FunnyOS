@@ -9,14 +9,9 @@ SECTIONS
         KEEP(*(.intro))
     }
 
-    .real.text :
+    .real :
     {
-        *(.real.text*)
-    }
-
-    .real.data :
-    {
-        *(.real.data*)
+        *(.real*)
     }
 
     .text :

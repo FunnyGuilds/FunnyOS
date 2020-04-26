@@ -58,8 +58,8 @@ SECTION .real.data
         gdt_entry 0x00000000, 0x00000000, 0b00000000, 0b0000       ; null segment
         gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1100       ; 32-bit code segment
         gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1100       ; 32-bit data segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1000       ; 16-bit data segment
-        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1000       ; 16-bit code segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10011010, 0b1000       ; 16-bit code segment
+        gdt_entry 0x00000000, 0x0FFFFFFF, 0b10010010, 0b1000       ; 16-bit data segment
     gdt_end:
 
     ; Parameters to be passed to the bootloader
