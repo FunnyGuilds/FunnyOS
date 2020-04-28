@@ -1,21 +1,6 @@
 #include <FunnyOS/QuickFat/QuickFat.h>
 
 #define QUICK_FAT_LFN_ATTR 0x0F
-#ifndef NULL
-#define NULL ((void*)0)
-#endif
-
-#ifndef bool
-#define bool _Bool
-#endif
-
-#ifndef true
-#define true ((_Bool)1)
-#endif
-
-#ifndef false
-#define false ((_Bool)0)
-#endif
 
 typedef struct PACKED {
     uint8_t drive_attributes;
@@ -110,7 +95,6 @@ int quickfat_init_context(QuickFat_Context* context, const QuickFat_initializati
     }
 
     context->partition_start_lba = mbr->partition_entries[init->partition_entry - 1].first_lba;
-    mbr = NULL;
 
     if ((error = quickfat_do_read(context, context->partition_start_lba, 1, (uint8_t*)&g_sectorBuffer)) != 0) {
         return QUICKFAT_ERROR_FAILED_LOAD_BPB | error;
@@ -223,7 +207,7 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
     uint32_t current_cluster_number = directory->cluster;
     QuickFat_directory_entry* file_entry = 0;
 
-    char current_lfn[13 * 5 + 1];
+    char current_lfn[13 * 5 + 1] = {0};
     bool has_lfn = false;
 
     do {
@@ -246,12 +230,12 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
                 QuickFat_lfn_entry* lfn = (QuickFat_lfn_entry*)&directory_entries[i];
 
                 if (lfn->sequence_number & 0b01000000) {  // Is first entry in the table
-                    for (int j = 0; j < sizeof(current_lfn) / sizeof(current_lfn[0]); j++) {
+                    for (unsigned int j = 0; j < sizeof(current_lfn) / sizeof(current_lfn[0]); j++) {
                         current_lfn[j] = ' ';
                     }
                 }
 
-                const unsigned int lfn_index = ((lfn->sequence_number & 0b00011111) - 1) * 13;
+                const unsigned int lfn_index = ((lfn->sequence_number & 0b00011111) - 1U) * 13U;
                 if (lfn_index >= 5 * 13) {
                     continue;
                 }
@@ -312,7 +296,7 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
 
 int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const char* file_path) {
     int error;
-    char current_index = 0;
+    unsigned int current_index = 0;
     char current_part[128];
     QuickFat_File current_directory;
     current_directory.cluster = context->root_directory_cluster;
@@ -326,7 +310,7 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
     for (;;) {
         bool expect_directory = true;
 
-        for (int i = 0; i < sizeof(current_part) / sizeof(current_part[0]); i++) {
+        for (unsigned int i = 0; i < sizeof(current_part) / sizeof(current_part[0]); i++) {
             if (file_path[i + current_index] == 0) {
                 quickfat_memcpy(current_part, file_path + current_index, i);
                 current_part[i] = 0;

@@ -5,7 +5,6 @@
 #include <FunnyOS/Hardware/CPU.hpp>
 
 #include "DebugMenuOptions.hpp"
-#include "Logging.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
     using namespace Stdlib;
@@ -19,7 +18,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         constexpr int MENU_ENTER_KEY_REPEAT = 3;
 
         unsigned int g_menuEnterKeyPressedCount = 0;
-        unsigned int g_currentSelection = 0;
+        int g_currentSelection = 0;
         int g_currentSubmenu = -1;
 
         bool g_menuEnabled = false;
@@ -95,7 +94,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             for (size_t i = 0; i < GetMenuOptions().Size; i++) {
                 const auto* option = GetMenuOptions().Data[i];
 
-                if (g_currentSelection == i) {
+                if (g_currentSelection == static_cast<int>(i)) {
                     terminalManager->ChangeColor(Color::LightGray, Color::Black);
                 }
 
@@ -125,7 +124,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             return;
         }
 
-        if (code == ScanCode::CursorDown_Released && g_currentSelection < GetMenuOptions().Size - 1) {
+        if (code == ScanCode::CursorDown_Released && g_currentSelection < static_cast<int>(GetMenuOptions().Size - 1)) {
             g_currentSelection++;
         } else if (code == ScanCode::CursorUp_Released && g_currentSelection > 0) {
             g_currentSelection--;
@@ -147,7 +146,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO("Entering debug menu...");
         g_menuEnabled = true;
 
-        auto terminalManager = Logging::GetTerminalManager();
+        auto* terminalManager = Logging::GetTerminalManager();
         auto savedScreenData = terminalManager->GetInterface()->SaveScreenData();
         terminalManager->ClearScreen();
         DrawMenu();

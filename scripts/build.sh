@@ -14,9 +14,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SOURCES=${1:-$DIR/../}
 RELEASE=${FOS_RELEASE:-Debug}
 
-SOURCES=$(realpath $SOURCES)
+SOURCES=$(realpath ${SOURCES})
 
 # Do build
-echo "Sources directory: " $SOURCES
-cmake -DCMAKE_BUILD_TYPE=$RELEASE -G "CodeBlocks - Unix Makefiles"  $SOURCES || exit 1
+echo "Sources directory: " ${SOURCES}
+cmake -DCMAKE_BUILD_TYPE=${RELEASE} -G "CodeBlocks - Unix Makefiles" ${SOURCES} || exit 1
 make FunnyOS_BuildImage || exit 1

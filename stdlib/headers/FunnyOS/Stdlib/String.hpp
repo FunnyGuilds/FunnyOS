@@ -60,7 +60,7 @@ namespace FunnyOS::Stdlib::String {
     [[nodiscard]] int Compare(const char* string1, const char* string2, size_t length) noexcept;
 
     /**
-     * Gets the index of the first occurence of [character] in [string].
+     * Gets the index of the first occurrence of [character] in [string].
      *
      * @param string string to search in
      * @param character character to search for
@@ -81,7 +81,7 @@ namespace FunnyOS::Stdlib::String {
      * @param[out] buffer output buffer
      * @param[in] integer integer to convert
      * @param[in] radix radix to use
-     * @return true if the operation suceeded, false if the radix was invalid or the buffer was to small to hold the
+     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold the
      * result
      */
     template <typename Integer>
@@ -94,7 +94,7 @@ namespace FunnyOS::Stdlib::String {
      * @tparam Integer type of the int to convert
      * @param[out] buffer output buffer
      * @param[in] integer integer to convert
-     * @return true if the operation suceeded, false if the radix was invalid or the buffer was to small to hold the
+     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold the
      * result
      */
     template <typename Integer>

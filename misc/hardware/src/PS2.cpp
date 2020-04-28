@@ -44,12 +44,12 @@ namespace FunnyOS::HW::PS2 {
             constexpr const uint8_t Unknown5 = 1 << 5;
 
             /**
-             * Set if a time-out error ocurred.
+             * Set if a time-out error occurred.
              */
             constexpr const uint8_t TimeOutError = 1 << 6;
 
             /**
-             * Set if a parity error ocurred.
+             * Set if a parity error occurred.
              */
             constexpr const uint8_t ParityError = 1 << 7;
         }  // namespace StatusFlags
@@ -179,8 +179,8 @@ namespace FunnyOS::HW::PS2 {
     }
 
     namespace {
-        static uint16_t g_scanCodeBuffer[6];
-        static unsigned int g_scanCodeBufPosition = 0;
+        uint16_t g_scanCodeBuffer[6];
+        unsigned int g_scanCodeBufPosition = 0;
     }  // namespace
 
     bool TestForSpecialScanCode(const uint8_t* match, size_t size) {

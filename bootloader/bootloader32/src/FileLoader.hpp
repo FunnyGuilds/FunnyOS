@@ -21,12 +21,12 @@ namespace FunnyOS::Bootloader32 {
 
         void LoadCurrentFile(void* destination);
 
-        const QuickFat_Context& GetQuickFatContext() const;
+        [[nodiscard]] const QuickFat_Context& GetQuickFatContext() const;
 
-        const QuickFat_File& GetFile() const;
+        [[nodiscard]] const QuickFat_File& GetFile() const;
 
        public:
-        static bool IsDebugReads();
+        [[nodiscard]] static bool IsDebugReads();
 
         static void SetDebugReads(bool debugReads);
 
@@ -34,14 +34,15 @@ namespace FunnyOS::Bootloader32 {
         static int QuickFatRead(void* data, uint32_t lba, uint32_t count, uint8_t* out);
 
         void DieOnError(const char* error, int code);
+
        private:
         static bool s_debugReads;
 
-        char m_errorBuffer[256];
         Stdlib::String::StringBuffer m_bufferInfo;
         HW::IDriveInterface& m_driveInterface;
-        QuickFat_Context m_quickFatContext;
-        QuickFat_File m_file;
+        char m_errorBuffer[256] = {0};
+        QuickFat_Context m_quickFatContext{};
+        QuickFat_File m_file{};
         const char* m_fileName;
     };
 

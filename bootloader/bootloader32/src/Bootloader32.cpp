@@ -1,6 +1,5 @@
 #include "Bootloader32.hpp"
 
-#include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/CMOS.hpp>
@@ -12,13 +11,10 @@
 #include "A20Line.hpp"
 #include "DebugMenu.hpp"
 #include "ElfLoader.hpp"
-#include "FileLoader.hpp"
 #include "Interrupts.hpp"
 #include "Logging.hpp"
 #include "Paging.hpp"
 #include "Sleep.hpp"
-
-#define _NO_RETURN __builtin_unreachable()
 
 // Defined in real_mode_intro.asm
 extern FunnyOS::Bootparams::BootDriveInfo g_bootInfo;
@@ -188,7 +184,7 @@ namespace FunnyOS::Bootloader32 {
                        kernelMem.Length, kernelMem.Length / 1024ULL / 1024ULL);
 
         // Get ourselves an allocator for that memory hole
-        Misc::MemoryAllocator::StaticMemoryAllocator highMemoryAllocator;
+        Misc::MemoryAllocator::StaticMemoryAllocator highMemoryAllocator{};
         highMemoryAllocator.Initialize(kernelMem.BaseAddress, kernelMem.BaseAddress + kernelMem.Length - 1);
 
         // Prepare drive interface and file loader
@@ -224,6 +220,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Load env64
         void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64");
+        FB_LOG_DEBUG_F("env64 loaded at %08x", env64);
 
         // Disable all PIC interrupts.
         HW::DisableHardwareInterrupts();
@@ -237,7 +234,7 @@ namespace FunnyOS::Bootloader32 {
             :
             : "r"(pml4base), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh), "b"(env64));
 
-        _NO_RETURN;
+        F_NO_RETURN;
     }
 
     [[noreturn]] void Bootloader::Panic(const char* details) {
@@ -260,7 +257,7 @@ namespace FunnyOS::Bootloader32 {
         terminal->PrintLine(static_cast<const char*>(callerAddress));
 
         Halt();
-        _NO_RETURN;
+        F_NO_RETURN;
     }
 
     [[noreturn]] void Bootloader::Halt() {

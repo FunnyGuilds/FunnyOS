@@ -18,17 +18,15 @@
 #   define F_UNIVERSAL_DEBUGGER_TRAP asm volatile ("xchg bx, bx")
 
 // Varags
-#   define va_list      __builtin_va_list
-#   define va_start     __builtin_va_start
-#   define va_arg       __builtin_va_arg
-#   define va_copy      __builtin_va_copy
-#   define va_end       __builtin_va_end
-
+#include <cstdarg>
 
 // Misc
 #   define F_FETCH_CALLER_ADDRESS()             (static_cast<void*>(__builtin_return_address(0)))
+
 #   define _F_TO_STRING_HELPER(x) #x
 #   define F_TO_STRING(x) _F_TO_STRING_HELPER(x)
+
+#   define F_NO_RETURN                          __builtin_unreachable()
 
 #else
 #   error "Unsupported compiler"

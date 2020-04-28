@@ -20,18 +20,16 @@ if ! command -v bochs > /dev/null; then
   exit 1
 fi
 
-echo "" > $SCRIPT
-
-if [[ $DEBUG -ne 0 ]]; then
-  echo "display_library: $BOCHS_DISPLAY_LIBRARY, options=\"gui_debug\"" >> $SCRIPT
-  echo "magic_break: enabled=1" >> $SCRIPT
+if [[ ${DEBUG} -ne 0 ]]; then
+  echo "display_library: $BOCHS_DISPLAY_LIBRARY, options=\"gui_debug\"" >> ${SCRIPT}
+  echo "magic_break: enabled=1" >> ${SCRIPT}
 fi
 
-cat <<EOT >> $SCRIPT
+cat <<EOT >> ${SCRIPT}
 clock: sync=realtime
-ata0-master: type=disk, path=$OUTPUT, mode=flat, cylinders=1024, heads=16, spt=32, translation=none
+ata0-master: type=disk, path=${OUTPUT}, mode=flat, cylinders=1024, heads=16, spt=32, translation=none
 boot: disk
 EOT
 
-bochs -f $SCRIPT -q
-rm $SCRIPT
+bochs -f ${SCRIPT} -q
+rm ${SCRIPT}

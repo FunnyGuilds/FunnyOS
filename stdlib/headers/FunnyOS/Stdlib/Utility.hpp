@@ -39,9 +39,9 @@ namespace FunnyOS::Stdlib {
      * Represents a global tag that can be used to use a function variant supporting in-place construction.
      */
     struct InPlaceConstructor {
+       public:
         constexpr static const InPlaceConstructor* Value = static_cast<const InPlaceConstructor*>(nullptr);
 
-       private:
         InPlaceConstructor() = delete;
     };
 

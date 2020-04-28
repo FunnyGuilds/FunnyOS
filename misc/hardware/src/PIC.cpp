@@ -1,9 +1,5 @@
 #include <FunnyOS/Hardware/PIC.hpp>
 
-#include <FunnyOS/Stdlib/IntegerTypes.hpp>
-#include <FunnyOS/Hardware/Interrupts.hpp>
-#include <FunnyOS/Hardware/InputOutput.hpp>
-
 namespace FunnyOS::HW::PIC {
     using namespace HW::InputOutput;
 

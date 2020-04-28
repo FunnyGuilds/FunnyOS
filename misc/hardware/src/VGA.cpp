@@ -43,7 +43,7 @@ namespace FunnyOS::HW {
     constexpr const uint8_t SCREEN_HEIGHT = 25;
 
     Memory::SizedBuffer<uint8_t> VGAInterface::SaveScreenData() const noexcept {
-        const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2;
+        const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2U;
         const size_t bufferSize = videoMemorySize + sizeof(CursorPosition);
 
         const CursorPosition cursorPosition = GetCursorPosition();
@@ -56,7 +56,7 @@ namespace FunnyOS::HW {
     }
 
     void VGAInterface::RestoreScreenData(Memory::SizedBuffer<uint8_t>& buffer) noexcept {
-        const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2;
+        const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2U;
 
         CursorPosition cursorPosition;
 

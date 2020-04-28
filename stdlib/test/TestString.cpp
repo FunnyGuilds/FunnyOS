@@ -48,8 +48,8 @@ TEST(TestString, TestCompare) {
     EXPECT_LT(Compare("Abc", "Adb", 10), 0);
     EXPECT_EQ(Compare("ABc", "ABc", 10), 0);
 
-    EXPECT_EQ(Compare("This is a string", "This is a completely diffrent string", 10), 0);
-    EXPECT_GT(Compare("This is a string", "This is a completely diffrent string", 11), 0);
+    EXPECT_EQ(Compare("This is a string", "This is a completely different string", 10), 0);
+    EXPECT_GT(Compare("This is a string", "This is a completely different string", 11), 0);
 }
 
 TEST(TestString, TestIntToString) {

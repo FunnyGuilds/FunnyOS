@@ -72,7 +72,7 @@ namespace {
     void DivideUnsigned(uint64_t dividend, uint64_t divisor, uint64_t& quotient, uint64_t& reminder) {
         if (divisor == 0) {
             // Division by 0
-            quotient = 1 / static_cast<uint32_t>(divisor);
+            quotient = 1 / static_cast<uint32_t>(divisor); // NOLINT(clang-analyzer-core.DivideZero)
             return;
         }
 
@@ -96,7 +96,7 @@ namespace {
             const uint64_t maxDivisor = __lshrdi3(dividend, 1);
             uint64_t currentDivisor = divisor;
 
-            int shiftCount = 0;
+            unsigned int shiftCount = 0;
             while (currentDivisor <= maxDivisor) {
                 shiftCount++;
                 currentDivisor = currentDivisor + currentDivisor;

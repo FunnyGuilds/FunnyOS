@@ -136,7 +136,7 @@ namespace FunnyOS::Stdlib::String {
                 inPrefix = false;
             }
 
-            int digit = 0;
+            int digit;
             if (currentCharacter >= '0' && currentCharacter <= '9') {
                 digit = currentCharacter - '0';
             } else if (currentCharacter >= 'A' && currentCharacter <= 'Z') {

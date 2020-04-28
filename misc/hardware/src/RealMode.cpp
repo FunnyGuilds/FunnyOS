@@ -1,7 +1,6 @@
 #include <FunnyOS/Hardware/RealMode.hpp>
 
 #include <FunnyOS/Hardware/Interrupts.hpp>
-#include <FunnyOS/Stdlib/Compiler.hpp>
 
 extern FunnyOS::HW::GDTInfo g_gdtInfo;
 extern FunnyOS::HW::Registers16 g_savedRegisters;
@@ -13,14 +12,6 @@ F_CDECL extern void do_real_mode_interrupt();
 // TODO: Synchronization of some sort.
 
 namespace FunnyOS::HW {
-    Register16::Register16(const Register16& other) : Value16(other.Value16) {}
-
-    Register16& Register16::operator=(const Register16& other) {
-        Value16 = other.Value16;
-        return *this;
-    }
-
-    Register16::Register16(uint16_t value) : Value16(value) {}
 
     void SetupRealModeInterrupts(GDTInfo gdtInfo) {
         g_gdtInfo = gdtInfo;
@@ -45,6 +36,7 @@ namespace FunnyOS::HW {
         Memory::Copy(static_cast<void*>(&g_savedRegisters), static_cast<void*>(&registers), sizeof(Registers16));
 
 #ifdef F_64
+        // TODO: 64-bit mode support
 #else
 #ifdef __GNUC__
         asm(

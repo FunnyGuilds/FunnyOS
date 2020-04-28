@@ -95,7 +95,7 @@ namespace FunnyOS::Driver::Drive {
             F_ASSERT(buf.Size >= m_sectorSize, "real mode buffer to small to hold a sector");
 
             while (leftToRead > 0) {
-                const SectorNumber currentReadSize = Min(leftToRead, Min(EDD_MAX_READ, bufferSize));
+                const SectorNumber currentReadSize = Min(leftToRead, EDD_MAX_READ, bufferSize);
                 uint16_t destinationSegment = 0;
                 uint16_t destinationOffset = 0;
                 GetRealModeBufferAddress(destinationSegment, destinationOffset);
@@ -123,7 +123,7 @@ namespace FunnyOS::Driver::Drive {
             F_ASSERT(currentSector <= 63, "sector > 63");
 
             const SectorNumber leftSectorsOnTrack = m_sectorsPerTrack - sector + 1;
-            const SectorNumber currentReadSize = Min(leftToRead, Min(leftSectorsOnTrack, bufferSize));
+            const SectorNumber currentReadSize = Min(leftToRead, leftSectorsOnTrack, bufferSize);
 
             Registers16 regs;
             regs.AX.Value8.High = 0x02;
@@ -171,7 +171,7 @@ namespace FunnyOS::Driver::Drive {
             F_ASSERT(GetRealModeBuffer().Size >= sizeof(EDDParameters),
                      "real mode buffer to small to hold EDD parameters");
 
-            EDDParameters* parameters = reinterpret_cast<EDDParameters*>(GetRealModeBuffer().Data);
+            auto* parameters = reinterpret_cast<EDDParameters*>(GetRealModeBuffer().Data);
             parameters->BufferSize = sizeof(EDDParameters);
             regs.AX.Value8.High = 0x48;
             regs.DX.Value8.Low = m_drive;
@@ -200,7 +200,7 @@ namespace FunnyOS::Driver::Drive {
         }
     }
 
-    void BiosDriveInterface::DoExtendedRead(const char* when) {
+    void BiosDriveInterface::DoExtendedRead(const char* when) const {
         g_eddPacket.PacketSize = sizeof(EDDDiskPacket);
         g_eddPacket.Reserved = 0;
         g_eddPacket.Unused[0] = 0;

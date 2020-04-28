@@ -2,7 +2,6 @@
 
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/Interrupts.hpp>
-#include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
 
@@ -38,7 +37,7 @@ namespace FunnyOS::Bootloader32 {
         DecodeEflagPart(buffer, eflags, Flags::NestedTaskFlag, "NT");
         DecodeEflagPart(buffer, eflags, Flags::ResumeFlag, "RF");
         DecodeEflagPart(buffer, eflags, Flags::Virtual8086_ModeFlag, "VM");
-        DecodeEflagPart(buffer, eflags, Flags::AlingmentCheck, "AC");
+        DecodeEflagPart(buffer, eflags, Flags::AlignmentCheck, "AC");
         DecodeEflagPart(buffer, eflags, Flags::VirtualInterruptFlag, "VIF");
         DecodeEflagPart(buffer, eflags, Flags::VirtualInterruptPending, "VIP");
         DecodeEflagPart(buffer, eflags, Flags::CPUID_Supported, "ID");
@@ -96,7 +95,7 @@ namespace FunnyOS::Bootloader32 {
             return;
         }
 
-        String::StringBuffer buffer = Memory::AllocateBuffer<char>(32);
+        String::StringBuffer buffer = Memory::AllocateBuffer<char>(64);
         String::Format(buffer, "ENV 64 interrupt. Code: 0x%02x. Detail: 0x%02x", data->EAX, data->EDX);
         Bootloader::Get().Panic(buffer.Data);
     }

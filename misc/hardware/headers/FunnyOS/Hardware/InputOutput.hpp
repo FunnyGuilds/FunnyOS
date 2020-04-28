@@ -4,72 +4,46 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-#if __GNUC__
-
-#define PORT_INPUT(ReturnType, ARegister)                               \
-    ReturnType output;                                                  \
-    asm volatile("in " ARegister ", dx" : "=a"(output) : "d"(address)); \
-    return output
-
-#define PORT_OUTPUT(ARegister, dataParameter) asm volatile("out dx, " ARegister : : "a"(dataParameter), "d"(address))
-
-#endif
-
 namespace FunnyOS::HW::InputOutput {
 
     /**
      * Reads and returns a byte from the port at the given address/
      */
-    F_ALWAYS_INLINE inline uint8_t InputByte(uint16_t address) {
-        PORT_INPUT(uint8_t, "al");
-    }
+    inline uint8_t InputByte(uint16_t address);
 
     /**
      * Reads and returns a word from the port at the given address.
      */
-    F_ALWAYS_INLINE inline uint16_t InputWord(uint16_t address) {
-        PORT_INPUT(uint16_t, "ax");
-    }
+    inline uint16_t InputWord(uint16_t address);
 
     /**
      * Reads and returns a dword from the port at the given address.
      */
-    F_ALWAYS_INLINE inline uint32_t InputDword(uint16_t address) {
-        PORT_INPUT(uint32_t, "eax");
-    }
+    inline uint32_t InputDword(uint16_t address);
 
     /**
      * Writes a byte to the port at the given address.
      */
-    F_ALWAYS_INLINE inline void OutputByte(uint16_t address, uint8_t byte) {
-        PORT_OUTPUT("al", byte);
-    }
+    inline void OutputByte(uint16_t address, uint8_t byte);
 
     /**
      * Writes a word to the port at the given address.
      */
-    F_ALWAYS_INLINE inline void OutputWord(uint16_t address, uint16_t word) {
-        PORT_OUTPUT("ax", word);
-    }
+    inline void OutputWord(uint16_t address, uint16_t word);
 
     /**
      * Writes a dword to the port at the given address.
      */
-    F_ALWAYS_INLINE inline void OutputDword(uint16_t address, uint32_t dword) {
-        PORT_OUTPUT("eax", dword);
-    }
+    inline void OutputDword(uint16_t address, uint32_t dword);
 
     /**
      * Waits for an IO operation to finish.
      */
-    F_ALWAYS_INLINE inline void IOWait() {
-#if __GNUC__
-        asm volatile("out 0x80, al" ::"a"(static_cast<uint8_t>(0)));
-#endif
-    }
+    inline void IOWait();
+
 }  // namespace FunnyOS::HW::InputOutput
 
-#undef PORT_INPUT
-#undef PORT_OUTPUT
-
+#ifdef __GNUC__
+#include "InputOutput_GNUC.tcc"
+#endif
 #endif  // FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_PORT_INPUTPORT_OUTPUT_HPP

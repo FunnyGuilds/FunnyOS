@@ -24,7 +24,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
        public:
         virtual void SetMode(bool mode) = 0;
 
-        virtual bool GetMode() const = 0;
+        [[nodiscard]] virtual bool GetMode() const = 0;
 
        public:
         void FetchState(String::StringBuffer& buffer) const override;
@@ -36,21 +36,21 @@ namespace FunnyOS::Bootloader32::DebugMenu {
        public:
         void FetchName(String::StringBuffer& buffer) const override;
         void SetMode(bool mode) override;
-        bool GetMode() const override;
+        [[nodiscard]] bool GetMode() const override;
     };
 
     class LogToSerial : public SimpleSwitchModeOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;
         void SetMode(bool mode) override;
-        bool GetMode() const override;
+        [[nodiscard]] bool GetMode() const override;
     };
 
     class DebugDiskIOOption : public SimpleSwitchModeOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;
         void SetMode(bool mode) override;
-        bool GetMode() const override;
+        [[nodiscard]] bool GetMode() const override;
     };
 
     class PrintMemoryMapOption : public MenuOption {

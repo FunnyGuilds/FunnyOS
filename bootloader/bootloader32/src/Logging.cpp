@@ -1,9 +1,7 @@
 #include "Logging.hpp"
 
-#include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/VGA.hpp>
 #include <FunnyOS/Hardware/Serial.hpp>
-#include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
 namespace FunnyOS::Bootloader32::Logging {
     using namespace Misc::TerminalManager;
@@ -67,7 +65,7 @@ namespace FunnyOS::Bootloader32::Logging {
                 // Wait
             }
 
-            Write(SERIAL_PORT, *message);
+            Write(SERIAL_PORT, static_cast<uint8_t>(*message));
             message++;
         }
     }

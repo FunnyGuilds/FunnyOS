@@ -24,7 +24,7 @@ namespace std {
         /**
          * Creates an empty initializer_list.
          */
-        constexpr initializer_list() noexcept : m_data(0), m_length(0) {}
+        constexpr initializer_list() noexcept : m_data(0) {}
 
         /**
          * Returns an iterator pointing at the beginning of the list.
@@ -53,7 +53,7 @@ namespace std {
 
        private:
         const T* m_data;
-        FunnyOS::Stdlib::size_t m_length;
+        FunnyOS::Stdlib::size_t m_length{0};
     };
 }  // namespace std
 #endif

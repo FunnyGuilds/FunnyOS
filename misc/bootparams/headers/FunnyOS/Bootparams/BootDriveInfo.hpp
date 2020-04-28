@@ -16,6 +16,7 @@ namespace FunnyOS::Bootparams {
          * Number of the drive that the we are booting from.
          */
         uint8_t BootPartition;
+
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams

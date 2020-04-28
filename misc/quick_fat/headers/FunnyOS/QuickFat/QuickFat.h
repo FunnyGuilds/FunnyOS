@@ -11,13 +11,13 @@
 extern "C" {
 #endif
 
+#ifndef FOS_QUICKFAT_NO_FREESTANDING_HEADERS
+#include <stddef.h>
+#include <stdbool.h>
+#endif
+
 #ifndef FOS_QUICKFAT_NO_NUMERAL_TYPES
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
+#include <stdint.h>
 #endif
 
 #define QUICKFAT_MBR_SIGNATURE 0xAA55
@@ -31,7 +31,7 @@ typedef int int32_t;
 #define QUICKFAT_ERROR_FAILED_TO_FIND_FILE 0xFF800000
 
 /**
- * Pointer to a function that loads a [count] sectors, statring at [lba] from a driver into location [out]
+ * Pointer to a function that loads a [count] sectors, starting at [lba] from a driver into location [out]
  *
  * @return 0 on success, non-zero error code on fail
  */

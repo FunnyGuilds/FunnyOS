@@ -13,7 +13,7 @@
 namespace FunnyOS::Stdlib {
 
     template <typename T>
-    Vector<T>::Vector(const Vector& other) : m_growthFactor(other.m_growthFactor), m_size(0), m_data({nullptr, 0}) {
+    Vector<T>::Vector(const Vector& other) : m_growthFactor(other.m_growthFactor), m_data({nullptr, 0}) {
         EnsureCapacityExact(other.Size());
 
         for (auto const& element : other) {
@@ -23,12 +23,18 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     Vector<T>& Vector<T>::operator=(const Vector& other) {
+        if (&other == this) {
+            return *this;
+        }
+
         Clear();
         EnsureCapacityExact(other.Size());
 
         for (auto const& element : other) {
             Append(element);
         }
+
+        return *this;
     }
 
     template <typename T>
@@ -47,6 +53,7 @@ namespace FunnyOS::Stdlib {
         m_data = other.m_data;
 
         other.m_data.Data = nullptr;
+        return *this;
     }
 
     template <typename T>
@@ -57,7 +64,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     Vector<T>::Vector(size_t initialCapacity, float growthFactor)
-        : m_growthFactor(growthFactor), m_size(0), m_data({nullptr, 0}) {
+        : m_growthFactor(growthFactor), m_data({nullptr, 0}) {
         F_ASSERT(m_growthFactor > 1, "vector's growth factor too small");
 
         EnsureCapacityExact(initialCapacity);

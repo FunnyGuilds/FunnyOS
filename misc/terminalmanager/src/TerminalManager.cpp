@@ -172,7 +172,7 @@ namespace FunnyOS::Misc::TerminalManager {
         return m_sessionCursor;
     }
 
-    void TerminalManager::HandleEscapeCode(char character) noexcept {
+    void TerminalManager::HandleEscapeCode(char character) {
         CursorPosition& cursor = SessionCursor();
 
         switch (character) {
@@ -192,7 +192,7 @@ namespace FunnyOS::Misc::TerminalManager {
         }
     }
 
-    void TerminalManager::ScrollIfNecessary() noexcept {
+    void TerminalManager::ScrollIfNecessary() {
         CursorPosition& cursor = SessionCursor();
 
         if (cursor.X >= m_interface->GetScreenWidth()) {

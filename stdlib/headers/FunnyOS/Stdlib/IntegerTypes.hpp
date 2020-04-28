@@ -66,7 +66,7 @@ namespace FunnyOS::Stdlib {
         template<> struct ToSigned< int16_t> : HasType<int16_t> {};
         template<> struct ToSigned< int32_t> : HasType<int32_t> {};
         template<> struct ToSigned< int64_t> : HasType<int64_t> {};
-    }
+    }  // namespace Detail
 
     /**
      * An unsigned equivalent of type T
@@ -129,7 +129,6 @@ namespace FunnyOS::Stdlib {
              */
             constexpr const static Type MaximumValue = MinimumValue - 1;
 
-           private:
             Info() = delete;
         };
         #pragma GCC diagnostic pop

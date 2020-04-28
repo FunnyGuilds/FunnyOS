@@ -7,7 +7,7 @@
 namespace FunnyOS::Misc::MemoryAllocator {
     using namespace FunnyOS::Stdlib;
 
-    MemoryMetaBlock* MemoryMetaBlock::GetNext() noexcept {
+    MemoryMetaBlock* MemoryMetaBlock::GetNext() const noexcept {
         return reinterpret_cast<MemoryMetaBlock*>(NextFreeBlock);
     }
 
@@ -151,7 +151,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
         return newMemory;
     }
 
-    memoryaddress_t StaticMemoryAllocator::GetCurrentMemoryTop() {
+    memoryaddress_t StaticMemoryAllocator::GetCurrentMemoryTop() const noexcept {
         return m_currentMemory;
     }
 
@@ -216,7 +216,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
     }
 
     MemoryMetaBlock* StaticMemoryAllocator::AllocateNewBlock(size_t size, size_t alignment) noexcept {
-        F_ASSERT(alignment > 0, "allignment == 0");
+        F_ASSERT(alignment > 0, "alignment == 0");
 
         // Create new memory block at the end of current memory
         auto* newMetaBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);

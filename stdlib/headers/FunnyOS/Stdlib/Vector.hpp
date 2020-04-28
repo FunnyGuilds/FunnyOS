@@ -190,7 +190,7 @@ namespace FunnyOS::Stdlib {
         void ShrinkToSize();
 
         /**
-         * Ensures that the vector's heap is large enough to hold at lesat [num] elements.
+         * Ensures that the vector's heap is large enough to hold at least [num] elements.
          *
          * @param num number of elements that vector's must be able to contain.
          */
@@ -294,8 +294,8 @@ namespace FunnyOS::Stdlib {
         void EnsureCapacityExact(size_t num);
 
        private:
-        float m_growthFactor;
-        size_t m_size;
+        float m_growthFactor{DEFAULT_GROWTH_FACTOR};
+        size_t m_size{0};
         Memory::SizedBuffer<T> m_data;
     };
 

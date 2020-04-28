@@ -31,7 +31,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         unsigned int currentIndex = (reinterpret_cast<uint64_t>(virtualAddress) >> (12 + (level - 1) * 9)) & 0x1FF;
-        uint64_t* entries = static_cast<uint64_t*>(currentBase);
+        auto* entries = static_cast<uint64_t*>(currentBase);
 
         if ((entries[currentIndex] & 1) == 0) {
             // Flags 0b11 - supervisor only, read/write, present
@@ -52,7 +52,7 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_DEBUG_F("Maping table %016llx to %016llx", virtualAddress, physicalAddress);
 
         void* table = GetPageTable(pml4base, virtualAddress, 4, allocator);
-        uint64_t* tableEntries = static_cast<uint64_t*>(table);
+        auto* tableEntries = static_cast<uint64_t*>(table);
 
         for (size_t i = 0; i < ENTRIES_PER_PAGE; i++) {
             // Flags 0b11 - supervisor only, read/write, present

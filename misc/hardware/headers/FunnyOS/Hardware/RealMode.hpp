@@ -27,18 +27,6 @@ namespace FunnyOS::HW {
          * Structure holding low and high bytes of the register.
          */
         Parts Value8;
-
-       public:
-        NON_MOVEABLE(Register16);
-        COPYABLE(Register16);
-
-        /**
-         * Constructs a new Register16 with the supplied value.
-         *
-         * @param value initial register value
-         */
-        Register16(uint16_t value);
-
     } F_DONT_ALIGN;
 
     /**

@@ -39,14 +39,19 @@ namespace FunnyOS::Stdlib {
              *
              * @return *this
              */
-            ConstIterator& operator++() noexcept;
+            ConstIterator operator++() noexcept;
 
             /**
              * Increment this iterator by one.
              *
              * @return *this
              */
-            ConstIterator& operator++(int) noexcept;
+            ConstIterator operator++(int) noexcept;
+
+            /**
+             * Destructs the iterator, this has no effect on the list.
+             */
+            ~ConstIterator() = default;
 
             /**
              * Gets the value that this iterator is pointing at the moment.
@@ -81,10 +86,15 @@ namespace FunnyOS::Stdlib {
            protected:
             ConstIterator(const LinkedList& list, Element* element);
 
+            friend class LinkedList;
+
+            const LinkedList& GetList() const;
+
+            Element* GetElement() const;
+
+           private:
             const LinkedList& m_list;
             Element* m_element;
-
-            friend class LinkedList;
         };
 
         /**
@@ -94,6 +104,11 @@ namespace FunnyOS::Stdlib {
            public:
             TRIVIALLY_COPYABLE(Iterator);
             TRIVIALLY_MOVEABLE(Iterator);
+
+            /**
+             * Destructs the iterator, this has no effect on the list.
+             */
+            ~Iterator() = default;
 
             /**
              * Gets the value that this iterator is pointing at the moment.
@@ -337,7 +352,7 @@ namespace FunnyOS::Stdlib {
         void InsertElement(size_t index, Element* element);
 
        private:
-        size_t m_size;
+        size_t m_size{0};
         Element* m_head;
         Element* m_tail;
     };

@@ -74,18 +74,18 @@ namespace FunnyOS::Driver::Drive {
        private:
         void Query();
 
-        void DoExtendedRead(const char* when);
+        void DoExtendedRead(const char* when) const;
 
        private:
         DriveIdentification m_drive;
-        SectorNumber m_sectorCount;
-        size_t m_sectorSize;
-        bool m_hasExtendedDiskAccess;
-        bool m_hasEnhancedDiskDriveFunctions;
-        bool m_supportsFlat64Addresses;
-        uint8_t m_sectorsPerTrack;
-        uint16_t m_maxCylinderNumber;
-        uint8_t m_headsPerCylinder;
+        SectorNumber m_sectorCount = 0;
+        size_t m_sectorSize = 0;
+        bool m_hasExtendedDiskAccess = false;
+        bool m_hasEnhancedDiskDriveFunctions = false;
+        bool m_supportsFlat64Addresses = false;
+        uint8_t m_sectorsPerTrack = 0;
+        uint16_t m_maxCylinderNumber = 0;
+        uint8_t m_headsPerCylinder = 0;
     };
 
 }  // namespace FunnyOS::Driver::Drive

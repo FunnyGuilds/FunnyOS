@@ -39,6 +39,7 @@ set(WARNING_OPTIONS
 
 # C and C++ standards
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 11)
 
 # Global flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -masm=intel ${WARNING_OPTIONS}")

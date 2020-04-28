@@ -2,8 +2,6 @@
 
 #include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
-#include <FunnyOS/Hardware/PS2.hpp>
-#include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
 #include "FileLoader.hpp"
 
@@ -19,7 +17,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         SelectCurrentSubmenu(-1);
     }
 
-    void SimpleSwitchModeOption::HandleKey(HW::PS2::ScanCode) {}
+    void SimpleSwitchModeOption::HandleKey(HW::PS2::ScanCode /*code*/) {}
 
     void DebugModeOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Debug mode");
@@ -65,7 +63,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         String::Append(buffer, "Print memory map");
     }
 
-    void PrintMemoryMapOption::FetchState(String::StringBuffer&) const {}
+    void PrintMemoryMapOption::FetchState(String::StringBuffer& /*buffer*/) const {}
 
     void PrintMemoryMapOption::Enter() {
         using Bootparams::MemoryMapEntryType;
@@ -73,7 +71,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         const auto& memoryMap = Bootloader::Get().GetBootloaderParameters().MemoryMap;
 
         for (size_t i = 0; i < memoryMap.Count; i++) {
-            auto& entry = memoryMap[i];
+            const auto& entry = memoryMap[i];
+
             const char* type;
             switch (entry.Type) {
                 case MemoryMapEntryType::AvailableMemory:
@@ -113,7 +112,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         String::Append(buffer, "Print bootloader parameters");
     }
 
-    void PrintBootloaderParametersOption::FetchState(String::StringBuffer&) const {}
+    void PrintBootloaderParametersOption::FetchState(String::StringBuffer& /*buffer*/) const {}
 
     void PrintBootloaderParametersOption::Enter() {
         Logging::GetTerminalManager()->ClearScreen();
@@ -140,7 +139,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         String::Append(buffer, "Print bootable drive information");
     }
 
-    void PrintBootDiskParameters::FetchState(String::StringBuffer&) const {}
+    void PrintBootDiskParameters::FetchState(String::StringBuffer& /*buffer*/) const {}
 
     void PrintBootDiskParameters::Enter() {
         Logging::GetTerminalManager()->ClearScreen();
@@ -216,14 +215,14 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         String::Append(buffer, "Quit menu");
     }
 
-    void QuitMenuOption::FetchState(String::StringBuffer&) const {}
+    void QuitMenuOption::FetchState(String::StringBuffer& /*buffer*/) const {}
 
     void QuitMenuOption::Enter() {
         SelectCurrentSubmenu(-1);
         DebugMenu::HandleKey(HW::PS2::ScanCode::Escape_Released);
     }
 
-    void QuitMenuOption::HandleKey(HW::PS2::ScanCode) {}
+    void QuitMenuOption::HandleKey(HW::PS2::ScanCode /*code*/) {}
 
     Memory::SizedBuffer<MenuOption*> GetMenuOptions() {
         static DebugModeOption c_debugModeOption{};
@@ -246,8 +245,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             &c_quitMenuOption,
         };
 
-        static Memory::SizedBuffer<MenuOption*> c_buffer = {c_menuOptions,
-                                                            sizeof(c_menuOptions) / sizeof(c_menuOptions[0])};
+        static Memory::SizedBuffer<MenuOption*> c_buffer = {c_menuOptions, F_SIZEOF_BUFFER(c_menuOptions)};
         return c_buffer;
     }
 }  // namespace FunnyOS::Bootloader32::DebugMenu

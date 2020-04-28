@@ -25,21 +25,21 @@ namespace FunnyOS::HW {
          *
          * @return unique ID identifying this drive.
          */
-        virtual DriveIdentification GetDriveIdentification() const = 0;
+        [[nodiscard]] virtual DriveIdentification GetDriveIdentification() const = 0;
 
         /**
          * Gets the total amount of sectors on the drive.
          *
          * @return total amount of sectors on the drive.
          */
-        virtual SectorNumber GetTotalSectorCount() const = 0;
+        [[nodiscard]] virtual SectorNumber GetTotalSectorCount() const = 0;
 
         /**
          * Gets the size of a single sector in bytes.
          *
          * @return  size of a single sector in bytes.
          */
-        virtual size_t GetSectorSize() const = 0;
+        [[nodiscard]] virtual size_t GetSectorSize() const = 0;
 
         /**
          * Reads sector from drive into memory.

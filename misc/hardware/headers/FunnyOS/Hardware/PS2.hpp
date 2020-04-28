@@ -218,7 +218,7 @@ namespace FunnyOS::HW::PS2 {
         Multimedia_EMail_Pressed = 0xE06C,
         Multimedia_MediaSelect_Pressed = 0xE06D,
         Multimedia_PreviousTrack_Released = 0xE090,
-        Multimedia_NextTtrack_Released = 0xE099,
+        Multimedia_NextTrack_Released = 0xE099,
         Keypad_Enter_Released = 0xE09C,
         Right_Control_Released = 0xE09D,
         Multimedia_Mute_Released = 0xE0A0,
@@ -268,7 +268,7 @@ namespace FunnyOS::HW::PS2 {
     /**
      * Initializes the PS/2 keyboard.
      *
-     * @return whether or not the intialization was successful.
+     * @return whether or not the initialization was successful.
      */
     bool InitializeKeyboard();
 

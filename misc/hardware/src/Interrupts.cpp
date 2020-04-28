@@ -1,6 +1,5 @@
 #include <FunnyOS/Hardware/Interrupts.hpp>
 
-#include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
 #include "InterruptSetup/InterruptSetup.hpp"
 

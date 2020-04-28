@@ -103,13 +103,13 @@ void __cxa_guard_release(uint32_t* g) {
     *g = 1;
 }
 
-void __cxa_guard_abort(uint32_t*) {}
+void __cxa_guard_abort(uint32_t* /*unused*/) {}
 }
 
 // Global destruction
 void* __dso_handle = nullptr;
 
 // Shared library stuff
-extern "C" int __cxa_atexit(void (*)(void*), void*, void*) {
+extern "C" int __cxa_atexit(void (*/*unused*/)(void*), void* /*unused*/, void* /*unused*/) {
     return 0;
 }

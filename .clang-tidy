@@ -1,22 +1,27 @@
 Checks: "*,\
         -llvm-header-guard,\
         -llvm-namespace-comment,\
+        -llvm-include-order,\
         -modernize-use-trailing-return-type,\
         -modernize-avoid-c-arrays,\
         -google-build-using-namespace,\
         -google-runtime-references,\
         -google-explicit-constructor,\
+        -cppcoreguidelines-init-variables,\
         -cppcoreguidelines-pro-bounds-pointer-arithmetic,\
         -cppcoreguidelines-pro-bounds-constant-array-index,\
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay,\
         -cppcoreguidelines-pro-type-reinterpret-cast,\
         -cppcoreguidelines-pro-type-vararg,\
+        -cppcoreguidelines-pro-type-union-access,\
         -cppcoreguidelines-avoid-magic-numbers,\
         -cppcoreguidelines-avoid-c-arrays,\
         -misc-non-private-member-variables-in-classes,\
         -cppcoreguidelines-owning-memory,\
         -readability-magic-numbers,\
         -readability-convert-member-functions-to-static,\
+        -readability-redundant-access-specifiers,\
+        -readability-non-const-parameter,\
         -hicpp-no-assembler,\
         -hicpp-signed-bitwise,\
         -hicpp-exception-baseclass,\
@@ -25,7 +30,12 @@ Checks: "*,\
         -hicpp-no-array-decay,\
         -hicpp-explicit-conversions,\
         -fuchsia-statically-constructed-objects,\
+        -fuchsia-overloaded-operator,\
+        -cert-dcl37-c,\
+        -cert-dcl21-cpp,\
         -cert-dcl50-cpp,\
+        -cert-dcl51-cpp,\
         -cert-err58-cpp,\
         -bugprone-forwarding-reference-overload,\
+        -bugprone-reserved-identifier,\
         -misc-non-private-member-variables-in-classes"

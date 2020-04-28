@@ -83,7 +83,7 @@ namespace FunnyOS::Stdlib {
     template<typename T> using RemoveConst = typename Detail::RemoveConst<T>::Type;
 
     /**
-     * Removes both 'cosnst' and 'volatile' specifiers from a type.
+     * Removes both 'const' and 'volatile' specifiers from a type.
      */
     template<typename T> using RemoveCV = typename Detail::RemoveCV<T>::Type;
 

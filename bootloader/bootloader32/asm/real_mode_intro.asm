@@ -7,7 +7,7 @@ SECTION .intro
     intro:
         ; Setup bootloader_parameters
         mov [boot_info__boot_drive_id], dl
-        mov [boot_info__boot_parttition], ch
+        mov [boot_info__boot_partition], ch
 
         call make_memory_map
         mov [memory_map__acpi_extended], al
@@ -37,7 +37,7 @@ SECTION .intro
 SECTION .real.data
     ; Macro for GDT entries
     %macro gdt_entry 4
-        ; %1 - base addres
+        ; %1 - base address
         ; %2 - limit
         ; %3 - access
         ; %4 - flags
@@ -66,7 +66,7 @@ SECTION .real.data
     GLOBAL g_bootInfo
     g_bootInfo:
         boot_info__boot_drive_id:        db 0            ; Boot drive ID
-        boot_info__boot_parttition:      db 0            ; Boot partition
+        boot_info__boot_partition:       db 0            ; Boot partition
 
     GLOBAL g_memoryMap
     g_memoryMap:

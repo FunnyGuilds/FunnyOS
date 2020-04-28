@@ -127,9 +127,9 @@ namespace FunnyOS::Misc::TerminalManager {
 
         CursorPosition& SessionCursor();
 
-        void HandleEscapeCode(char character) noexcept;
+        void HandleEscapeCode(char character);
 
-        void ScrollIfNecessary() noexcept;
+        void ScrollIfNecessary();
 
        private:
         int m_sessionNestingLevel = 0;

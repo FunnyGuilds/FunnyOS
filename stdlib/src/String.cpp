@@ -64,7 +64,7 @@ namespace FunnyOS::Stdlib::String {
                 return c1;
             }
 
-            const char diff = c1 - c2;
+            const char diff = c1 - c2; // NOLINT(bugprone-narrowing-conversions)
 
             if (diff != 0) {
                 return diff;
@@ -107,7 +107,7 @@ namespace FunnyOS::Stdlib::String {
             const int SpaceIfNoSign = 1 << 2;
             const int ForcePrefixOrSuffix = 1 << 3;
             const int PadWithZeroes = 1 << 4;
-        };  // namespace FormatFlags
+        }  // namespace FormatFlags
 
         const char* VALID_FLAGS = "-+ #0";
 

@@ -1,8 +1,4 @@
 #include "Sleep.hpp"
-#include "Logging.hpp"
-
-#include <FunnyOS/Hardware/CPU.hpp>
-#include <FunnyOS/Hardware/InputOutput.hpp>
 
 namespace FunnyOS::Bootloader32 {
     unsigned int sleepTimer;

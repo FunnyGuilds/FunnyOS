@@ -13,15 +13,17 @@
 namespace FunnyOS::Stdlib {
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++() noexcept {
+    typename LinkedList<T>::ConstIterator LinkedList<T>::ConstIterator::operator++() noexcept {
+        const auto snapshot = *this;
         m_element = m_element->Next;
-        return *this;
+        return snapshot;
     }
 
     template <typename T>
-    typename LinkedList<T>::ConstIterator& LinkedList<T>::ConstIterator::operator++(int) noexcept {
+    typename LinkedList<T>::ConstIterator LinkedList<T>::ConstIterator::operator++(int) noexcept {
+        const auto snapshot = *this;
         m_element = m_element->Next;
-        return *this;
+        return snapshot;
     }
 
     template <typename T>
@@ -42,6 +44,16 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     bool LinkedList<T>::ConstIterator::operator!=(const LinkedList::ConstIterator& other) noexcept {
         return m_element != other.m_element;
+    }
+
+    template <typename T>
+    const LinkedList<T>& LinkedList<T>::ConstIterator::GetList() const {
+        return m_list;
+    }
+
+    template <typename T>
+    typename LinkedList<T>::Element* LinkedList<T>::ConstIterator::GetElement() const {
+        return m_element;
     }
 
     template <typename T>
@@ -67,16 +79,22 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     LinkedList<T>& LinkedList<T>::operator=(const LinkedList& other) {
+        if (&other == this) {
+            return *this;
+        }
+
         Clear();
 
         for (auto const& ref : other) {
             Append(ref);
         }
+
+        return *this;
     }
 
     template <typename T>
     LinkedList<T>::LinkedList(LinkedList&& other) noexcept
-        : m_size(other.size), m_head(other.m_head), m_tail(other.m_tail) {
+        : m_size(other.m_size), m_head(other.m_head), m_tail(other.m_tail) {
         other.m_head = nullptr;
         other.m_tail = nullptr;
     }
@@ -92,13 +110,15 @@ namespace FunnyOS::Stdlib {
 
         other.m_head = nullptr;
         other.m_tail = nullptr;
+
+        return *this;
     }
 
     template <typename T>
     LinkedList<T>::Iterator::Iterator(LinkedList& list, LinkedList::Element* element) : ConstIterator(list, element) {}
 
     template <typename T>
-    LinkedList<T>::LinkedList() : m_size(0), m_head(new Element{Storage<T>(), nullptr}), m_tail(m_head) {}
+    LinkedList<T>::LinkedList() : m_head(new Element{Storage<T>(), nullptr}), m_tail(m_head) {}
 
     template <typename T>
     LinkedList<T>::LinkedList(InitializerList<T> list) : LinkedList() {

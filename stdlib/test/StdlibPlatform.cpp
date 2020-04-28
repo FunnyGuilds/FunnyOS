@@ -1,9 +1,9 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-no-malloc"
+#pragma ide diagnostic ignored "hicpp-no-malloc"
 
 #include "Common.hpp"
 
-#include <algorithm>
 #include <memory>
 #include <cstring>
 #include <malloc.h>

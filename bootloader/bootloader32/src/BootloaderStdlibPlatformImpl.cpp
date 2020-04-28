@@ -27,8 +27,7 @@ namespace FunnyOS::_Platform {
 
     void Terminate(const char* error) noexcept {
         Bootloader::Get().Panic(error);
-        for (;;) {
-        }
+        F_NO_RETURN;
     }
 
 }  // namespace FunnyOS::_Platform

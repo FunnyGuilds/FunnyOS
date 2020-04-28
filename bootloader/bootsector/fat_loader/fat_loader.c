@@ -1,5 +1,7 @@
 #include <FunnyOS/QuickFat/QuickFat.h>
 
+#include <stdnoreturn.h>
+
 /**
  * Size of a sector in bytes.
  */
@@ -36,12 +38,12 @@ extern int fl_load_from_disk(uint32_t lba, uint8_t** out);
 /**
  * Jumps back to real mode, loads boot parameters and jumps to address at [bootloader_location]
  */
-extern void _Noreturn fl_jump_to_bootloader(void* bootloader_location);
+noreturn extern void fl_jump_to_bootloader(void* bootloader_location);
 
 /**
  * Hangs the CPU indefinitely.
  */
-extern void _Noreturn fl_hang(void);
+noreturn extern void fl_hang(void);
 
 /**
  * Prints an integer onto the screen.
@@ -65,7 +67,7 @@ void fl_print_int(unsigned int number) {
 #define CHECK_ERROR(code, error) \
     if ((error_code & (code)) == (code)) fl_print((error))
 
-void _Noreturn fl_error(unsigned int error_code) {
+noreturn void fl_error(int error_code) {
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR, " ** Failed to load the MBR into memory");
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH, " ** The MBR signature is invalid");
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB, " ** Failed to load the BPB into memory");
@@ -86,7 +88,7 @@ void _Noreturn fl_error(unsigned int error_code) {
  */
 extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, uint8_t* out) {
     int error;
-    uint8_t* tmp_buf;
+    uint8_t* tmp_buf = NULL;
 
     for (uint32_t i = 0; i < count; i++) {
         if ((error = fl_load_from_disk(lba + i, &tmp_buf)) != 0) {
@@ -94,7 +96,7 @@ extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, u
         }
 
         const uint32_t sector_size = ((QuickFat_Context*)data)->sector_size;
-        for (uint32_t j = 0 ; j < sector_size; j++) {
+        for (uint32_t j = 0; j < sector_size; j++) {
             out[j] = tmp_buf[j];
         }
 
@@ -107,7 +109,7 @@ extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, u
 /**
  * Main function
  */
-void _Noreturn fat_loader(void) {
+noreturn void fat_loader(void) {
     fl_print("FunnyOS FAT32 Loader\r\n");
 
     // Init context

@@ -2,11 +2,6 @@
 
 %define PAGE_SIZE 0x1000
 
-%macro BOOT_ERROR 1
-    mov eax, 0
-    int 0x2F
-%endmacro
-
 %macro PRINT 1
     mov eax, 1
     lea esi, [ebp + (%%message - $$)]
@@ -22,35 +17,16 @@ EXTERN TEXT_OFFSET
 EXTERN PAGE_OFFSET
 EXTERN SIZE
 
-SECTION .entry
-    entry:
-        ; Fetch EIP into EBP
-        call entry_fetch_address
-        entry_fetch_address:
-        pop ebp
-
-        ; Fetch the beginning of .entry section
-        sub ebp, (entry_fetch_address - $$)
-        mov eax, ebp
-
-        ; Make sure we are page aligned
-        mov eax, ebp
-        mov ebx, PAGE_SIZE
-        mov edx, 0
-        div ebx
-        cmp edx, 0
-        je entry_jump_to_main
-
-        ; Not page aligned
-        BOOT_ERROR 1
-
-        entry_jump_to_main:
-        add ebp, TEXT_OFFSET
-        ; EBP = .text section
-        jmp ebp
-
 SECTION .text
     main:
+        ; Fetch EIP into EBP
+        call main_fetch_address
+        main_fetch_address:
+        pop ebp
+
+        ; Fetch the beginning of .text section
+        sub ebp, (main_fetch_address - $$)
+
         PRINT "main()"
 
         ; Setup long mode
@@ -102,7 +78,7 @@ SECTION .text
         jmp rbx
 
     %macro gdt_entry 4
-        ; %1 - base addres
+        ; %1 - base address
         ; %2 - limit
         ; %3 - access
         ; %4 - flags

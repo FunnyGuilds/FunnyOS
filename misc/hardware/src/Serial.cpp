@@ -1,5 +1,4 @@
 #include <FunnyOS/Hardware/Serial.hpp>
-#include <FunnyOS/Hardware/InputOutput.hpp>
 
 namespace FunnyOS::HW::Serial {
     using namespace InputOutput;

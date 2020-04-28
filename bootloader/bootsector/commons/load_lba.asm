@@ -33,7 +33,7 @@ SECTION .text
         mov ch, dh
         inc ch
         ; cl = sector per track
-        ; ch - heads per cyllinder
+        ; ch - heads per cylinder
 
         mov al, cl
         mul ch

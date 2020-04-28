@@ -84,6 +84,9 @@
         const char* m_message;                                                  \
     }
 
+// Buffer macros
+#define F_SIZEOF_BUFFER(buffer) (sizeof(buffer) / sizeof(buffer[0])) // NOLINT(bugprone-sizeof-expression)
+
 namespace FunnyOS::Stdlib::System {
 
     /**

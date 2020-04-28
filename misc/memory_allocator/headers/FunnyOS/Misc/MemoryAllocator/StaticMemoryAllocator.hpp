@@ -41,7 +41,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
         /**
          * Gets the next free block (from memory address NextFreeBlock), or nullptr if NextFreeBlock is 0
          */
-        [[nodiscard]] MemoryMetaBlock* GetNext() noexcept;
+        [[nodiscard]] MemoryMetaBlock* GetNext() const noexcept;
     };
 
     /**
@@ -92,7 +92,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
          *
          * @return highest memory address used by the allocator.
          */
-        memoryaddress_t GetCurrentMemoryTop();
+        [[nodiscard]] memoryaddress_t GetCurrentMemoryTop() const noexcept;
 
        private:
         /**

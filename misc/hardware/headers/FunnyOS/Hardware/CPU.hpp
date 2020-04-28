@@ -27,7 +27,7 @@ namespace FunnyOS::HW::CPU {
         NestedTaskFlag = 1 << 14,
         ResumeFlag = 1 << 16,
         Virtual8086_ModeFlag = 1 << 17,
-        AlingmentCheck = 1 << 18,
+        AlignmentCheck = 1 << 18,
         VirtualInterruptFlag = 1 << 19,
         VirtualInterruptPending = 1 << 20,
         CPUID_Supported = 1 << 21,

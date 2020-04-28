@@ -23,7 +23,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    Storage<T>::Storage() noexcept : m_initialized(false){};
+    Storage<T>::Storage() noexcept : m_initialized(false) {}
 
     template <typename T>
     Storage<T>::Storage(const T& value) : m_initialized(true) {
@@ -63,7 +63,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     Storage<T>& Storage<T>::operator=(const Storage& other) {
-        if (other == this) {
+        if (&other == this) {
             return *this;
         }
 
@@ -88,7 +88,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     Storage<T>& Storage<T>::operator=(Storage&& other) noexcept {
-        if (other == this) {
+        if (&other == this) {
             return *this;
         }
 

@@ -46,7 +46,7 @@ namespace FunnyOS::HW::CPU {
             uint32_t ebx = 0;
 
             if (GetCpuidMaxExtendedFeature() < eax) {
-                return false;
+                return 0;
             }
 
             CallCpuid(eax, ecx, edx, ebx);

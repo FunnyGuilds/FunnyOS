@@ -2,8 +2,6 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 
-#include <FunnyOS/Stdlib/Platform.hpp>
-
 namespace FunnyOS::Stdlib::System {
 
     Exception::~Exception() noexcept = default;

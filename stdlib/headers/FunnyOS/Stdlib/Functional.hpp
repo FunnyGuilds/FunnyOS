@@ -40,9 +40,9 @@ namespace FunnyOS::Stdlib {
      * Represents a type that can be passed to an optional constructor to create an empty optional.
      */
     struct NullOptionalTag {
+       public:
         constexpr static const NullOptionalTag* Value = static_cast<const NullOptionalTag*>(nullptr);
 
-       private:
         NullOptionalTag() = delete;
     };
 
@@ -147,14 +147,14 @@ namespace FunnyOS::Stdlib {
          *
          * @return the value of this optional
          */
-        [[nodiscard]] inline operator bool() const noexcept ;
+        [[nodiscard]] inline operator bool() const noexcept;
 
        private:
         template <typename T2, typename... Args>
         friend Optional<T2> MakeOptional(Args&&... args);
 
         template <typename... Args>
-        inline explicit Optional(const InPlaceConstructor*, Args&&... args);
+        inline explicit Optional(const InPlaceConstructor* /*tag*/, Args&&... args);
 
        private:
         Storage<T> m_storage;
