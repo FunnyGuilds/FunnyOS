@@ -1,4 +1,4 @@
-# Build objects
+# Build ASM objects
 add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
         asm/make_memory_map.asm
         asm/real_mode_intro.asm
@@ -24,33 +24,28 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/Sleep.cpp
 )
 
-set_target_properties(FunnyOS_Bootloader_Bootloader32 PROPERTIES
-        CXX_STANDARD 20
-        LINKER_LANGUAGE "CXX"
-        PREFIX ""
-        OUTPUT_NAME bootloader32
-        SUFFIX .elf
-        LINK_OPTIONS "${F_BOOTLOADER_LINK_FLAGS};-T;${CMAKE_CURRENT_SOURCE_DIR}/bootloader32.lds;-m32;-Wl,--gc-sections"
-)
+custom_link(FunnyOS_Bootloader_Bootloader32 bootloader32.lds)
+target_output_filename(FunnyOS_Bootloader_Bootloader32 bootloader32.elf)
+target_link_options(FunnyOS_Bootloader_Bootloader32 PRIVATE -m32 -Wl,--gc-sections)
 
 target_link_libraries(FunnyOS_Bootloader_Bootloader32
         PUBLIC
-            FunnyOS::Stdlib::Base32_Static_LL
-            FunnyOS::Misc::Bootparams
-            FunnyOS::Misc::Hardware32
-            FunnyOS::Misc::MemoryAllocator32
-            FunnyOS::Misc::TerminalManager32
-            FunnyOS::Misc::QuickFat32
-            FunnyOS::Driver::Drive::BIOS32
+            FunnyOS_Stdlib_Base32_Static_LL
+            FunnyOS_Misc_Bootparams
+            FunnyOS_Misc_Hardware32
+            FunnyOS_Misc_MemoryAllocator32
+            FunnyOS_Misc_TerminalManager32
+            FunnyOS_Misc_QuickFat32
+            FunnyOS_Driver_Drive_BIOS32
 )
 
-add_executable(FunnyOS::Bootloader::Bootloader32 ALIAS FunnyOS_Bootloader_Bootloader32)
 
+# .bin file target
 add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/bootloader32.bin"
         COMMAND ${CMAKE_OBJCOPY} -O binary "$<TARGET_FILE:FunnyOS_Bootloader_Bootloader32>" "${CMAKE_CURRENT_BINARY_DIR}/bootloader32.bin"
         DEPENDS
-            FunnyOS::Bootloader::Bootloader32
+            FunnyOS_Bootloader_Bootloader32
 )
 
 add_custom_target(

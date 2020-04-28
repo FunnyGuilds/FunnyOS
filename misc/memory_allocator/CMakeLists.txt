@@ -1,18 +1,24 @@
-function(setup_library name type)
-    add_library(${name} ${type}
+function(setup_memory_allocator_variant name)
+    add_library(${name} STATIC
             src/StaticMemoryAllocator.cpp
     )
 
     target_include_directories(${name}
             PUBLIC
-                "${CMAKE_CURRENT_SOURCE_DIR}/headers"
+                "${CMAKE_CURRENT_SOURCE_DIR}/headers/"
     )
 endfunction()
 
-setup_library(FunnyOS_Misc_MemoryAllocator32 STATIC)
-target_link_libraries(FunnyOS_Misc_MemoryAllocator32 PUBLIC FunnyOS::Stdlib::Base32_Static_LL)
-add_library(FunnyOS::Misc::MemoryAllocator32 ALIAS FunnyOS_Misc_MemoryAllocator32)
+# 32-bit static version for bootloader
+setup_memory_allocator_variant(FunnyOS_Misc_MemoryAllocator32)
+target_link_libraries(FunnyOS_Misc_MemoryAllocator32
+        PUBLIC
+            FunnyOS_Stdlib_Base32_Static_LL
+)
 
-setup_library(FunnyOS_Misc_MemoryAllocator64 SHARED)
-target_link_libraries(FunnyOS_Misc_MemoryAllocator64 PUBLIC FunnyOS::Stdlib::Base64_Kernel)
-add_library(FunnyOS::Misc::MemoryAllocator64 ALIAS FunnyOS_Misc_MemoryAllocator64)
+# 64-bit static PIC version to be linked as a kernel module later
+setup_memory_allocator_variant(FunnyOS_Misc_MemoryAllocator64)
+target_link_libraries(FunnyOS_Misc_MemoryAllocator64
+        PUBLIC
+            FunnyOS_Stdlib_Base64_Kernel
+)

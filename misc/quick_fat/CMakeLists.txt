@@ -1,4 +1,4 @@
-function(setup_library name)
+function(setup_quickfat_variant name)
     add_library(${name} STATIC
             src/QuickFat.c
     )
@@ -8,12 +8,13 @@ function(setup_library name)
                 "${CMAKE_CURRENT_SOURCE_DIR}/headers/"
     )
 
-    target_compile_options(${name} PRIVATE -Os -fno-pie -ffreestanding -fno-stack-protector)
+    target_compile_options(${name} PRIVATE -Os -ffreestanding -fno-stack-protector -fno-pie)
+    target_link_options(${name} PRIVATE -nostdlib)
 endfunction()
 
-setup_library(FunnyOS_Misc_QuickFat32)
+# 32-bit variant
+setup_quickfat_variant(FunnyOS_Misc_QuickFat32)
 target_compile_options(FunnyOS_Misc_QuickFat32 PRIVATE -m32)
-add_library(FunnyOS::Misc::QuickFat32 ALIAS FunnyOS_Misc_QuickFat32)
 
-setup_library(FunnyOS_Misc_QuickFat64)
-add_library(FunnyOS::Misc::QuickFat64 ALIAS FunnyOS_Misc_QuickFat64)
+# 64-bit variant
+setup_quickfat_variant(FunnyOS_Misc_QuickFat64)

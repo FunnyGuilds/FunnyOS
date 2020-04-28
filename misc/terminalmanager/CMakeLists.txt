@@ -1,5 +1,5 @@
-function(setup_library name type)
-    add_library(${name} ${type}
+function(setup_terminal_manager_variant name)
+    add_library(${name} STATIC
             src/TerminalManager.cpp
     )
 
@@ -9,10 +9,16 @@ function(setup_library name type)
     )
 endfunction()
 
-setup_library(FunnyOS_Misc_TerminalManager32 STATIC)
-target_link_libraries(FunnyOS_Misc_TerminalManager32 PUBLIC FunnyOS::Stdlib::Base32_Static_LL)
-add_library(FunnyOS::Misc::TerminalManager32 ALIAS FunnyOS_Misc_TerminalManager32)
+# 32-bit static version for bootloader
+setup_terminal_manager_variant(FunnyOS_Misc_TerminalManager32)
+target_link_libraries(FunnyOS_Misc_TerminalManager32
+        PUBLIC
+            FunnyOS_Stdlib_Base32_Static_LL
+)
 
-setup_library(FunnyOS_Misc_TerminalManager64 SHARED)
-target_link_libraries(FunnyOS_Misc_TerminalManager64 PUBLIC FunnyOS::Stdlib::Base64_Kernel)
-add_library(FunnyOS::Misc::TerminalManager64 ALIAS FunnyOS_Misc_TerminalManager64)
+# 64-bit static PIC version to be linked as a kernel module later
+setup_terminal_manager_variant(FunnyOS_Misc_TerminalManager64)
+target_link_libraries(FunnyOS_Misc_TerminalManager64
+        PUBLIC
+            FunnyOS_Stdlib_Base64_Kernel
+)

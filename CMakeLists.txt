@@ -4,6 +4,10 @@ project(FunnyOS C CXX ASM_NASM)
 # Version
 set(FUNNYOS_VERSION 1.0.0)
 
+# CMake modules
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(Linking)
+
 # Checks
 if (NOT ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" AND NOT ${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
     message(FATAL_ERROR "Unsupported generator")
@@ -16,6 +20,7 @@ endif ()
 # Options
 option(F_BUILD_TESTS      "Should the testes be built?"       ON)
 
+# Tests
 if (F_BUILD_TESTS)
     find_package(GTest)
 
@@ -32,18 +37,21 @@ set(WARNING_OPTIONS
         "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function"
 )
 
+# C and C++ standards
 set(CMAKE_CXX_STANDARD 20)
+
+# Global flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -masm=intel ${WARNING_OPTIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel ${WARNING_OPTIONS}")
+
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
+# Default build type
 if (CMAKE_BUILD_TYPE EQUAL "")
     set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    set(F_DEBUG_SYMBOLS TRUE)
-endif ()
-
+# Global definitions
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DF_DEBUG)
 endif ()

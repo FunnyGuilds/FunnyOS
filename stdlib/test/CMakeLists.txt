@@ -1,31 +1,17 @@
-function(setup_tests name lib)
-    add_executable(${name}
-            StdlibPlatform.cpp
-            TestAlgorithm.cpp
-            TestFunctional.cpp
-            TestLinkedList.cpp
-            TestMemory.cpp
-            TestString.cpp
-            TestUtility.cpp
-            TestVector.cpp
-    )
-
-    target_link_libraries(${name}
-            PUBLIC
-                ${lib}
-                GTest::GTest
-                GTest::Main
-    )
-
-    add_test(${name} ${name})
-endfunction()
-
-setup_tests(FunnyOS_Stdlib_Base32_Tests FunnyOS::Stdlib::Base32_Static)
-
-set_target_properties(FunnyOS_Stdlib_Base32_Tests PROPERTIES
-        LINK_FLAGS "-m32"
+add_executable(FunnyOS_Stdlib_Base64_Tests
+        StdlibPlatform.cpp
+        TestAlgorithm.cpp
+        TestFunctional.cpp
+        TestLinkedList.cpp
+        TestMemory.cpp
+        TestString.cpp
+        TestUtility.cpp
+        TestVector.cpp
 )
-add_executable(FunnyOS::Stdlib::Base32_Tests ALIAS FunnyOS_Stdlib_Base32_Tests)
 
-setup_tests(FunnyOS_Stdlib_Base64_Tests FunnyOS::Stdlib::Base64_Static)
-add_executable(FunnyOS::Stdlib::Base64_Tests ALIAS FunnyOS_Stdlib_Base64_Tests)
+target_link_libraries(FunnyOS_Stdlib_Base64_Tests
+        PUBLIC
+            FunnyOS_Stdlib_Base64_Static_Test
+            GTest::GTest
+            GTest::Main
+)

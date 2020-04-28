@@ -9,16 +9,20 @@ add_executable(FunnyOS_Bootloader_FatLoader
         fat_loader.c
 )
 
-set_target_properties(FunnyOS_Bootloader_FatLoader PROPERTIES
-        C_STANDARD 11
-        LINKER_LANGUAGE "CXX"
-        PREFIX ""
-        OUTPUT_NAME "fat_loader"
-        SUFFIX ".bin"
-        COMPILE_OPTIONS "-m32;-Os;-fno-pie;-ffreestanding;-fno-stack-protector"
-        LINK_OPTIONS "${F_BOOTLOADER_LINK_FLAGS};-T;${CMAKE_CURRENT_SOURCE_DIR}/fat_loader.lds;-m32"
+custom_link(FunnyOS_Bootloader_FatLoader fat_loader.lds)
+target_output_filename(FunnyOS_Bootloader_FatLoader fat_loader.bin)
+
+target_link_options(FunnyOS_Bootloader_FatLoader
+        PRIVATE
+            -nostdlib -m32
 )
 
-target_link_libraries(FunnyOS_Bootloader_FatLoader PUBLIC FunnyOS::Misc::QuickFat32)
+target_compile_options(FunnyOS_Bootloader_FatLoader
+        PRIVATE
+            -m32 -Os -fno-pie -ffreestanding -fno-stack-protector
+)
 
-add_executable(FunnyOS::Bootloader::FatLoader ALIAS FunnyOS_Bootloader_FatLoader)
+target_link_libraries(FunnyOS_Bootloader_FatLoader
+        PUBLIC
+            FunnyOS_Misc_QuickFat32
+)

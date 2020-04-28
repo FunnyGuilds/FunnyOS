@@ -5,13 +5,13 @@ add_custom_command(
         COMMAND /bin/bash -xe ${CMAKE_SOURCE_DIR}/scripts/make-image.sh ${F_OUTPUT_IMAGE}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS
-            FunnyOS::Bootloader::MBR
-            FunnyOS::Bootloader::Stage1
-            FunnyOS::Bootloader::FatLoader
-            FunnyOS::Bootloader::Bootloader32
+            FunnyOS_Bootloader_MBR
+            FunnyOS_Bootloader_Stage1
+            FunnyOS_Bootloader_FatLoader
+            FunnyOS_Bootloader_Bootloader32
             FunnyOS_Bootloader_Bootloader32_Binary
-            FunnyOS::Bootloader::Env64
-            FunnyOS::Bootloader::TempKernel
+            FunnyOS_Bootloader_Env64
+            FunnyOS_Bootloader_TempKernel
 )
 
 add_custom_target(
