@@ -11,7 +11,7 @@ add_custom_command(
             FunnyOS_Bootloader_Bootloader32
             FunnyOS_Bootloader_Bootloader32_Binary
             FunnyOS_Bootloader_Env64
-            FunnyOS_Bootloader_TempKernel
+            FunnyOS_Kernel_Executable
 )
 
 add_custom_target(

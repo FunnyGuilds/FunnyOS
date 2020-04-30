@@ -53,6 +53,20 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         [[nodiscard]] bool GetMode() const override;
     };
 
+    class DebugElfLoaderOption : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        [[nodiscard]] bool GetMode() const override;
+    };
+
+    class PauseBeforeBootOption : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        [[nodiscard]] bool GetMode() const override;
+    };
+
     class PrintMemoryMapOption : public MenuOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;

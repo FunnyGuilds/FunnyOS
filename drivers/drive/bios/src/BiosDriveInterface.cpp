@@ -43,7 +43,7 @@ namespace FunnyOS::Driver::Drive {
 
             String::StringBuffer buffer{errorBuffer, 128};
             String::Format(buffer, "BIOS error when %s. CF is set. AH = 0x%02x", when, regs.AX.Value8.High);
-            throw DriveInterfaceException(errorBuffer);
+            F_ERROR_WITH_MESSAGE(DriveInterfaceException, errorBuffer);
         }
     }  // namespace
 
@@ -66,7 +66,7 @@ namespace FunnyOS::Driver::Drive {
     void BiosDriveInterface::ReadSectors(SectorNumber sector, SectorNumber count,
                                          Memory::SizedBuffer<uint8_t>& buffer) {
         if (buffer.Size < count * GetSectorSize()) {
-            throw DriveInterfaceException("buffer to small to hold all sectors");
+            F_ERROR_WITH_MESSAGE(DriveInterfaceException, "buffer to small to hold all sectors");
         }
 
         SectorNumber currentOffset = 0;

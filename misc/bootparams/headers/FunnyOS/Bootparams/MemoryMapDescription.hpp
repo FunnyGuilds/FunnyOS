@@ -43,7 +43,7 @@ namespace FunnyOS::Bootparams {
         ReservedMemory = 0x02,
 
         /**
-         * Usable after the ACPI tables if that location are no longer needed.
+         * Usable after the OS reads ACPI tables.
          */
         ACPIReclaimMemory = 0x03,
 
@@ -55,7 +55,19 @@ namespace FunnyOS::Bootparams {
         /**
          * Reserved value, will never appear in an actual entry.
          */
-        Reserved = 0x05
+        Reserved = 0x05,
+
+        /**
+         * Location of kernel image in the memory.
+         */
+        KernelImage = 0x06,
+
+        /**
+         * Location at where the temporary bootloader's page tables are placed.
+         *
+         * May be reclaimed by kernel after switching to kernel page tables.
+         */
+        PageTableReclaimable = 0x07,
     };
 
     /**

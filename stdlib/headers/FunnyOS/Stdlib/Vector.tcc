@@ -63,8 +63,7 @@ namespace FunnyOS::Stdlib {
     Vector<T>::Vector(size_t initialCapacity) : Vector(initialCapacity, DEFAULT_GROWTH_FACTOR) {}
 
     template <typename T>
-    Vector<T>::Vector(size_t initialCapacity, float growthFactor)
-        : m_growthFactor(growthFactor), m_data({nullptr, 0}) {
+    Vector<T>::Vector(size_t initialCapacity, float growthFactor) : m_growthFactor(growthFactor), m_data({nullptr, 0}) {
         F_ASSERT(m_growthFactor > 1, "vector's growth factor too small");
 
         EnsureCapacityExact(initialCapacity);
@@ -188,7 +187,7 @@ namespace FunnyOS::Stdlib {
         Memory::ReallocateBuffer(m_data, m_size);
 
         if (m_data.Data == nullptr) {
-            throw VectorNotEnoughMemory("vector could not allocate enough memory while shrinking");
+            F_ERROR_WITH_MESSAGE(VectorNotEnoughMemory, "vector could not allocate enough memory while shrinking");
         }
     }
 
@@ -279,7 +278,7 @@ namespace FunnyOS::Stdlib {
         if (index >= m_size) {
             String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
             String::Format(errorBuffer, "%zu >= %zu", index, m_size);
-            throw VectorIndexOutOfBounds(errorBuffer.Data);
+            F_ERROR_WITH_MESSAGE(VectorIndexOutOfBounds, errorBuffer.Data);
         }
     }
 
@@ -299,7 +298,7 @@ namespace FunnyOS::Stdlib {
         Memory::ReallocateBuffer(m_data, desiredCapacity);
 
         if (m_data.Data == nullptr) {
-            throw VectorNotEnoughMemory("vector could not allocate enough memory");
+            F_ERROR_WITH_MESSAGE(VectorNotEnoughMemory, "vector could not allocate enough memory");
         }
     }
 

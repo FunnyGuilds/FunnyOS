@@ -190,49 +190,88 @@ namespace FunnyOS::Bootloader32 {
         // Prepare drive interface and file loader
         Driver::Drive::BiosDriveInterface driveInterface(GetBootloaderParameters().BootInfo.BootDriveNumber);
         FileLoader bootPartitionFileLoader(driveInterface, GetBootloaderParameters().BootInfo.BootPartition);
+
+        // Load env 64
         ElfLoader lowMemoryElfLoader(GetAllocator(), bootPartitionFileLoader);
-        ElfLoader highMemoryElfLoader(highMemoryAllocator, bootPartitionFileLoader);
-
-        // Make the allocator actually allocate something to make sure that it is working
-        void* ignored F_UNUSED = highMemoryAllocator.Allocate(1024 * 1024 * 10, 1);
-
-        // TODO: actually load the kernel instead of this test binary
-        void* tempKernel = highMemoryElfLoader.LoadRegularFile("/system/temp_kernel.bin");
-
-        const uintmax_t kernelMemoryLocation = kernelMem.BaseAddress;
-        const uintmax_t kernelMemorySize = highMemoryAllocator.GetCurrentMemoryTop() - kernelMemoryLocation;
-        FB_LOG_DEBUG_F("Kernel physical memory location: 0x%08x, size: %u bytes", kernelMemoryLocation,
-                       kernelMemorySize);
-
-        // Setup pages
-        void* pml4base = SetupInitialKernelPages(kernelMemoryLocation, kernelMemorySize, highMemoryAllocator);
-        FB_LOG_DEBUG_F("Allocate memory with page tables: %u bytes", kernelMemoryLocation, kernelMemorySize);
-
-        // Get kernel entry point
-        const auto kernelEntryPointPhysical = reinterpret_cast<uint64_t>(tempKernel);
-        const auto kernelPageOffset = kernelEntryPointPhysical - kernelMem.BaseAddress;
-        const auto kernelEntryPointVirtual = GetKernelVirtualLocation() + kernelPageOffset;
-        FB_LOG_DEBUG_F("Kernel entry point: Physical: %08llx, offset = %08llx, virtual = %16llx",
-                       kernelEntryPointPhysical, kernelPageOffset, kernelEntryPointVirtual);
-
-        const auto kernelEntryPointLow = static_cast<uint32_t>(kernelEntryPointVirtual & 0xFFFFFFFF);
-        const auto kernelEntryPointHigh = static_cast<uint32_t>(kernelEntryPointVirtual >> 32ULL);
-
-        // Load env64
         void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64");
         FB_LOG_DEBUG_F("env64 loaded at %08x", env64);
 
-        // Disable all PIC interrupts.
+        // Load raw kernel elf to memory
+        ElfLoader highMemoryElfLoader(highMemoryAllocator, bootPartitionFileLoader);
+        void* kernelRawElf = highMemoryElfLoader.LoadRegularFile("/system/fkrnl.fxe");
+        FB_LOG_DEBUG_F("fkrnl.fxe loaded at %08x as raw file", kernelRawElf);
+
+        // Load kernel .elf
+        ElfFileInfo kernelElf = highMemoryElfLoader.LoadElfFile(kernelRawElf);
+        FB_LOG_DEBUG_F("Kernel physical memory location: 0x%08llx, size: %llu bytes", kernelElf.PhysicalLocationBase,
+                       kernelElf.TotalMemorySize);
+
+        if (kernelElf.VirtualLocationBase != GetKernelVirtualLocation()) {
+            FB_LOG_ERROR_F("Kernel virtual location differs from expected. Expected: %016llx. Actual: %016llx",
+                           GetKernelVirtualLocation(), kernelElf.VirtualLocationBase);
+            Halt();
+        }
+
+        // Setup pages
+        Misc::MemoryAllocator::StaticMemoryAllocator pageTableMemoryAllocator{};
+        const uintmax_t pageTableMemoryLocation = AlignToPage(highMemoryAllocator.GetCurrentMemoryTop());
+        pageTableMemoryAllocator.Initialize(pageTableMemoryLocation, highMemoryAllocator.GetMemoryEnd());
+
+        void* pml4base = SetupInitialKernelPages(kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize,
+                                                 pageTableMemoryAllocator);
+
+        const uintmax_t pageTableMemorySize = pageTableMemoryAllocator.GetCurrentMemoryTop() - pageTableMemoryLocation;
+
+        FB_LOG_DEBUG_F("Temporary page table physical memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
+                       pageTableMemorySize);
+
+        // Add new entries to memory map
+        auto& memoryMap = GetBootloaderParameters().MemoryMap;
+        auto* memoryMapBase = reinterpret_cast<Bootparams::MemoryMapEntry*>(memoryMap.First);
+
+        // Kernel image entry
+        memoryMapBase[memoryMap.Count] = {
+            .BaseAddress = kernelElf.PhysicalLocationBase,
+            .Length = kernelElf.TotalMemorySize,
+            .Type = Bootparams::MemoryMapEntryType::KernelImage,
+            .ACPIFlags = static_cast<uint32_t>(memoryMap.HasAcpiExtendedAttribute ? 0b01 : 0)};
+        memoryMap.Count++;
+
+        // Page tables entry
+        memoryMapBase[memoryMap.Count] = {
+            .BaseAddress = pageTableMemoryLocation,
+            .Length = pageTableMemorySize,
+            .Type = Bootparams::MemoryMapEntryType::PageTableReclaimable,
+            .ACPIFlags = static_cast<uint32_t>(memoryMap.HasAcpiExtendedAttribute ? 0b01 : 0)};
+        memoryMap.Count++;
+
+        // Pause if necessary
+        if (IsPauseBeforeBoot()) {
+            FB_LOG_INFO("To boot press enter ...");
+            Pause();
+        }
+
+        FB_LOG_OK("Booting...");
+
+        // Disable all interrupts hardware interrupts..
         HW::DisableHardwareInterrupts();
+        HW::PIC::SetEnabledInterrupts(0);
 
         // Jump to env64
-        asm("cli\n"
+        auto kernelEntryPointLow = static_cast<uint32_t>(kernelElf.EntryPointVirtual & 0xFFFFFFFF);
+        auto kernelEntryPointHigh = static_cast<uint32_t>(kernelElf.EntryPointVirtual >> 32);
+
+        auto bootParamsAddressLow = reinterpret_cast<uint32_t>(&GetBootloaderParameters());
+
+        asm("push 0\n"   // Boot params address high
+            "push %3\n"  // Boot params address low
             "push %2\n"  // Kernel entry point high
             "push %1\n"  // Kernel entry point low
             "push %0\n"  // PML4 base
             "jmp ebx\n"
             :
-            : "r"(pml4base), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh), "b"(env64));
+            : "r"(pml4base), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh), "r"(bootParamsAddressLow),
+              "b"(env64));
 
         F_NO_RETURN;
     }
@@ -275,5 +314,13 @@ namespace FunnyOS::Bootloader32 {
     Bootloader& Bootloader::Get() {
         static FunnyOS::Bootloader32::Bootloader c_bootloader;
         return c_bootloader;
+    }
+
+    bool Bootloader::IsPauseBeforeBoot() const {
+        return m_pauseBeforeBoot;
+    }
+
+    void Bootloader::SetPauseBeforeBoot(bool pauseBeforeBoot) {
+        m_pauseBeforeBoot = pauseBeforeBoot;
     }
 }  // namespace FunnyOS::Bootloader32

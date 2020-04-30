@@ -3,7 +3,7 @@
 #
 function(custom_link target script)
     set_target_properties(${target} PROPERTIES LINKER_LANGUAGE "CXX")
-    target_link_options(${target} PRIVATE -T "${CMAKE_CURRENT_SOURCE_DIR}/${script}")
+    target_link_options(${target} PRIVATE -T "${script}")
 endfunction()
 
 #

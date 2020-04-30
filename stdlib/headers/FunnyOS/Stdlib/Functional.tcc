@@ -32,7 +32,7 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     T& Optional<T>::GetValue() {
         if (!HasValue()) {
-            throw EmptyOptionalException();
+            F_ERROR(EmptyOptionalException);
         }
 
         return m_storage.GetObject();
@@ -41,7 +41,7 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     const T& Optional<T>::GetValue() const {
         if (!HasValue()) {
-            throw EmptyOptionalException();
+            F_ERROR(EmptyOptionalException);
         }
 
         return m_storage.GetObject();

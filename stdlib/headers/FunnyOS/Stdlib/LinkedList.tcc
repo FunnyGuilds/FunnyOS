@@ -211,7 +211,7 @@ namespace FunnyOS::Stdlib {
         CheckBounds(to);
 
         if (from > to) {
-            throw LinkedListIndexOutOfBounds("from > to");
+            F_ERROR_WITH_MESSAGE(LinkedListIndexOutOfBounds, "from > to");
         }
 
         Element* before;
@@ -324,7 +324,7 @@ namespace FunnyOS::Stdlib {
         if (num >= m_size) {
             String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
             String::Format(errorBuffer, "%zu > %zu", num, m_size);
-            throw LinkedListIndexOutOfBounds(errorBuffer.Data);
+            F_ERROR_WITH_MESSAGE(LinkedListIndexOutOfBounds, errorBuffer.Data);
         }
     }
 

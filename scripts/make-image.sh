@@ -69,7 +69,7 @@ sudo cp ./bootloader/bootloader32/bootloader32.bin ${MOUNT}/boot/bootload32
 sudo cp ./bootloader/env64/env64.bin               ${MOUNT}/boot/env64
 
 sudo mkdir ${MOUNT}/system
-sudo cp ./bootloader/temp_kernel/temp_kernel.bin ${MOUNT}/system/temp_kernel.bin
+sudo cp ./kernel/executable/fkrnl.fxe              ${MOUNT}/system
 
 # Set attributes if there is fatattr in path
 if command -v fatattr > /dev/null; then
@@ -77,7 +77,7 @@ if command -v fatattr > /dev/null; then
   sudo fatattr +rhs ${MOUNT}/boot/bootload32
   sudo fatattr +rhs ${MOUNT}/boot/env64
 
-  sudo fatattr +r   ${MOUNT}/system/temp_kernel.bin
+  sudo fatattr +r   ${MOUNT}/system/fkrnl.fxe
 fi
 
 # Unmount

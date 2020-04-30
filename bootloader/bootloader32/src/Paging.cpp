@@ -12,6 +12,14 @@ namespace FunnyOS::Bootloader32 {
         constexpr uint64_t KERNEL_VIRTUAL_LOCATION = 0x00000E0000000000;
     }  // namespace
 
+    uintmax_t AlignToPage(uintmax_t memory) {
+        if (memory % PAGE_SIZE == 0) {
+            return memory;
+        }
+
+        return memory + (PAGE_SIZE - (memory % PAGE_SIZE));
+    }
+
     uint64_t GetKernelVirtualLocation() {
         return KERNEL_VIRTUAL_LOCATION;
     }
@@ -46,7 +54,7 @@ namespace FunnyOS::Bootloader32 {
 
     void MapSingleTable(void* pml4base, uint64_t virtualAddress, uint64_t physicalAddress,
                         StaticMemoryAllocator& allocator) {
-        F_ASSERT((virtualAddress % PAGE_ENTRY_SIZE) == 0, "Virtual address not aligned");
+        F_ASSERT((virtualAddress % SINGLE_TABLE_MAPPING_SIZE) == 0, "Virtual address not aligned");
         F_ASSERT((physicalAddress % PAGE_SIZE) == 0, "Physical address not aligned");
 
         FB_LOG_DEBUG_F("Maping table %016llx to %016llx", virtualAddress, physicalAddress);
@@ -60,18 +68,18 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
-    void* SetupInitialKernelPages(uintmax_t location, uintmax_t kernelSize, StaticMemoryAllocator& kernelAllocator) {
-        void* pml4base = AllocateClearPage(kernelAllocator);
+    void* SetupInitialKernelPages(uintmax_t location, uintmax_t kernelSize, StaticMemoryAllocator& pageTableAllocator) {
+        void* pml4base = AllocateClearPage(pageTableAllocator);
 
         // Identity map first 1MB
-        MapSingleTable(pml4base, 0, 0, kernelAllocator);
+        MapSingleTable(pml4base, 0, 0, pageTableAllocator);
 
         // Map kernel memory
         for (uint64_t i = 0; i < (kernelSize / SINGLE_TABLE_MAPPING_SIZE) + 1; i++) {
             uint64_t virtualAddr = GetKernelVirtualLocation() + i * SINGLE_TABLE_MAPPING_SIZE;
             uint64_t physicalAddr = static_cast<uint64_t>(location) + i * SINGLE_TABLE_MAPPING_SIZE;
 
-            MapSingleTable(pml4base, virtualAddr, physicalAddr, kernelAllocator);
+            MapSingleTable(pml4base, virtualAddr, physicalAddr, pageTableAllocator);
         }
 
         return pml4base;

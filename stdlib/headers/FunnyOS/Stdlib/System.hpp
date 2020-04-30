@@ -33,17 +33,10 @@
 //
 // Assertion macros
 //
-#ifdef F_ASSERTIONS_THROW_EXCEPTIONS
-#define F_FAIL_ASSERT(message)                                                          \
-    do {                                                                                \
-        throw FunnyOS::Stdlib::System ::AssertionFailure("Assertion failed: " message); \
+#define F_FAIL_ASSERT(message)                                                    \
+    do {                                                                          \
+        F_ERROR_WITH_MESSAGE(FunnyOS::Stdlib::System::AssertionFailure, message); \
     } while (0)
-#else
-#define F_FAIL_ASSERT(message)                                             \
-    do {                                                                   \
-        FunnyOS::Stdlib::System ::Terminate("Assertion failed: " message); \
-    } while (0)
-#endif
 
 #define F_ASSERT(condition, message) \
     do {                             \
@@ -84,8 +77,36 @@
         const char* m_message;                                                  \
     }
 
+#ifndef F_LL
+#define F_ERROR(exception_class) \
+    do {                         \
+        throw exception_class(); \
+    } while (0)
+
+#define F_ERROR_WITH_MESSAGE(exception_class, message) \
+    do {                                               \
+        throw exception_class(message);                \
+    } while (0)
+#else
+
+#define F_ERROR(exception_class)                                                    \
+    do {                                                                            \
+        using namespace FunnyOS::Stdlib::System;                                    \
+        Exception* exception = _Exception::SetActiveException(new exception_class); \
+        Terminate(exception->GetMessage());                                         \
+    } while (0)
+
+#define F_ERROR_WITH_MESSAGE(exception_class, message)                                       \
+    do {                                                                                     \
+        using namespace FunnyOS::Stdlib::System;                                             \
+        Exception* exception = _Exception::SetActiveException(new exception_class(message)); \
+        Terminate(exception->GetMessage());                                                  \
+    } while (0)
+
+#endif
+
 // Buffer macros
-#define F_SIZEOF_BUFFER(buffer) (sizeof(buffer) / sizeof(buffer[0])) // NOLINT(bugprone-sizeof-expression)
+#define F_SIZEOF_BUFFER(buffer) (sizeof(buffer) / sizeof(buffer[0]))  // NOLINT(bugprone-sizeof-expression)
 
 namespace FunnyOS::Stdlib::System {
 
@@ -147,6 +168,13 @@ namespace FunnyOS::Stdlib::System {
      */
     F_TRIVIAL_EXCEPTION_WITH_MESSAGE(AssertionFailure);
 
+#ifdef F_LL
+    namespace _Exception {
+        Exception* GetAndClearActiveException();
+
+        Exception* SetActiveException(Exception* ptr);
+    }  // namespace _Exception
+#endif
 }  // namespace FunnyOS::Stdlib::System
 
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_SYSTEM_HPP

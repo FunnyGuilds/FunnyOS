@@ -65,6 +65,15 @@ namespace FunnyOS::Bootloader32::Logging {
      */
     void PostLogFormatted(LogLevel level, const char* format, ...);
 
+    /**
+     * Posts a new message to the logging system formatted via String::Format
+     *
+     * @param[in] level severity of the message
+     * @param[in] format message format
+     * @param[in] args String::Format parameters.
+     */
+    void PostLogFormatted(LogLevel level, const char* format, va_list* args);
+
 }  // namespace FunnyOS::Bootloader32::Logging
 
 #define FB_LOG(level, message)                                                                             \

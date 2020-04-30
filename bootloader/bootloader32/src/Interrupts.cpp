@@ -13,6 +13,10 @@
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
+    namespace {
+        bool g_isPausing = false;
+    }
+
     inline void DecodeEflagPart(String::StringBuffer& buf, HW::Register flags, HW::CPU::Flags flag, const char* str) {
         if ((flags & static_cast<uintmax_t>(flag)) != 0) {
             String::Concat(buf, buf.Data, str);
@@ -114,7 +118,12 @@ namespace FunnyOS::Bootloader32 {
                 }
 
                 FB_LOG_OK("Continuing");
-                return;
+                continue;
+            }
+
+            if (g_isPausing && scanCode == ScanCode::Enter_Released) {
+                g_isPausing = false;
+                continue;
             }
 
             DebugMenu::HandleKey(scanCode);
@@ -134,5 +143,13 @@ namespace FunnyOS::Bootloader32 {
 
         HW::EnableHardwareInterrupts();
         HW::EnableNonMaskableInterrupts();
+    }
+
+    void Pause() {
+        g_isPausing = true;
+
+        while (g_isPausing) {
+            HW::CPU::Halt();
+        }
     }
 }  // namespace FunnyOS::Bootloader32

@@ -31,7 +31,7 @@ extern "C" {
 #define QUICKFAT_ERROR_FAILED_TO_FIND_FILE 0xFF800000
 
 /**
- * Pointer to a function that loads a [count] sectors, starting at [lba] from a driver into location [out]
+ * Pointer to a function that loads [count] sectors, starting at [lba] from the boot drive into memory location [out]
  *
  * @return 0 on success, non-zero error code on fail
  */

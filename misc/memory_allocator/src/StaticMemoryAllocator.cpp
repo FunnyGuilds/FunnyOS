@@ -155,6 +155,10 @@ namespace FunnyOS::Misc::MemoryAllocator {
         return m_currentMemory;
     }
 
+    memoryaddress_t StaticMemoryAllocator::GetMemoryEnd() const noexcept {
+        return m_memoryEnd;
+    }
+
     MemoryMetaBlock* StaticMemoryAllocator::FindFreeBlockPredecessor(size_t size, size_t alignment) noexcept {
         MemoryMetaBlock* previousBlock;
         MemoryMetaBlock* currentBlock = m_firstFreeBlock;

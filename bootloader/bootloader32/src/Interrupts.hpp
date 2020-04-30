@@ -8,6 +8,10 @@ namespace FunnyOS::Bootloader32 {
      */
     void SetupInterrupts();
 
+    /**
+     * Pause until enter is pressed.
+     */
+     void Pause();
 }
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_INTERRUPTS_HPP

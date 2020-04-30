@@ -53,7 +53,7 @@ namespace FunnyOS::Bootloader32 {
                                "\r\n\t\tQuickFat error 0x%08x while %s."
                                "\r\n\t\t(file: %s)",
                                code, error, m_fileName);
-        throw FileLoadException(m_errorBuffer);
+        F_ERROR_WITH_MESSAGE(FileLoadException, m_errorBuffer);
     }
 
     bool FileLoader::s_debugReads = false;

@@ -112,14 +112,17 @@ namespace FunnyOS::Bootloader32::Logging {
     }
 
     void PostLogFormatted(LogLevel level, const char* format, ...) {
+        va_list args;
+        va_start(args, format);
+        PostLogFormatted(level, format, &args);
+        va_end(args);
+    }
+
+    void PostLogFormatted(LogLevel level, const char* format, va_list* args) {
         static char bufferData[512];
         static Stdlib::String::StringBuffer buffer{bufferData, 512};
 
-        va_list args;
-        va_start(args, format);
-        const bool ret = Stdlib::String::Format(buffer, format, &args);
-        va_end(args);
-
+        const bool ret = Stdlib::String::Format(buffer, format, args);
         PostLog(level, ret ? bufferData : format);
     }
 }  // namespace FunnyOS::Bootloader32::Logging

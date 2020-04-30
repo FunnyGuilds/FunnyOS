@@ -1,0 +1,43 @@
+OUTPUT_FORMAT(elf64-x86-64)
+
+ENTRY(fkrnl_entry)
+
+SECTIONS
+{
+    . = 0x00000E0000000000;
+
+    .kernel_stack (NOLOAD) :
+    {
+        . = . + @KERNEL_STACK_SIZE_KB@ * 1024;
+        KERNEL_STACK_TOP = .;
+    }
+
+    .text : ALIGN(0x1000)
+    {
+        *(.intro)
+        *(.text*)
+    }
+
+    .rodata : ALIGN(0x1000)
+    {
+        *(.rodata*)
+    }
+
+    .data : ALIGN(0x1000)
+    {
+        *(.data*)
+    }
+
+    .bss : ALIGN(0x1000)
+    {
+        *(.bss*)
+        *(COMMON)
+    }
+
+    .eh_frame : ALIGN(0x1000)
+    {
+        *(.eh_frame)
+    }
+
+    . = ALIGN(0x1000);
+}

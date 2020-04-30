@@ -16,7 +16,7 @@ target_link_libraries(FunnyOS_Misc_TerminalManager32
             FunnyOS_Stdlib_Base32_Static_LL
 )
 
-# 64-bit static PIC version to be linked as a kernel module later
+# 64-bit static version to be linked to kernel
 setup_terminal_manager_variant(FunnyOS_Misc_TerminalManager64)
 target_link_libraries(FunnyOS_Misc_TerminalManager64
         PUBLIC

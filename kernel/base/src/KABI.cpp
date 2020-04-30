@@ -4,11 +4,11 @@
 
 using namespace FunnyOS::Stdlib;
 
+extern "C" {
+
 //
 // Safety checks
 //
-
-extern "C" {
 void __stack_chk_fail() {
     System::Terminate("stack check failed");
 }

@@ -94,6 +94,15 @@ namespace FunnyOS::Misc::MemoryAllocator {
          */
         [[nodiscard]] memoryaddress_t GetCurrentMemoryTop() const noexcept;
 
+        /**
+         * Returns the highest address this allocator will use when allocating new data (the top memory boundary).
+         * This value is exclusive.
+         *
+         *
+         * @return highest address this allocator will use, exclusive
+         */
+        [[nodiscard]] memoryaddress_t GetMemoryEnd() const noexcept;
+
        private:
         /**
          * Finds a block of a size equal or greater than size and returns a block that precedes it in the free memory

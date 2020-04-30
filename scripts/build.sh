@@ -19,4 +19,4 @@ SOURCES=$(realpath ${SOURCES})
 # Do build
 echo "Sources directory: " ${SOURCES}
 cmake -DCMAKE_BUILD_TYPE=${RELEASE} -G "CodeBlocks - Unix Makefiles" ${SOURCES} || exit 1
-make FunnyOS_BuildImage || exit 1
+make -j$(nproc) FunnyOS_BuildImage || exit 1

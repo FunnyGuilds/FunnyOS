@@ -39,7 +39,7 @@ using namespace FunnyOS::Stdlib;
 [[nodiscard]] void* operator new(std::size_t size) {
     void* mem = operator new(size, std::nothrow);
     if (mem == nullptr) {
-        throw System::BadAllocation();
+        F_ERROR(System::BadAllocation);
     }
     return mem;
 }
@@ -47,7 +47,7 @@ using namespace FunnyOS::Stdlib;
 [[nodiscard]] void* operator new(std::size_t size, std::align_val_t alignment) {
     void* mem = operator new(size, alignment, std::nothrow);
     if (mem == nullptr) {
-        throw System::BadAllocation();
+        F_ERROR(System::BadAllocation);
     }
     return mem;
 }

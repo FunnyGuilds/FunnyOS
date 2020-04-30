@@ -159,7 +159,7 @@ namespace FunnyOS::Misc::TerminalManager {
         }
 
         if (m_sessionNestingLevel < 0) {
-            throw TerminalManagerException("sessionNestingLevel < 0");
+            F_ERROR_WITH_MESSAGE(TerminalManagerException, "sessionNestingLevel < 0");
         }
 
         return false;
@@ -167,7 +167,7 @@ namespace FunnyOS::Misc::TerminalManager {
 
     CursorPosition& TerminalManager::SessionCursor() {
         if (m_sessionNestingLevel == 0) {
-            throw TerminalManagerException("sessionNestingLevel == 0");
+            F_ERROR_WITH_MESSAGE(TerminalManagerException, "sessionNestingLevel == 0");
         }
         return m_sessionCursor;
     }

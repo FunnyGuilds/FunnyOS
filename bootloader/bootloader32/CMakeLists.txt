@@ -24,7 +24,7 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/Sleep.cpp
 )
 
-custom_link(FunnyOS_Bootloader_Bootloader32 bootloader32.lds)
+custom_link(FunnyOS_Bootloader_Bootloader32 "${CMAKE_CURRENT_SOURCE_DIR}/bootloader32.lds")
 target_output_filename(FunnyOS_Bootloader_Bootloader32 bootloader32.elf)
 target_link_options(FunnyOS_Bootloader_Bootloader32 PRIVATE -m32 -Wl,--gc-sections)
 

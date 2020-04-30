@@ -9,7 +9,7 @@ add_executable(FunnyOS_Bootloader_FatLoader
         fat_loader.c
 )
 
-custom_link(FunnyOS_Bootloader_FatLoader fat_loader.lds)
+custom_link(FunnyOS_Bootloader_FatLoader "${CMAKE_CURRENT_SOURCE_DIR}/fat_loader.lds")
 target_output_filename(FunnyOS_Bootloader_FatLoader fat_loader.bin)
 
 target_link_options(FunnyOS_Bootloader_FatLoader

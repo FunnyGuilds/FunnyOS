@@ -3,6 +3,7 @@
 #include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include "DebugMenu.hpp"
+#include "ElfLoader.hpp"
 #include "FileLoader.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
@@ -57,6 +58,34 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
     bool DebugDiskIOOption::GetMode() const {
         return FileLoader::IsDebugReads();
+    }
+
+    void DebugElfLoaderOption::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Debug ElfLoader");
+    }
+
+    void DebugElfLoaderOption::SetMode(bool mode) {
+        ElfLoader::SetDebugElfs(mode);
+
+        if (mode) {
+            Logging::SetDebugModeEnabled(true);
+        }
+    }
+
+    bool DebugElfLoaderOption::GetMode() const {
+        return ElfLoader::IsDebugElfs();
+    }
+
+    void PauseBeforeBootOption::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Pause before booting");
+    }
+
+    void PauseBeforeBootOption::SetMode(bool mode) {
+        Bootloader::Get().SetPauseBeforeBoot(mode);
+    }
+
+    bool PauseBeforeBootOption::GetMode() const {
+        return Bootloader::Get().IsPauseBeforeBoot();
     }
 
     void PrintMemoryMapOption::FetchName(String::StringBuffer& buffer) const {
@@ -228,6 +257,11 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         static DebugModeOption c_debugModeOption{};
         static LogToSerial c_logToSerial{};
         static DebugDiskIOOption c_debugDiskIOOption{};
+#ifdef F_DEBUG
+        static DebugElfLoaderOption c_debugElfLoaderOption{};
+#endif
+
+        static PauseBeforeBootOption c_pauseBeforeBootOption{};
         static PrintMemoryMapOption c_printMemoryMapOption{};
         static PrintBootloaderParametersOption c_printBootloaderParametersOption{};
         static PrintBootDiskParameters c_printBootDiskParameters{};
@@ -238,6 +272,10 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             &c_debugModeOption,
             &c_logToSerial,
             &c_debugDiskIOOption,
+#ifdef F_DEBUG
+            &c_debugElfLoaderOption,
+#endif
+            &c_pauseBeforeBootOption,
             &c_printMemoryMapOption,
             &c_printBootloaderParametersOption,
             &c_printBootDiskParameters,

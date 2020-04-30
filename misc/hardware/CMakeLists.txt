@@ -37,7 +37,6 @@ target_link_libraries(FunnyOS_Misc_Hardware32
 # 64-bit static PIC version to be linked as a kernel module later
 setup_hw_library_variant(FunnyOS_Misc_Hardware64)
 target_compile_options(FunnyOS_Misc_Hardware64_ASM PRIVATE -f elf64)
-target_compile_options(FunnyOS_Misc_Hardware64 PRIVATE -fPIC)
 target_link_libraries(FunnyOS_Misc_Hardware64
         PUBLIC
             FunnyOS_Stdlib_Base64_Kernel

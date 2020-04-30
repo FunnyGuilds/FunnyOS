@@ -7,9 +7,11 @@
 namespace FunnyOS::Bootloader32 {
     using Misc::MemoryAllocator::StaticMemoryAllocator;
 
+    uintmax_t AlignToPage(uintmax_t memory);
+
     uint64_t GetKernelVirtualLocation();
 
-    void* SetupInitialKernelPages(uintmax_t location, uintmax_t kernelSize, StaticMemoryAllocator& kernelAllocator);
+    void* SetupInitialKernelPages(uintmax_t location, uintmax_t kernelSize, StaticMemoryAllocator& pageTableAllocator);
 
 }  // namespace FunnyOS::Bootloader32
 

@@ -29,4 +29,22 @@ namespace FunnyOS::Stdlib::System {
 
         _Platform::ReportError(errorBuffer.Data);
     }
+
+    namespace _Exception {
+
+        // TODO: Thread local
+        static Exception* s_activeException = nullptr;
+
+        Exception* GetAndClearActiveException() {
+            Exception* exception = s_activeException;
+            s_activeException = nullptr;
+            return exception;
+        }
+
+        Exception* SetActiveException(Exception* ptr) {
+            delete s_activeException;
+
+            return (s_activeException = ptr);
+        }
+    }  // namespace _Exception
 }  // namespace FunnyOS::Stdlib::System
