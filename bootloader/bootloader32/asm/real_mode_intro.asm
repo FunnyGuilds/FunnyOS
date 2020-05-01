@@ -73,6 +73,3 @@ SECTION .real.data
         memory_map__acpi_extended:       db 0            ; Memory map has ACPI extend attributes
         memory_map__first:               dd 0            ; Address of the first element in the memory map
         memory_map__count:               dw 0            ; Memory map number of entries
-
-SECTION .magic
-    dd 0x46554E42

@@ -3,13 +3,14 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include "Logging.hpp"
 
+#include <BootloaderConfig.hpp>
+
 namespace FunnyOS::Bootloader32 {
     namespace {
         constexpr size_t PAGE_SIZE = 0x1000;
         constexpr size_t PAGE_ENTRY_SIZE = 8;  // 8 bytes in long mode
         constexpr size_t ENTRIES_PER_PAGE = (PAGE_SIZE / PAGE_ENTRY_SIZE);
         constexpr uint64_t SINGLE_TABLE_MAPPING_SIZE = PAGE_SIZE * ENTRIES_PER_PAGE;
-        constexpr uint64_t KERNEL_VIRTUAL_LOCATION = 0x00000E0000000000;
     }  // namespace
 
     uintmax_t AlignToPage(uintmax_t memory) {
@@ -21,7 +22,7 @@ namespace FunnyOS::Bootloader32 {
     }
 
     uint64_t GetKernelVirtualLocation() {
-        return KERNEL_VIRTUAL_LOCATION;
+        return F_KERNEL_VIRTUAL_ADDRESS;
     }
 
     void* AllocateClearPage(StaticMemoryAllocator& allocator) {

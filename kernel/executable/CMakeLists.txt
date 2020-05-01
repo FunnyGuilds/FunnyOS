@@ -1,7 +1,5 @@
 add_executable(FunnyOS_Kernel_Executable KernelEntry.cpp)
 
-set(KERNEL_STACK_SIZE_KB 16)
-
 configure_file(
         kernel.lds.in
         ${CMAKE_CURRENT_BINARY_DIR}/kernel.lds

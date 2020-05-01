@@ -26,6 +26,16 @@ if ! command -v mkfs.fat > /dev/null; then
   >&2 echo "You must have mkfs.fat to run this script"
 fi
 
+# Read build-info.sh
+BUILD_INFO_FILE=$(dirname ${OUTPUT})/build-info.sh
+
+if [[ ! -f "${BUILD_INFO_FILE}" ]]; then
+    >&2 echo "ERROR: ${BUILD_INFO_FILE} does not exist"
+    exit 1
+fi
+
+source ${BUILD_INFO_FILE}
+
 # Remove old image
 rm -f ${OUTPUT}
 
@@ -56,7 +66,7 @@ sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=${PARTITION
 sudo dd conv=notrunc if=./bootloader/bootsector/stage1/stage1.bin of=${PARTITION} bs=1 obs=1 skip=90 seek=90 count=422
 
 # Put fat loader code to the third sector of the partition
-sudo dd conv=notrunc if=./bootloader/bootsector/fat_loader/fat_loader.bin of=${PARTITION} bs=512 obs=512 seek=2 count=16
+sudo dd conv=notrunc if=./bootloader/bootsector/fat_loader/fat_loader.bin of=${PARTITION} bs=512 obs=512 seek=2 count=${F_FATLOADER_SIZE_IN_SECTORS}
 
 # Mount the partition
 MOUNT=$(mktemp -d /tmp/funnyos-mount-XXXXXXXX)

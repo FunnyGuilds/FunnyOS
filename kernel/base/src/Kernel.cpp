@@ -11,7 +11,7 @@ namespace FunnyOS::Kernel {
         return c_instance;
     }
 
-    void Kernel64::Initialize(Bootparams::Parameters& parameters) {
+    [[noreturn]] void Kernel64::Main(Bootparams::Parameters& parameters) {
         m_parameters = parameters;
 
         using namespace Misc::TerminalManager;
@@ -38,8 +38,8 @@ namespace FunnyOS::Kernel {
 
         terminalManager.PrintLine(testBuf);
 
-        for (;;)
-            ;
+        for (;;) {
+        }
     }
 
     const Bootparams::Parameters& Kernel64::GetParameters() const {

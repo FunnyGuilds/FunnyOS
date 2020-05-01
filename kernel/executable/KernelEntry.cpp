@@ -17,5 +17,6 @@ extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
         : "rbp");
 #endif
 
-    FunnyOS::Kernel::Kernel64::Get().Initialize(*parameters);
+    FunnyOS::Kernel::Kernel64::Get().Main(*parameters);
+    F_NO_RETURN;
 }

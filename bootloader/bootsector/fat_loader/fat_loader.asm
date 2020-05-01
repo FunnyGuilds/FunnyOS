@@ -1,4 +1,4 @@
-%define BOOTLOADER_MAGIC                0x46554E42
+%include "config.asm"
 
 %macro push_addr_16 1
     %if __BITS__ == 16
@@ -213,6 +213,3 @@ SECTION .bss
 
     load_from_disk__lba:                  resd 1
     load_from_disk__buffer:               resd 0x200
-
-SECTION .magic
-    dd 0x46554E42

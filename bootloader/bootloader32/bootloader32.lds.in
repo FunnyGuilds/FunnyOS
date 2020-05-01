@@ -2,7 +2,7 @@ OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
-    . = 0x4000;
+    . = @F_BOOTLOADER_MEMORY_LOCATION@;
 
     .intro :
     {
@@ -19,34 +19,34 @@ SECTIONS
         *(.text*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .rodata :
     {
         *(.rodata*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .data :
     {
         *(.data*)
     }
 
-    . = ALIGN(0x400);
+    . = ALIGN(0x200);
 
     .bss :
     {
         *(.bss*)
     }
 
-    . = 0x4000 + 128 * 0x200 - 4;
+    . = @F_BOOTLOADER_MEMORY_LOCATION@ + @F_BOOTLOADER_SIZE_IN_SECTORS@ * 0x200 - 4;
 
     .magic :
     {
-        KEEP(*(.magic))
+        LONG(@F_BOOTLOADER_MAGIC@);
     }
 
     . = ADDR(.bss) + SIZEOF(.bss);
-    . = ALIGN(0x400);
+    . = ALIGN(0x40);
 }

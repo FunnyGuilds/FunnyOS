@@ -1,9 +1,7 @@
 ;
 ; Stage1 Bootloader code
 ;
-%define BOOTLOADER_SIZE_IN_SECTORS      16
-%define BOOTLOADER_MAGIC                0x46554E42
-
+%include "config.asm"
 
 [bits 16]
 
@@ -77,18 +75,18 @@ SECTION .intro
         mov [bootloader_lbs], eax
 
         mov si, bootloader_lbs
-        mov bx, 0x500
-        mov cl, BOOTLOADER_SIZE_IN_SECTORS
+        mov bx, F_FATLOADER_MEMORY_LOCATION
+        mov cl, F_FATLOADER_SIZE_IN_SECTORS
         call load_lba
         jc error
 
         ; Magic check
         mov ah, 0xFD
-        cmp dword [0x500 + BOOTLOADER_SIZE_IN_SECTORS * 0x200 - 4], BOOTLOADER_MAGIC
+        cmp dword [F_FATLOADER_MEMORY_LOCATION + F_FATLOADER_SIZE_IN_SECTORS * 0x200 - 4], F_FATLOADER_MAGIC
         jne error
 
         ; Jump to bootloader
-        jmp 0x00:0x500
+        jmp 0x00:F_FATLOADER_MEMORY_LOCATION
 
 SECTION .rodata
     message_booting:     db "FunnyOS Bootloader", 0

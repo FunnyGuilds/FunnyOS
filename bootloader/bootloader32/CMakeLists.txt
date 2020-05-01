@@ -1,3 +1,15 @@
+# Config
+configure_file(
+        BootloaderConfig.hpp.in
+        ${CMAKE_CURRENT_BINARY_DIR}/config/BootloaderConfig.hpp
+        @ONLY
+)
+configure_file(
+        bootloader32.lds.in
+        ${CMAKE_CURRENT_BINARY_DIR}/bootloader32.lds
+        @ONLY
+)
+
 # Build ASM objects
 add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
         asm/make_memory_map.asm
@@ -24,7 +36,12 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/Sleep.cpp
 )
 
-custom_link(FunnyOS_Bootloader_Bootloader32 "${CMAKE_CURRENT_SOURCE_DIR}/bootloader32.lds")
+target_include_directories(FunnyOS_Bootloader_Bootloader32
+        PUBLIC
+            "${CMAKE_CURRENT_BINARY_DIR}/config/"
+)
+
+custom_link(FunnyOS_Bootloader_Bootloader32 "${CMAKE_CURRENT_BINARY_DIR}/bootloader32.lds")
 target_output_filename(FunnyOS_Bootloader_Bootloader32 bootloader32.elf)
 target_link_options(FunnyOS_Bootloader_Bootloader32 PRIVATE -m32 -Wl,--gc-sections)
 

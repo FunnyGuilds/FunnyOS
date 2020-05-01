@@ -1,6 +1,7 @@
 #include <FunnyOS/QuickFat/QuickFat.h>
 
 #include <stdnoreturn.h>
+#include <config.h>
 
 /**
  * Size of a sector in bytes.
@@ -11,12 +12,6 @@
  * Name of the file to boot
  */
 #define FILE_NAME "/boot/bootload32"
-#define FILE_MAGIC 0x46554E42
-
-/**
- * Location of where to put the bootloader in memory.
- */
-#define LOCATION 0x4000
 
 // Boot parameters
 extern uint8_t g_boot_partition;
@@ -137,19 +132,19 @@ noreturn void fat_loader(void) {
 
     // Read file
     fl_print(" * File found. Loading... \n\r");
-    if ((error = quickfat_read_file(&context, &file, (void*)LOCATION)) != 0) {
+    if ((error = quickfat_read_file(&context, &file, (void*)F_BOOTLOADER_MEMORY_LOCATION)) != 0) {
         fl_error(error);
     }
 
     // Verify
     fl_print(" * File loaded. Verifying... \n\r");
-    uint32_t* magic_location = (uint32_t*)(((uint8_t*)LOCATION) + file.size - 4);
+    uint32_t* magic_location = (uint32_t*)(((uint8_t*)F_BOOTLOADER_MEMORY_LOCATION) + file.size - 4);
 
     // Die, horribly
-    if (*magic_location != FILE_MAGIC) {
+    if (*magic_location != F_BOOTLOADER_MAGIC) {
         fl_print(" ** Verification failed. \n\r");
         fl_error(1);
     }
 
-    fl_jump_to_bootloader((void*)LOCATION);
+    fl_jump_to_bootloader((void*)F_BOOTLOADER_MEMORY_LOCATION);
 }

@@ -4,11 +4,11 @@ ENTRY(fkrnl_entry)
 
 SECTIONS
 {
-    . = 0x00000E0000000000;
+    . = @F_KERNEL_VIRTUAL_ADDRESS@;
 
     .kernel_stack (NOLOAD) :
     {
-        . = . + @KERNEL_STACK_SIZE_KB@ * 1024;
+        . = . + @F_KERNEL_STACK_SIZE_KB@ * 1024;
         KERNEL_STACK_TOP = .;
     }
 

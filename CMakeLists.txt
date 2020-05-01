@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 project(FunnyOS C CXX ASM_NASM)
-
-# Version
-set(FUNNYOS_VERSION 1.0.0)
+include(Config.cmake)
 
 # CMake modules
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -62,4 +60,5 @@ add_subdirectory("misc")
 add_subdirectory("bootloader")
 add_subdirectory("kernel")
 add_subdirectory("drivers")
+add_subdirectory("scripts")
 add_subdirectory("targets")

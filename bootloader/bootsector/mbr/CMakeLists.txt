@@ -1,7 +1,10 @@
 add_executable(FunnyOS_Bootloader_MBR
-        ./../commons/load_lba.asm
-        ./../commons/print.asm
         mbr.asm
+)
+
+target_link_libraries(FunnyOS_Bootloader_MBR
+        PUBLIC
+            FunnyOS_Bootloader_Commons_ASM
 )
 
 custom_link(FunnyOS_Bootloader_MBR "${CMAKE_CURRENT_SOURCE_DIR}/mbr.lds")

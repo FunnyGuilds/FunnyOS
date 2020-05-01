@@ -9,7 +9,7 @@ namespace FunnyOS::Kernel {
        public:
         static Kernel64& Get();
 
-        void Initialize(Bootparams::Parameters& parameters);
+        [[noreturn]] void Main(Bootparams::Parameters& parameters);
 
         [[nodiscard]] const Bootparams::Parameters& GetParameters() const;
 
