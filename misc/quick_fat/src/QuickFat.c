@@ -1,6 +1,7 @@
 #include <FunnyOS/QuickFat/QuickFat.h>
 
 #define QUICK_FAT_LFN_ATTR 0x0F
+#define QUICK_FAT_SECTOR_SIZE 0x200
 
 typedef struct PACKED {
     uint8_t drive_attributes;
@@ -74,13 +75,14 @@ static int quickfat_do_read(QuickFat_Context* context, uint32_t lba, uint32_t co
     return context->read_function(context->read_function_data, lba, count, out);
 }
 
-static uint8_t g_sectorBuffer[512];
+static uint8_t g_sectorBuffer[QUICK_FAT_SECTOR_SIZE];
+static uint32_t clusters[QUICK_FAT_SECTOR_SIZE / sizeof(uint32_t)];
+static uint32_t last_cluster_sector = 0xFFFFFFFF;
 
 int quickfat_init_context(QuickFat_Context* context, const QuickFat_initialization_data* init) {
     context->read_function = init->read_function;
     context->read_function_data = init->read_function_data;
-    context->sector_size = init->sector_size;
-    context->entries_per_sector = context->sector_size / 32;
+    context->entries_per_sector = QUICK_FAT_SECTOR_SIZE / 32;
 
     int error;
 
@@ -169,16 +171,17 @@ static int quickfat_strnequal(const char* str1, const char* str2, unsigned int s
  * Loads cluster entry [number] from the first FAT.
  */
 static int quickfat_load_fat_cluster_from_map(QuickFat_Context* context, uint32_t number, uint32_t* out) {
-    uint32_t sector = number / (context->sector_size / 4);
-    uint32_t offset = number % (context->sector_size / 4);
+    uint32_t sector = number / (QUICK_FAT_SECTOR_SIZE / sizeof(uint32_t));
+    uint32_t offset = number % (QUICK_FAT_SECTOR_SIZE / sizeof(uint32_t));
 
-    int error;
+    if (last_cluster_sector != sector) {
+        int error;
+        if ((error = quickfat_do_read(context, context->fat_start_lba + sector, 1, (uint8_t*)clusters)) != 0) {
+            return QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP | error;
+        }
 
-    if ((error = quickfat_do_read(context, context->fat_start_lba + sector, 1, (uint8_t*)&g_sectorBuffer)) != 0) {
-        return QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP | error;
+        last_cluster_sector = sector;
     }
-
-    uint32_t* clusters = (uint32_t*)&g_sectorBuffer;
 
     *out = clusters[offset] & 0x0FFFFFFF;
     return 0;
@@ -192,11 +195,49 @@ static int quickfat_load_fat_cluster_from_map(QuickFat_Context* context, uint32_
 static int quickfat_load_fat_cluster_to_memory(QuickFat_Context* context, uint32_t cluster_number, uint32_t count,
                                                uint8_t* buffer) {
     int error;
+    uint32_t buffer_offset = 0;
 
-    const unsigned int cluster_lba = context->data_start_lba + (cluster_number - 2) * context->sectors_per_cluster;
+    while (count > 0) {
+        uint32_t current_read = 1;
 
-    if ((error = quickfat_do_read(context, cluster_lba, count, buffer)) != 0) {
-        return QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER | error;
+        // find how many consecutive clusters there are
+        for (size_t i = 0; i < count - 1; i++) {
+            uint32_t next_cluster;
+
+            if ((error = quickfat_load_fat_cluster_from_map(context, cluster_number + i, &next_cluster)) != 0) {
+                return QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP | error;
+            }
+
+            if (next_cluster != cluster_number + i + 1) {
+                break;
+            }
+
+            current_read++;
+        }
+
+        // do read
+        const uint32_t cluster_lba = context->data_start_lba + (cluster_number - 2) * context->sectors_per_cluster;
+        const uint32_t last_read_cluster = cluster_number + current_read - 1;
+
+        if ((error = quickfat_do_read(context, cluster_lba, current_read, buffer + buffer_offset)) != 0) {
+            return QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER | error;
+        }
+
+        // fetch next cluster
+        if ((error = quickfat_load_fat_cluster_from_map(context, last_read_cluster, &cluster_number)) != 0) {
+            return QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP | error;
+        }
+
+        count -= current_read;
+        buffer_offset += current_read * context->sectors_per_cluster * QUICK_FAT_SECTOR_SIZE;
+
+        if (cluster_number < 0x00000002 || cluster_number > 0x0FFFFEF) {
+            if (count == 0) {
+                return 0;
+            }
+
+            return QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER | 0xFF;
+        }
     }
 
     return 0;
@@ -286,8 +327,8 @@ int quickfat_open_file_in(QuickFat_Context* context, QuickFat_File* directory, Q
 
     file->cluster = file_entry->cluster_num_high << 16 | file_entry->cluster_num_low;
     file->size = file_entry->file_size_bytes;
-    file->sector_size = file_entry->file_size_bytes / context->sector_size;
-    if ((file_entry->file_size_bytes % context->sector_size) != 0) {
+    file->sector_size = file_entry->file_size_bytes / QUICK_FAT_SECTOR_SIZE;
+    if ((file_entry->file_size_bytes % QUICK_FAT_SECTOR_SIZE) != 0) {
         file->sector_size++;
     }
 
@@ -343,7 +384,7 @@ int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* des
     int error;
 
     // File is sector-aligned
-    if ((file->size % context->sector_size) == 0) {
+    if ((file->size % QUICK_FAT_SECTOR_SIZE) == 0) {
         return quickfat_load_fat_cluster_to_memory(context, file->cluster, file->sector_size, destination);
     }
 
@@ -356,7 +397,7 @@ int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* des
             return error;
         }
 
-        destination += context->sector_size * initial_sector_read_size;
+        destination += QUICK_FAT_SECTOR_SIZE * initial_sector_read_size;
     }
 
     // Read the rest
@@ -366,7 +407,7 @@ int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* des
         return error;
     }
 
-    quickfat_memcpy(destination, &g_sectorBuffer, file->size % context->sector_size);
+    quickfat_memcpy(destination, &g_sectorBuffer, file->size % QUICK_FAT_SECTOR_SIZE);
 
     return error;
 }

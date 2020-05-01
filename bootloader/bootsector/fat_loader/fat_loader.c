@@ -81,7 +81,9 @@ noreturn void fl_error(int error_code) {
 /**
  * Wrapper for fl_load_from_disk for QuickFat
  */
-extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, uint8_t* out) {
+extern int fl_load_from_disk_wrapper(void* unused, uint32_t lba, uint32_t count, uint8_t* out) {
+    (void)unused;
+
     int error;
     uint8_t* tmp_buf = NULL;
 
@@ -90,12 +92,11 @@ extern int fl_load_from_disk_wrapper(void* data, uint32_t lba, uint32_t count, u
             return error;
         }
 
-        const uint32_t sector_size = ((QuickFat_Context*)data)->sector_size;
-        for (uint32_t j = 0; j < sector_size; j++) {
+        for (uint32_t j = 0; j < 0x200; j++) {
             out[j] = tmp_buf[j];
         }
 
-        out += sector_size;
+        out += 0x200;
     }
 
     return 0;
@@ -111,9 +112,7 @@ noreturn void fat_loader(void) {
     fl_print(" * Initializing the QuickFat library\r\n");
     QuickFat_Context context;
     QuickFat_initialization_data init;
-    init.sector_size = SECTOR_SIZE;
     init.partition_entry = g_boot_partition;
-    init.read_function_data = &context;
     init.read_function = fl_load_from_disk_wrapper;
 
     int error;

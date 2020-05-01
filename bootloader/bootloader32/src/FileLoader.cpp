@@ -11,7 +11,6 @@ namespace FunnyOS::Bootloader32 {
         initData.read_function = &FileLoader::QuickFatRead;
         initData.read_function_data = this;
         initData.partition_entry = partition;
-        initData.sector_size = driveInterface.GetSectorSize();
 
         DieOnError("initializing the QuickFat context", quickfat_init_context(&m_quickFatContext, &initData));
     }

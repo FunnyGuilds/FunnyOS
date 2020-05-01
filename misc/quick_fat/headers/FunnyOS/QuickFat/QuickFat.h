@@ -43,7 +43,6 @@ typedef int (*QuickFat_ReadFunction)(void* data, uint32_t lba, uint32_t count, u
 typedef struct {
     QuickFat_ReadFunction read_function;
     void* read_function_data;
-    uint32_t sector_size;
     uint32_t partition_start_lba;
     uint32_t entries_per_sector;
     uint8_t sectors_per_cluster;
@@ -60,11 +59,6 @@ typedef struct {
  * Data for quickfat_init_context.
  */
 typedef struct {
-    /**
-     * Size of a sector.
-     */
-    uint32_t sector_size;
-
     /**
      * Partition entry number of the bootable partition in the MBR.
      *
