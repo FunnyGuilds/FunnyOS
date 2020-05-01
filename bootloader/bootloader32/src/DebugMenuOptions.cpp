@@ -1,8 +1,8 @@
 #include "DebugMenuOptions.hpp"
 
-#include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
 #include "DebugMenu.hpp"
+#include "DriveInterface.hpp"
 #include "ElfLoader.hpp"
 #include "FileLoader.hpp"
 
@@ -174,7 +174,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         Logging::GetTerminalManager()->ClearScreen();
 
         const auto& args = Bootloader::Get().GetBootloaderParameters();
-        Driver::Drive::BiosDriveInterface interface(args.BootInfo.BootDriveNumber);
+        DriveInterface interface(args.BootInfo.BootDriveNumber);
 
         FB_LOG_INFO("Boot drive parameters");
         FB_LOG_INFO_F("     - DriveIdentification = 0x%02x", interface.GetDriveIdentification());

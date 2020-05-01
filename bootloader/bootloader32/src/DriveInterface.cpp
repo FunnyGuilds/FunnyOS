@@ -1,10 +1,10 @@
-#include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
+#include "DriveInterface.hpp"
 
 #include <FunnyOS/Stdlib/Algorithm.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
-#include <FunnyOS/Hardware/RealMode.hpp>
+#include "RealMode.hpp"
 
-namespace FunnyOS::Driver::Drive {
+namespace FunnyOS::Bootloader32 {
     struct EDDParameters {
         uint16_t BufferSize;
         uint16_t InformationFlags;
@@ -47,23 +47,23 @@ namespace FunnyOS::Driver::Drive {
         }
     }  // namespace
 
-    BiosDriveInterface::BiosDriveInterface(DriveIdentification drive) : m_drive(drive) {
+    DriveInterface::DriveInterface(DriveIdentification drive) : m_drive(drive) {
         Query();
     }
 
-    DriveIdentification BiosDriveInterface::GetDriveIdentification() const {
+    DriveIdentification DriveInterface::GetDriveIdentification() const {
         return m_drive;
     }
 
-    SectorNumber BiosDriveInterface::GetTotalSectorCount() const {
+    SectorNumber DriveInterface::GetTotalSectorCount() const {
         return m_sectorCount;
     }
 
-    size_t BiosDriveInterface::GetSectorSize() const {
+    size_t DriveInterface::GetSectorSize() const {
         return m_sectorSize;
     }
 
-    void BiosDriveInterface::ReadSectors(SectorNumber sector, SectorNumber count,
+    void DriveInterface::ReadSectors(SectorNumber sector, SectorNumber count,
                                          Memory::SizedBuffer<uint8_t>& buffer) {
         if (buffer.Size < count * GetSectorSize()) {
             F_ERROR_WITH_MESSAGE(DriveInterfaceException, "buffer to small to hold all sectors");
@@ -149,7 +149,7 @@ namespace FunnyOS::Driver::Drive {
         }
     }
 
-    void BiosDriveInterface::Query() {
+    void DriveInterface::Query() {
         // Int13 extension installation check
         Registers16 regs;
         regs.AX.Value8.High = 0x41;
@@ -200,7 +200,7 @@ namespace FunnyOS::Driver::Drive {
         }
     }
 
-    void BiosDriveInterface::DoExtendedRead(const char* when) const {
+    void DriveInterface::DoExtendedRead(const char* when) const {
         g_eddPacket.PacketSize = sizeof(EDDDiskPacket);
         g_eddPacket.Reserved = 0;
         g_eddPacket.Unused[0] = 0;
@@ -215,27 +215,27 @@ namespace FunnyOS::Driver::Drive {
         CheckErrors(when, regs);
     }
 
-    bool BiosDriveInterface::HasExtendedDiskAccess() const {
+    bool DriveInterface::HasExtendedDiskAccess() const {
         return m_hasExtendedDiskAccess;
     }
 
-    bool BiosDriveInterface::HasEnhancedDiskDriveFunctions() const {
+    bool DriveInterface::HasEnhancedDiskDriveFunctions() const {
         return m_hasEnhancedDiskDriveFunctions;
     }
 
-    bool BiosDriveInterface::SupportsFlat64Addresses() const {
+    bool DriveInterface::SupportsFlat64Addresses() const {
         return m_supportsFlat64Addresses;
     }
 
-    uint8_t BiosDriveInterface::GetSectorsPerTrack() const {
+    uint8_t DriveInterface::GetSectorsPerTrack() const {
         return m_sectorsPerTrack;
     }
 
-    uint16_t BiosDriveInterface::GetMaxCylinderNumber() const {
+    uint16_t DriveInterface::GetMaxCylinderNumber() const {
         return m_maxCylinderNumber;
     }
 
-    uint8_t BiosDriveInterface::GetHeadsPerCylinder() const {
+    uint8_t DriveInterface::GetHeadsPerCylinder() const {
         return m_headsPerCylinder;
     }
-}  // namespace FunnyOS::Driver::Drive
+}  // namespace FunnyOS::Bootloader32

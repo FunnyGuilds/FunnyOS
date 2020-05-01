@@ -20,8 +20,6 @@ namespace FunnyOS::HW::Serial {
 
     bool InitializeCOMPort(COMPort port, DataBits data, StopBits stop, ParityBits parity, uint32_t baud);
 
-    void SerialInterruptHandler(InterruptData *data);
-
     bool CanWrite(COMPort port);
 
     void Write(COMPort port, uint8_t byte);

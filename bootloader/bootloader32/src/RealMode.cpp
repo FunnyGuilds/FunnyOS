@@ -1,21 +1,16 @@
-#include <FunnyOS/Hardware/RealMode.hpp>
+#include "RealMode.hpp"
 
 #include <FunnyOS/Hardware/Interrupts.hpp>
 
-extern FunnyOS::HW::GDTInfo g_gdtInfo;
-extern FunnyOS::HW::Registers16 g_savedRegisters;
+// Defined in real_mode.asm
+extern FunnyOS::Bootloader32::Registers16 g_savedRegisters;
 extern uint8_t g_realBuffer;
 extern uint8_t g_realBufferTop;
 
 F_CDECL extern void do_real_mode_interrupt();
 
-// TODO: Synchronization of some sort.
-
-namespace FunnyOS::HW {
-
-    void SetupRealModeInterrupts(GDTInfo gdtInfo) {
-        g_gdtInfo = gdtInfo;
-    }
+namespace FunnyOS::Bootloader32 {
+    using namespace Stdlib;
 
     Memory::SizedBuffer<uint8_t>& GetRealModeBuffer() {
         static Memory::SizedBuffer<uint8_t> c_realModeBuffer{
@@ -35,9 +30,6 @@ namespace FunnyOS::HW {
         HW::NoInterruptsBlock noInterrupts;
         Memory::Copy(static_cast<void*>(&g_savedRegisters), static_cast<void*>(&registers), sizeof(Registers16));
 
-#ifdef F_64
-        // TODO: 64-bit mode support
-#else
 #ifdef __GNUC__
         asm(
             // Save state
@@ -61,9 +53,8 @@ namespace FunnyOS::HW {
             :
             : "a"(static_cast<uintmax_t>(interrupt)));
 #endif
-#endif
 
         Memory::Copy(static_cast<void*>(&registers), static_cast<void*>(&g_savedRegisters), sizeof(Registers16));
     }
 
-}  // namespace FunnyOS::HW
+}  // namespace FunnyOS::Bootloader32

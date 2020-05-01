@@ -6,10 +6,9 @@
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
-#include <FunnyOS/Hardware/RealMode.hpp>
-#include <FunnyOS/Driver/Drive/BiosDriveInterface.hpp>
 #include "A20Line.hpp"
 #include "DebugMenu.hpp"
+#include "DriveInterface.hpp"
 #include "ElfLoader.hpp"
 #include "Interrupts.hpp"
 #include "Logging.hpp"
@@ -19,6 +18,11 @@
 // Defined in real_mode_intro.asm
 extern FunnyOS::Bootparams::BootDriveInfo g_bootInfo;
 extern FunnyOS::Bootparams::MemoryMapDescription g_memoryMap;
+
+// Linker symbols
+extern void* REAL_CODE_START;
+extern void* REAL_BUFFER_START;
+extern void* REAL_BUFFER_END;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
@@ -103,14 +107,6 @@ namespace FunnyOS::Bootloader32 {
         GetAllocator().Initialize(0x00040000, 0x0007FFFF);
         SetupInterrupts();
         SetupPIT();
-
-        HW::SetupRealModeInterrupts({
-            .SelectorCode32 = 0x08 * 1,
-            .SelectorData32 = 0x08 * 2,
-            .SelectorCode16 = 0x08 * 3,
-            .SelectorData16 = 0x08 * 4,
-        });
-
         Logging::InitSerialLogging();
 
         FB_LOG_INFO("FunnyOS Bootloader, hello!");
@@ -188,7 +184,7 @@ namespace FunnyOS::Bootloader32 {
         highMemoryAllocator.Initialize(kernelMem.BaseAddress, kernelMem.BaseAddress + kernelMem.Length - 1);
 
         // Prepare drive interface and file loader
-        Driver::Drive::BiosDriveInterface driveInterface(GetBootloaderParameters().BootInfo.BootDriveNumber);
+        DriveInterface driveInterface(GetBootloaderParameters().BootInfo.BootDriveNumber);
         FileLoader bootPartitionFileLoader(driveInterface, GetBootloaderParameters().BootInfo.BootPartition);
 
         // Load env 64

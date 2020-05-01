@@ -1,7 +1,6 @@
 #include <FunnyOS/Hardware/Interrupts.hpp>
 
 #include <FunnyOS/Hardware/PIC.hpp>
-#include "InterruptSetup/InterruptSetup.hpp"
 
 using namespace FunnyOS::Stdlib;
 
@@ -49,47 +48,6 @@ namespace FunnyOS::HW {
         }
 
         return Stdlib::EmptyOptional<const char*>();
-    }
-
-    namespace {
-        InterruptHandler g_interruptHandlers[INTERRUPTS_COUNT];
-        InterruptHandler g_unknownInterruptHandler;
-
-        void InterruptHandlerSelector(InterruptData* data) {
-            const InterruptType type = data->Type;
-            InterruptHandler handler = g_interruptHandlers[static_cast<int>(data->Type)];
-
-            if (handler == nullptr) {
-                handler = g_unknownInterruptHandler;
-            }
-
-            handler(data);
-
-            // Send PIC End of interrupt command.
-            if (PIC::IsPICInterrupt(type)) {
-                if (!PIC::IsMasterPICInterrupt(type)) {
-                    PIC::SendEndOfInterrupt(false);
-                }
-
-                PIC::SendEndOfInterrupt(true);
-            }
-        }
-    }  // namespace
-
-    void RegisterInterruptHandler(InterruptType type, InterruptHandler handler) {
-        g_interruptHandlers[static_cast<int>(type)] = handler;
-    }
-
-    void UnregisterInterruptHandler(InterruptType type) {
-        RegisterInterruptHandler(type, nullptr);
-    }
-
-    void RegisterUnknownInterruptHandler(InterruptHandler handler) {
-        g_unknownInterruptHandler = handler;
-    }
-
-    void SetupInterrupts() {
-        InterruptSetup::SetupInterruptTable(&InterruptHandlerSelector);
     }
 
     NoInterruptsBlock::NoInterruptsBlock()

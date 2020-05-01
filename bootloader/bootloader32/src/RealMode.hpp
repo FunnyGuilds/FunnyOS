@@ -1,14 +1,12 @@
-#ifndef FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_REALMODE_HPP
-#define FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_REALMODE_HPP
+#ifndef FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_REALMODE_HPP
+#define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_REALMODE_HPP
 
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
-namespace FunnyOS::HW {
-    using namespace Stdlib;
-
+namespace FunnyOS::Bootloader32 {
     /**
      * Represents a 16-bit register.
      */
@@ -46,45 +44,12 @@ namespace FunnyOS::HW {
     } F_DONT_ALIGN;
 
     /**
-     * Information required for the real mode interrupt function to work.
-     */
-    struct GDTInfo {
-        /**
-         * Selector for the GDT entry containing a entry for 32-bit code descriptor.
-         */
-        uint16_t SelectorCode32;
-
-        /**
-         * Selector for the GDT entry containing a entry for 32-bit data descriptor.
-         */
-        uint16_t SelectorData32;
-
-        /**
-         * Selector for the GDT entry containing a entry for 16-bit code descriptor.
-         */
-        uint16_t SelectorCode16;
-
-        /**
-         * Selector for the GDT entry containing a entry for 16-bit data descriptor.
-         */
-        uint16_t SelectorData16;
-    } F_DONT_ALIGN;
-
-    /**
-     * Updates up the internal GDTInfo structure to support the real mode interrupt function.
-     * It assumes a flat memory model.
-     *
-     * @param gdtInfo GDTInfo structure to be used
-     */
-    void SetupRealModeInterrupts(GDTInfo gdtInfo);
-
-    /**
      * Gets a buffer that is guaranteed to be fully located below the 1 MB mark and thus fully accessible in real mode.
      * Size of the buffer is implementation defined.
      *
      * @return real mode buffer
      */
-    Memory::SizedBuffer<uint8_t>& GetRealModeBuffer();
+    Stdlib::Memory::SizedBuffer<uint8_t>& GetRealModeBuffer();
 
     /**
      * Gets the address of real mode buffer (see GetRealModeBuffer()) in a segment:offset form.
@@ -103,6 +68,6 @@ namespace FunnyOS::HW {
      */
     void RealModeInt(uint8_t interrupt, Registers16& registers);
 
-}  // namespace FunnyOS::HW
+}  // namespace FunnyOS::Bootloader32
 
-#endif  // FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_REALMODE_HPP
+#endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_REALMODE_HPP

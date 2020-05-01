@@ -21,7 +21,7 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
-    void PITInterruptHandler(HW::InterruptData* /*unused*/) {
+    void PITInterruptHandler(InterruptData* /*unused*/) {
         if (sleepTimer == 0) {
             return;
         }

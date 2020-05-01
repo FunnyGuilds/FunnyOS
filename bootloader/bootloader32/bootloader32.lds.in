@@ -9,10 +9,19 @@ SECTIONS
         KEEP(*(.intro))
     }
 
-    .real :
+    .real.text :
     {
-        *(.real*)
+        *(.real.text*)
     }
+
+    . = ALIGN(0x200);
+
+    .real.data :
+    {
+        *(.real.data*)
+    }
+
+    . = ALIGN(0x200);
 
     .text :
     {
@@ -48,5 +57,5 @@ SECTIONS
     }
 
     . = ADDR(.bss) + SIZEOF(.bss);
-    . = ALIGN(0x40);
+    . = ALIGN(0x200);
 }

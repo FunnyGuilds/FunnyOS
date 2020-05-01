@@ -1,11 +1,11 @@
-#ifndef FUNNYOS_DRIVERS_DRIVE_BIOS_BIOSDRIVEINTERFACE_HPP
-#define FUNNYOS_DRIVERS_DRIVE_BIOS_BIOSDRIVEINTERFACE_HPP
+#ifndef FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DRIVEINTERFACE_HPP
+#define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DRIVEINTERFACE_HPP
 
 #include <FunnyOS/Hardware/Drive/DriveInterface.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
-namespace FunnyOS::Driver::Drive {
+namespace FunnyOS::Bootloader32 {
     using namespace HW;
     using namespace Stdlib;
 
@@ -14,14 +14,14 @@ namespace FunnyOS::Driver::Drive {
      *
      * Supports and defaults to the Enhanced Disk Drive 3.0 specification if available.
      */
-    class BiosDriveInterface : public IDriveInterface {
+    class DriveInterface : public IDriveInterface {
        public:
         /**
          * Setups a new drive interface for the drive identified by the given ID.
          *
          * @param drive drive identification number.
          */
-        explicit BiosDriveInterface(DriveIdentification drive);
+        explicit DriveInterface(DriveIdentification drive);
 
        public:
         [[nodiscard]] DriveIdentification GetDriveIdentification() const override;
@@ -88,6 +88,6 @@ namespace FunnyOS::Driver::Drive {
         uint8_t m_headsPerCylinder = 0;
     };
 
-}  // namespace FunnyOS::Driver::Drive
+}  // namespace FunnyOS::Bootloader32
 
-#endif  // FUNNYOS_DRIVERS_DRIVE_BIOS_BIOSDRIVEINTERFACE_HPP
+#endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_DRIVEINTERFACE_HPP

@@ -1,12 +1,4 @@
-%ifidn __OUTPUT_FORMAT__, elf
-    [bits 32]
-%elifidn __OUTPUT_FORMAT__, elf64
-    [bits 64]
-%else
-    %fatal "Unknown output format"
-%endif
-
-DEFAULT rel
+[bits 32]
 
 SECTION .text
     ; Define an ISR
@@ -58,8 +50,8 @@ SECTION .text
         %fatal "Invalid interrupt routines size"
     %endif
 
-%if __BITS__ == 32
-    %macro PUSH_REGISTERS 0
+    EXTERN interrupt_routine
+    isr_routine:
         push edi
         push esi
         push ebp
@@ -68,9 +60,7 @@ SECTION .text
         push edx
         push ecx
         push eax
-    %endmacro
-
-    %macro POP_REGISTERS 0
+        call interrupt_routine
         pop eax
         pop ecx
         pop edx
@@ -79,53 +69,14 @@ SECTION .text
         pop ebp
         pop esi
         pop edi
-    %endmacro
-
-%elif __BITS__ == 64
-    %macro PUSH_REGISTERS 0
-        ; TODO
-    %endmacro
-
-    %macro POP_REGISTERS 0
-        ; TODO
-    %endmacro
-%endif
-
-    GLOBAL setup_routines:function
-    setup_routines:
-        %if __BITS__ == 32
-            push eax
-            push ebx
-            mov ebx, [esp + 4 * 3]
-            mov eax, [ebx]
-            mov [interrupt_routine], eax
-            lea eax, [REL isr_routine0]
-            mov [ebx + 4], eax
-            mov [ebx + 8], byte (isr_routine1 - isr_routine0)
-            pop ebx
-            pop eax
-            ret
-        %elif __BITS__ == 64
-        %endif
-
-    interrupt_routine:
-        %if __BITS__ == 32
-            dd 1
-        %elif __BITS__ == 64
-            dq 1
-        %endif
-
-    isr_routine:
-        PUSH_REGISTERS
-        call [interrupt_routine]
-        POP_REGISTERS
 
         ; Cleanup the values pushed in ISR_HANDLER
+        add esp, 4 * 2
+        iretd
 
-        %if __BITS__ == 32
-            add esp, 4 * 2
-            iretd
-        %elif __BITS__ == 64
-            add rsp, 8 * 2
-            iretq
-        %endif
+SECTION .rodata
+    GLOBAL g_firstRoutineAddress
+    g_firstRoutineAddress: dd isr_routine0
+
+    GLOBAL g_interruptRoutineSize
+    g_interruptRoutineSize: dd isr_routine1 - isr_routine0

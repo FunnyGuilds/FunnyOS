@@ -12,7 +12,9 @@ configure_file(
 
 # Build ASM objects
 add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
+        asm/interrupt_setup.asm
         asm/make_memory_map.asm
+        asm/real_mode.asm
         asm/real_mode_intro.asm
         asm/start.asm
 )
@@ -27,12 +29,15 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/BootloaderStdlibPlatformImpl.cpp
         src/DebugMenu.cpp
         src/DebugMenuOptions.cpp
+        src/DriveInterface.cpp
         src/ElfLoader.cpp
         src/Entry.cpp
         src/FileLoader.cpp
         src/Interrupts.cpp
+        src/InterruptSetup.cpp
         src/Logging.cpp
         src/Paging.cpp
+        src/RealMode.cpp
         src/Sleep.cpp
 )
 
@@ -53,7 +58,6 @@ target_link_libraries(FunnyOS_Bootloader_Bootloader32
             FunnyOS_Misc_MemoryAllocator32
             FunnyOS_Misc_TerminalManager32
             FunnyOS_Misc_QuickFat32
-            FunnyOS_Driver_Drive_BIOS32
 )
 
 

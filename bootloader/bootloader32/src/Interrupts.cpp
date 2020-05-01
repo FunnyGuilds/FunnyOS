@@ -7,6 +7,7 @@
 
 #include "Bootloader32.hpp"
 #include "DebugMenu.hpp"
+#include "InterruptSetup.hpp"
 #include "Logging.hpp"
 #include "Sleep.hpp"
 
@@ -15,16 +16,39 @@ namespace FunnyOS::Bootloader32 {
 
     namespace {
         bool g_isPausing = false;
-    }
 
-    inline void DecodeEflagPart(String::StringBuffer& buf, HW::Register flags, HW::CPU::Flags flag, const char* str) {
+        InterruptHandler g_interruptHandlers[HW::INTERRUPTS_COUNT];
+        InterruptHandler g_unknownInterruptHandler;
+
+        void InterruptHandlerSelector(InterruptData* data) {
+            const HW::InterruptType type = data->Type;
+            InterruptHandler handler = g_interruptHandlers[static_cast<int>(data->Type)];
+
+            if (handler == nullptr) {
+                handler = g_unknownInterruptHandler;
+            }
+
+            handler(data);
+
+            // Send PIC End of interrupt command.
+            if (HW::PIC::IsPICInterrupt(type)) {
+                if (!HW::PIC::IsMasterPICInterrupt(type)) {
+                    HW::PIC::SendEndOfInterrupt(false);
+                }
+
+                HW::PIC::SendEndOfInterrupt(true);
+            }
+        }
+    }  // namespace
+
+    inline void DecodeEflagPart(String::StringBuffer& buf, Register flags, HW::CPU::Flags flag, const char* str) {
         if ((flags & static_cast<uintmax_t>(flag)) != 0) {
             String::Concat(buf, buf.Data, str);
             String::Concat(buf, buf.Data, " ");
         }
     }
 
-    void DecodeEflags(String::StringBuffer& buffer, HW::Register eflags) {
+    void DecodeEflags(String::StringBuffer& buffer, Register eflags) {
         using HW::CPU::Flags;
 
         DecodeEflagPart(buffer, eflags, Flags::CarryFlag, "CF");
@@ -47,7 +71,7 @@ namespace FunnyOS::Bootloader32 {
         DecodeEflagPart(buffer, eflags, Flags::CPUID_Supported, "ID");
     }
 
-    void UnknownInterruptHandler(HW::InterruptData* data) {
+    void UnknownInterruptHandler(InterruptData* data) {
         char interrupt[20];
         String::StringBuffer interruptBuffer = {interrupt, 20};
         char panic[384];
@@ -93,7 +117,7 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::Get().Panic(panicBuffer.Data);
     }
 
-    void Env64InterruptHandler(HW::InterruptData* data) {
+    void Env64InterruptHandler(InterruptData* data) {
         if (data->EAX == 0x01) {
             FB_LOG_DEBUG_F("ENV64 message: %s", data->ESI);
             return;
@@ -104,7 +128,7 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::Get().Panic(buffer.Data);
     }
 
-    void KeyboardHandler(HW::InterruptData* data) {
+    void KeyboardHandler(InterruptData* data) {
         using HW::PS2::ScanCode;
 
         ScanCode scanCode;
@@ -131,18 +155,31 @@ namespace FunnyOS::Bootloader32 {
     }
 
     void SetupInterrupts() {
-        HW::RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
+        RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
-        HW::RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType::IRQ_PIT_Interrupt, &PITInterruptHandler);
-        HW::RegisterInterruptHandler(HW::InterruptType::IRQ_KeyboardInterrupt, &KeyboardHandler);
+        RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_PIT_Interrupt, &PITInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_KeyboardInterrupt, &KeyboardHandler);
 
-        HW::SetupInterrupts();
+        SetupInterruptTable(&InterruptHandlerSelector);
+
         HW::PIC::Remap();
         HW::PIC::SetEnabledInterrupts(0b111);
 
         HW::EnableHardwareInterrupts();
         HW::EnableNonMaskableInterrupts();
+    }
+
+    void RegisterInterruptHandler(HW::InterruptType type, InterruptHandler handler) {
+        g_interruptHandlers[static_cast<int>(type)] = handler;
+    }
+
+    void UnregisterInterruptHandler(HW::InterruptType type) {
+        RegisterInterruptHandler(type, nullptr);
+    }
+
+    void RegisterUnknownInterruptHandler(InterruptHandler handler) {
+        g_unknownInterruptHandler = handler;
     }
 
     void Pause() {

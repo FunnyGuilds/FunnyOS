@@ -71,8 +71,6 @@ namespace FunnyOS::HW::Serial {
         return true;
     }
 
-    void SerialInterruptHandler(InterruptData* /*unused*/) {}
-
     bool CanWrite(COMPort port) {
         return (InputByte(GetPortNumber(port) + LINE_STATUS_REGISTER) & 0b0010'0000) != 0;
     }

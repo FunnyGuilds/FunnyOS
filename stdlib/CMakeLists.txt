@@ -38,6 +38,7 @@ function(setup_stdlib_variant name type)
     if (NOT LL_index EQUAL -1)
         target_compile_definitions(${name} PUBLIC F_LL=1)
         target_compile_options(${name} PUBLIC -mno-sse -fno-exceptions -fno-rtti)
+        target_compile_options(${name} PRIVATE -fdata-sections -ffunction-sections)
     endif()
 endfunction()
 
