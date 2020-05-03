@@ -41,6 +41,9 @@ SECTION .real.text
         mov ds, ax
         mov ss, ax
 
+        ; Store GDT because some BIOSes may trash it.
+        sgdt [g_storedGdt]
+
         ; Replace IDT for the interrupt
         sidt [g_storedIdt]
         lidt [g_biosIdt]
@@ -77,8 +80,9 @@ SECTION .real.text
         mov [saved_FS], fs
         mov [saved_GS], gs
 
-        ; Restore previous IDT
+        ; Restore previous IDT and GDT
         lidt [g_storedIdt]
+        lgdt [g_storedGdt]
 
         ; Back to protected
         mov eax, cr0
@@ -118,6 +122,11 @@ SECTION .real.data
 
     ; Temporary IDT storage.
     g_storedIdt:
+        dw 0x00
+        dd 0x00
+
+    ; Temporary GDT storage.
+    g_storedGdt:
         dw 0x00
         dd 0x00
 
