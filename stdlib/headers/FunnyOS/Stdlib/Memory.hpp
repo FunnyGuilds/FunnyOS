@@ -2,6 +2,7 @@
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MEMORY_HPP
 
 #include "IntegerTypes.hpp"
+#include "Functional.hpp"
 
 namespace FunnyOS::Stdlib::Memory {
 
@@ -12,6 +13,16 @@ namespace FunnyOS::Stdlib::Memory {
      */
     template <typename T>
     struct SizedBuffer {
+        /**
+         * Type used to iterate over this buffer.
+         */
+        using Iterator = T*;
+
+        /**
+         * A const type used to iterate over this buffer.
+         */
+        using ConstIterator = const T*;
+
         /**
          * Pointer to memory
          */
@@ -46,6 +57,36 @@ namespace FunnyOS::Stdlib::Memory {
          * @return pointer to that element
          */
         [[nodiscard]] inline T const* operator[](size_t index) const noexcept;
+
+        /**
+         * Returns an iterator pointing at the beginning of the buffer.
+         *
+         * @return iterator pointing at the beginning of the buffer.
+         */
+        [[nodiscard]] inline Iterator Begin() noexcept;
+
+        /**
+         * Returns an iterator pointing at the end of the buffer. (The element 1 after the last element of the buffer)
+         *
+         * @return iterator pointing at the end of the buffer.
+         */
+        [[nodiscard]] inline Iterator End() noexcept;
+
+        /**
+         * Returns an iterator pointing at the beginning of the buffer.
+         *
+         * @return iterator pointing at the beginning of the buffer.
+         */
+        [[nodiscard]] inline ConstIterator Begin() const noexcept;
+
+        /**
+         * Returns an iterator pointing at the end of the buffer. (The element 1 after the last element of the buffer)
+         *
+         * @return iterator pointing at the end of the buffer.
+         */
+        [[nodiscard]] inline ConstIterator End() const noexcept;
+
+        HAS_STANDARD_ITERATORS;
     };
 
     /**

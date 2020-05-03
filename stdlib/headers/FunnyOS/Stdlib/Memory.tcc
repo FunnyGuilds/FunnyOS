@@ -21,6 +21,26 @@ namespace FunnyOS::Stdlib::Memory {
         return Data + index;
     }
 
+
+    template <typename T>
+    typename SizedBuffer<T>::Iterator SizedBuffer<T>::Begin() noexcept {
+        return Data;
+    }
+
+    template <typename T>
+    typename SizedBuffer<T>::Iterator SizedBuffer<T>::End() noexcept {
+        return Data + Size;
+    }
+
+    template <typename T>
+    typename SizedBuffer<T>::ConstIterator SizedBuffer<T>::Begin() const noexcept {
+        return Data;    }
+
+    template <typename T>
+    typename SizedBuffer<T>::ConstIterator SizedBuffer<T>::End() const noexcept {
+        return Data + Size;
+    }
+
     template <typename Type>
     inline void Copy(SizedBuffer<Type>& destination, const Type* source) noexcept {
         for (size_t i = 0; i < destination.Size; i++) {
