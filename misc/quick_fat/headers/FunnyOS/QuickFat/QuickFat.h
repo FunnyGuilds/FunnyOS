@@ -44,7 +44,7 @@ typedef struct {
     QuickFat_ReadFunction read_function;
     void* read_function_data;
     uint32_t partition_start_lba;
-    uint32_t entries_per_sector;
+    uint32_t entries_per_cluster;
     uint8_t sectors_per_cluster;
     uint16_t reserved_sectors;
     uint8_t number_of_fats;
@@ -92,9 +92,9 @@ typedef struct {
     uint32_t size;
 
     /**
-     * File size in sectors.
+     * File size in clusters.
      */
-    uint32_t sector_size;
+    uint32_t cluster_size;
 } QuickFat_File;
 
 /**
