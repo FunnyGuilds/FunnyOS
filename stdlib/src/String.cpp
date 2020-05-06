@@ -121,11 +121,12 @@ namespace FunnyOS::Stdlib::String {
             UnsignedOctal = 'o',
             UnsignedHexadecimalIntegerLowercase = 'x',
             UnsignedHexadecimalIntegerUppercase = 'X',
+            BinaryInteger = 'b',
             Character = 'c',
             String = 's',
             Invalid = 0
         };
-        const char* VALID_SPECIFIERS = "diuoxXcs";
+        const char* VALID_SPECIFIERS = "diuoxXbcs";
 
         struct FormatSpecifier {
             int Flags;
@@ -237,6 +238,9 @@ namespace FunnyOS::Stdlib::String {
                 case SpecifierType::UnsignedOctal:
                     radix = 8;
                     break;
+                case SpecifierType::BinaryInteger:
+                    radix = 2;
+                    break;
                 default:
                     radix = 10;
                     break;
@@ -333,7 +337,7 @@ namespace FunnyOS::Stdlib::String {
                 value[1] = 0;
             } else if (specifier.Type == SpecifierType::String) {
                 const char* ptr = va_arg(*args, const char*);
-                const size_t len = Min<size_t>(Length(ptr), sizeof(value) / sizeof(char) - 1);
+                const auto len = Min<size_t>(Length(ptr), sizeof(value) / sizeof(char) - 1);
                 Memory::Copy(value, ptr, len);
                 value[len] = 0;
             } else {
@@ -363,7 +367,7 @@ namespace FunnyOS::Stdlib::String {
 
             const size_t totalSize = Length(value);
             const size_t prefixSize = Length(prefix);
-            const size_t padSize = static_cast<size_t>(Max<ssize_t>(0, specifier.Width - totalSize - prefixSize));
+            const auto padSize = static_cast<size_t>(Max<ssize_t>(0, specifier.Width - totalSize - prefixSize));
             const char padCharacter = (specifier.Flags & FormatFlags::PadWithZeroes) != 0 ? '0' : ' ';
             const bool padLeft = padCharacter == '0' || (specifier.Flags & FormatFlags::LeftJustify) != 0;
 

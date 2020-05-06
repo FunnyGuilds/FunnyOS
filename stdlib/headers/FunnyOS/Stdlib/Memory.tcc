@@ -21,7 +21,6 @@ namespace FunnyOS::Stdlib::Memory {
         return Data + index;
     }
 
-
     template <typename T>
     typename SizedBuffer<T>::Iterator SizedBuffer<T>::Begin() noexcept {
         return Data;
@@ -34,7 +33,8 @@ namespace FunnyOS::Stdlib::Memory {
 
     template <typename T>
     typename SizedBuffer<T>::ConstIterator SizedBuffer<T>::Begin() const noexcept {
-        return Data;    }
+        return Data;
+    }
 
     template <typename T>
     typename SizedBuffer<T>::ConstIterator SizedBuffer<T>::End() const noexcept {
