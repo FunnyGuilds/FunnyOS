@@ -48,6 +48,7 @@ sfdisk ${OUTPUT} < ${DIR}/funnyos.sfdisk
 # Mount the device
 sudo losetup -d ${LOOP} || true
 sudo losetup -P ${LOOP} ${OUTPUT}
+sudo partprobe ${LOOP}
 
 # Format partition
 sudo mkfs.fat -F 32 -R 32 ${PARTITION}
