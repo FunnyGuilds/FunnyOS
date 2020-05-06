@@ -39,5 +39,12 @@ SECTIONS
         *(.eh_frame)
     }
 
+    .initial_heap (NOLOAD) : ALIGN(0x1000)
+    {
+        KERNEL_HEAP = .;
+        . = . + @F_KERNEL_INITIAL_HEAP_SIZE_KB@ * 1024;
+        KERNEL_HEAP_TOP  = .;
+    }
+
     . = ALIGN(0x1000);
 }

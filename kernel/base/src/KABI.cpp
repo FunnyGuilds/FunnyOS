@@ -17,8 +17,7 @@ void __cxa_pure_virtual() {
     System::Terminate("pure virtual function call");
 }
 
-// Thread-safe guards for initializing static variables, since we don't really have threads in bootloader we don't
-// really care about thread-safety.
+// TODO Thread-safe guards for initializing static variables
 int __cxa_guard_acquire(const uint32_t* g) {
     return static_cast<int>(*g == 0);
 }

@@ -3,6 +3,10 @@
 #include <FunnyOS/Stdlib/String.hpp>
 #include <FunnyOS/Hardware/VGA.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
+#include <FunnyOS/Kernel/GDT.hpp>
+
+extern void* KERNEL_HEAP;
+extern void* KERNEL_HEAP_TOP;
 
 namespace FunnyOS::Kernel {
 
@@ -12,31 +16,21 @@ namespace FunnyOS::Kernel {
     }
 
     [[noreturn]] void Kernel64::Main(Bootparams::Parameters& parameters) {
+        if (m_initialized) {
+            // TODO Panic();
+        }
+
+        m_initialized = true;
         m_parameters = parameters;
 
-        using namespace Misc::TerminalManager;
+        // Initialize allocator
+        using Misc::MemoryAllocator::memoryaddress_t;
+        m_kernelAllocator.Initialize(reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP),
+                                     reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP_TOP));
 
-        HW::VGAInterface vga;
-        TerminalManager terminalManager(&vga);
-
-        terminalManager.ClearScreen();
-        terminalManager.ChangeForegroundColor(Color::LightGreen);
-        terminalManager.PrintLine("Hello from kernel :woah:");
-
-        // Print some test values to make sure we passed the boot params properly
-        uint64_t stack;
-        asm("mov %0, rsp" : "=g"(stack));
-
-        char testBuf[256] = {0};
-        Stdlib::Memory::SizedBuffer<char> buf{testBuf, F_SIZEOF_BUFFER(testBuf)};
-        Stdlib::String::Format(buf,
-                               "Parameters location: 0x%016llx. \r\n"
-                               "\tDrive: 0x%02x.\r\n"
-                               "\tMemory map: 0x%08x.\r\n\r\n"
-                               "Current stack: %016llx",
-                               &parameters, m_parameters.BootInfo.BootDriveNumber, m_parameters.MemoryMap.First, stack);
-
-        terminalManager.PrintLine(testBuf);
+        // Load kernel GDT
+        LoadKernelGdt();
+        LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
         for (;;) {
         }
@@ -44,6 +38,14 @@ namespace FunnyOS::Kernel {
 
     const Bootparams::Parameters& Kernel64::GetParameters() const {
         return m_parameters;
+    }
+
+    VMM::VirtualMemoryManager& Kernel64::GetVirtualMemoryManager() {
+        return m_virtualMemoryManager;
+    }
+
+    Misc::MemoryAllocator::StaticMemoryAllocator& Kernel64::GetKernelAllocator() {
+        return m_kernelAllocator;
     }
 
     Kernel64::Kernel64() = default;

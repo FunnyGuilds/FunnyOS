@@ -1,5 +1,7 @@
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
+#include <FunnyOS/Kernel/Kernel.hpp>
+
 /**
  * Platform-specific function implementations for the kernel Stdlib
  */
@@ -8,14 +10,16 @@ namespace FunnyOS::_Platform {
 
     // TODO
     void* AllocateMemoryAligned(size_t size, size_t aligned) noexcept {
-        return nullptr;
+        return Kernel::Kernel64::Get().GetKernelAllocator().Allocate(size, aligned);
     }
 
     void* ReallocateMemoryAligned(void* memory, size_t size, size_t alignment) noexcept {
-        return nullptr;
+        return Kernel::Kernel64::Get().GetKernelAllocator().Reallocate(memory, size, alignment);
     }
 
-    void FreeMemory(void* memory) noexcept {}
+    void FreeMemory(void* memory) noexcept {
+        return Kernel::Kernel64::Get().GetKernelAllocator().Free(memory);
+    }
 
     void ReportError(const char* error) noexcept {}
 
