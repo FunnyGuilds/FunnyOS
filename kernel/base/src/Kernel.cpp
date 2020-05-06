@@ -32,6 +32,17 @@ namespace FunnyOS::Kernel {
         LoadKernelGdt();
         LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
+        const auto& videoMode = reinterpret_cast<Bootparams::VbeModeInfoBlock*>(
+            parameters.Vbe.ModeInfoStart)[parameters.Vbe.ActiveModeIndex];
+
+        for (size_t x = 1; x < 255; x++) {
+            for (size_t y = 1; y < 255; y++) {
+                uint32_t color = x | y << 8 | (x % y) << 16;
+                uint32_t pixel_offset = y * videoMode.BytesPerScanline + (x * (videoMode.BitsPerPixel / 8));
+                *reinterpret_cast<uint32_t*>(videoMode.FrameBufferPhysicalAddress + pixel_offset) = color;
+            }
+        }
+
         for (;;) {
         }
     }

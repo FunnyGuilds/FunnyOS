@@ -14,12 +14,14 @@
 #include "Logging.hpp"
 #include "Paging.hpp"
 #include "Sleep.hpp"
+#include "VESA.hpp"
 
 // Defined in real_mode_intro.asm
 extern FunnyOS::Bootparams::BootDriveInfo g_bootInfo;
 extern FunnyOS::Bootparams::MemoryMapDescription g_memoryMap;
 
 // Linker symbols
+extern void* HEAP_START;
 extern void* REAL_CODE_START;
 extern void* REAL_BUFFER_START;
 extern void* REAL_BUFFER_END;
@@ -104,7 +106,7 @@ namespace FunnyOS::Bootloader32 {
         GetBootloaderParameters().MemoryMap = g_memoryMap;
 
         // Initialization stuff
-        GetAllocator().Initialize(0x00040000, 0x0007FFFF);
+        GetAllocator().Initialize(reinterpret_cast<Misc::MemoryAllocator::memoryaddress_t>(&HEAP_START), 0x00080000);
         SetupInterrupts();
         SetupPIT();
         Logging::InitSerialLogging();
@@ -160,6 +162,20 @@ namespace FunnyOS::Bootloader32 {
         HW::CPU::GetVendorId(vendorIdBuffer);
         FB_LOG_INFO_F("CPU Vendor ID: %s", vendorId);
 
+        // Prepare VBE information and find best video mode
+        GetBootloaderParameters().Vbe.InfoBlockLocation = reinterpret_cast<uint32_t>(&GetVbeInfoBlock());
+        GetBootloaderParameters().Vbe.ModeInfoStart= reinterpret_cast<uint32_t>(GetVbeModes().Data);
+        Optional<uint16_t> bestVideoMode = PickBestMode();
+
+        if (!bestVideoMode) {
+            FB_LOG_FATAL("Failed to find a suitable video mode");
+            Halt();
+        }
+
+        GetBootloaderParameters().Vbe.ActiveModeIndex = bestVideoMode.GetValue();
+        const auto& activeMode = *GetVbeModes()[bestVideoMode.GetValue()];
+        FB_LOG_INFO_F("Will use %dx%d video mode", activeMode.Width, activeMode.Height);
+
         // Find biggest available memory segment
         const size_t minimumSize = 1024 * 1024;  // 16 MB // TODO: calculate the actual size?
         auto kernelMem = FindBiggestUsableEntry(GetBootloaderParameters().MemoryMap);
@@ -210,12 +226,29 @@ namespace FunnyOS::Bootloader32 {
 
         // Setup pages
         Misc::MemoryAllocator::StaticMemoryAllocator pageTableMemoryAllocator{};
-        const uintmax_t pageTableMemoryLocation = AlignToPage(highMemoryAllocator.GetCurrentMemoryTop());
+        const uintmax_t pageTableMemoryLocation = highMemoryAllocator.GetCurrentMemoryTop();
         pageTableMemoryAllocator.Initialize(pageTableMemoryLocation, highMemoryAllocator.GetMemoryEnd());
 
-        void* pml4base = SetupInitialKernelPages(kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize,
-                                                 pageTableMemoryAllocator);
+        SimplePageTableAllocator pageTableAllocator(pageTableMemoryAllocator);
 
+        // Identity map first two megabytes
+        pageTableAllocator.MapLocation(0, 0x200000, 0);
+
+        // Map kernel
+        pageTableAllocator.MapLocation(kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize,
+                                       GetKernelVirtualLocation());
+
+        // Identity map frame buffer
+        const auto& videoMode = GetVbeModes()[GetBootloaderParameters().Vbe.ActiveModeIndex];
+        const uint64_t frameBufferAddress = videoMode->FrameBufferPhysicalAddress;
+        const uint64_t frameBufferAligned = AlignToMappingUpwards(frameBufferAddress);
+        const uint64_t frameBufferSize =
+            videoMode->Height * videoMode->BytesPerScanline + (frameBufferAddress - frameBufferAligned);
+
+        pageTableAllocator.MapLocation(frameBufferAligned, frameBufferSize, frameBufferAligned);
+        FB_LOG_DEBUG_F("frameBufferAligned = %llu, frameBufferSize = %llu", frameBufferAddress, frameBufferSize);
+
+        // Debug info
         const uintmax_t pageTableMemorySize = pageTableMemoryAllocator.GetCurrentMemoryTop() - pageTableMemoryLocation;
 
         FB_LOG_DEBUG_F("Temporary page table physical memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
@@ -247,6 +280,10 @@ namespace FunnyOS::Bootloader32 {
             Pause();
         }
 
+        // Setup video mode
+        FB_LOG_OK("Setting up video mode");
+        SelectVideoMode(GetBootloaderParameters().Vbe.ActiveModeIndex);
+
         FB_LOG_OK("Booting...");
 
         // Disable all interrupts hardware interrupts..
@@ -266,8 +303,8 @@ namespace FunnyOS::Bootloader32 {
             "push %0\n"  // PML4 base
             "jmp ebx\n"
             :
-            : "r"(pml4base), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh), "r"(bootParamsAddressLow),
-              "b"(env64));
+            : "r"(pageTableAllocator.GetPml4Base()), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh),
+              "r"(bootParamsAddressLow), "b"(env64));
 
         F_NO_RETURN;
     }

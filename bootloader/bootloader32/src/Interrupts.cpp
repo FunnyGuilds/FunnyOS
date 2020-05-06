@@ -154,12 +154,28 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
+    void NoopInterruptHandler(InterruptData* /*data*/) {}
+
     void SetupInterrupts() {
         RegisterUnknownInterruptHandler(&UnknownInterruptHandler);
 
-        RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
         RegisterInterruptHandler(HW::InterruptType::IRQ_PIT_Interrupt, &PITInterruptHandler);
         RegisterInterruptHandler(HW::InterruptType::IRQ_KeyboardInterrupt, &KeyboardHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_CascadeInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_COM2_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_COM1_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_LPT2_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_FloppyInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_LPT1_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_CMOS_RealTimeClockInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_ACPI_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_10_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_11_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_PS2_MouseInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_CoProcessor_FPU_IPI_Interrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_PrimaryAtaHardDriveInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::IRQ_SecondaryAtaHardDriveInterrupt, &NoopInterruptHandler);
+        RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
 
         SetupInterruptTable(&InterruptHandlerSelector);
 

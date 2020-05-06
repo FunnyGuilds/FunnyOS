@@ -52,6 +52,22 @@ namespace FunnyOS::Bootloader32 {
     Stdlib::Memory::SizedBuffer<uint8_t>& GetRealModeBuffer();
 
     /**
+     * Gets an address in a segment:offset form.
+     *
+     * @param[out] segment segment part of the address
+     * @param[out] offset offset part of the address
+     */
+    void GetRealModeAddress(void* address, uint16_t& segment, uint16_t& offset);
+
+    /**
+     * Gets an address in a segment:offset form.
+     *
+     * @param[out] segment segment part of the address
+     * @param[out] offset offset part of the address
+     */
+    void GetRealModeAddress(uint32_t address, uint16_t& segment, uint16_t& offset);
+
+    /**
      * Gets the address of real mode buffer (see GetRealModeBuffer()) in a segment:offset form.
      *
      * @param[out] segment segment part of the buffer's address

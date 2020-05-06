@@ -99,6 +99,20 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         void HandleKey(HW::PS2::ScanCode code) override;
     };
 
+    class VESAInfo : public MenuOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void FetchState(String::StringBuffer& buffer) const override;
+        void Enter() override;
+        void HandleKey(HW::PS2::ScanCode code) override;
+
+       private:
+        void PrintVideoMode() const;
+
+       private:
+        size_t m_currentVideoMode = 0;
+    };
+
     class QuitMenuOption : public MenuOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;

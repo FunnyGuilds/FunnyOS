@@ -49,6 +49,18 @@ SECTIONS
         *(.bss*)
     }
 
+    .got :
+    {
+        *(.got)
+    }
+
+    .got.plt :
+    {
+        *(.got.plt)
+    }
+
+    HEAP_START = .;
+
     . = @F_BOOTLOADER_MEMORY_LOCATION@ + @F_BOOTLOADER_SIZE_IN_SECTORS@ * 0x200 - 4;
 
     .magic :
@@ -56,6 +68,8 @@ SECTIONS
         LONG(@F_BOOTLOADER_MAGIC@);
     }
 
-    . = ADDR(.bss) + SIZEOF(.bss);
-    . = ALIGN(0x200);
+    /DISCARD/ :
+    {
+        *(*)
+    }
 }

@@ -6,12 +6,13 @@
 #include <BootloaderConfig.hpp>
 
 namespace FunnyOS::Bootloader32 {
-    namespace {
-        constexpr size_t PAGE_SIZE = 0x1000;
-        constexpr size_t PAGE_ENTRY_SIZE = 8;  // 8 bytes in long mode
-        constexpr size_t ENTRIES_PER_PAGE = (PAGE_SIZE / PAGE_ENTRY_SIZE);
-        constexpr uint64_t SINGLE_TABLE_MAPPING_SIZE = PAGE_SIZE * ENTRIES_PER_PAGE;
-    }  // namespace
+    uintmax_t AlignToMappingUpwards(uintmax_t memory) {
+        if (memory % SINGLE_TABLE_MAPPING_SIZE == 0) {
+            return memory;
+        }
+
+        return memory - (memory % SINGLE_TABLE_MAPPING_SIZE);
+    }
 
     uintmax_t AlignToPage(uintmax_t memory) {
         if (memory % PAGE_SIZE == 0) {
@@ -25,15 +26,35 @@ namespace FunnyOS::Bootloader32 {
         return F_KERNEL_VIRTUAL_ADDRESS;
     }
 
-    void* AllocateClearPage(StaticMemoryAllocator& allocator) {
-        void* page = allocator.Allocate(PAGE_SIZE, PAGE_SIZE);
+    SimplePageTableAllocator::SimplePageTableAllocator(StaticMemoryAllocator& allocator)
+        : m_pageTableAllocator(allocator), m_pml4base(AllocateClearPage()) {}
+
+    void SimplePageTableAllocator::MapLocation(uint64_t location, uint64_t size, uint64_t virtualLocationBase) {
+        size_t mappings = size / SINGLE_TABLE_MAPPING_SIZE;
+        if (size % SINGLE_TABLE_MAPPING_SIZE != 0) {
+            mappings++;
+        }
+
+        for (uint64_t i = 0; i < mappings; i++) {
+            uint64_t virtualAddr = virtualLocationBase + i * SINGLE_TABLE_MAPPING_SIZE;
+            uint64_t physicalAddr = static_cast<uint64_t>(location) + i * SINGLE_TABLE_MAPPING_SIZE;
+
+            MapSingleTable(virtualAddr, physicalAddr);
+        }
+    }
+
+    void* SimplePageTableAllocator::GetPml4Base() const {
+        return m_pml4base;
+    }
+
+    void* SimplePageTableAllocator::AllocateClearPage() {
+        void* page = m_pageTableAllocator.Allocate(PAGE_SIZE, PAGE_SIZE);
         Stdlib::Memory::SizedBuffer<uint8_t> buffer{reinterpret_cast<uint8_t*>(page), PAGE_SIZE};
         Stdlib::Memory::Set<uint8_t>(buffer, 0);
         return page;
     }
 
-    void* GetPageTable(void* currentBase, uint64_t virtualAddress, unsigned int level,
-                       StaticMemoryAllocator& allocator) {
+    void* SimplePageTableAllocator::GetPageTable(void* currentBase, uint64_t virtualAddress, unsigned int level) {
         F_ASSERT(((reinterpret_cast<uintptr_t>(currentBase) % PAGE_SIZE) == 0), "virtual address not page aligned");
         if (level == 1) {
             return currentBase;
@@ -44,23 +65,22 @@ namespace FunnyOS::Bootloader32 {
 
         if ((entries[currentIndex] & 1) == 0) {
             // Flags 0b11 - supervisor only, read/write, present
-            void* entry = AllocateClearPage(allocator);
+            void* entry = AllocateClearPage();
             entries[currentIndex] = reinterpret_cast<uint64_t>(entry) | 0b11;
         }
 
         void* nextBase = reinterpret_cast<void*>(entries[currentIndex] & 0xFFFFFFF000);
 
-        return GetPageTable(nextBase, virtualAddress, level - 1, allocator);
+        return GetPageTable(nextBase, virtualAddress, level - 1);
     }
 
-    void MapSingleTable(void* pml4base, uint64_t virtualAddress, uint64_t physicalAddress,
-                        StaticMemoryAllocator& allocator) {
+    void SimplePageTableAllocator::MapSingleTable(uint64_t virtualAddress, uint64_t physicalAddress) {
         F_ASSERT((virtualAddress % SINGLE_TABLE_MAPPING_SIZE) == 0, "Virtual address not aligned");
         F_ASSERT((physicalAddress % PAGE_SIZE) == 0, "Physical address not aligned");
 
         FB_LOG_DEBUG_F("Maping table %016llx to %016llx", virtualAddress, physicalAddress);
 
-        void* table = GetPageTable(pml4base, virtualAddress, 4, allocator);
+        void* table = GetPageTable(m_pml4base, virtualAddress, 4);
         auto* tableEntries = static_cast<uint64_t*>(table);
 
         for (size_t i = 0; i < ENTRIES_PER_PAGE; i++) {
@@ -69,20 +89,4 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
-    void* SetupInitialKernelPages(uintmax_t location, uintmax_t kernelSize, StaticMemoryAllocator& pageTableAllocator) {
-        void* pml4base = AllocateClearPage(pageTableAllocator);
-
-        // Identity map first 1MB
-        MapSingleTable(pml4base, 0, 0, pageTableAllocator);
-
-        // Map kernel memory
-        for (uint64_t i = 0; i < (kernelSize / SINGLE_TABLE_MAPPING_SIZE) + 1; i++) {
-            uint64_t virtualAddr = GetKernelVirtualLocation() + i * SINGLE_TABLE_MAPPING_SIZE;
-            uint64_t physicalAddr = static_cast<uint64_t>(location) + i * SINGLE_TABLE_MAPPING_SIZE;
-
-            MapSingleTable(pml4base, virtualAddr, physicalAddr, pageTableAllocator);
-        }
-
-        return pml4base;
-    }
 }  // namespace FunnyOS::Bootloader32

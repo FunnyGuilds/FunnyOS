@@ -12,6 +12,8 @@ F_CDECL extern void do_real_mode_interrupt();
 namespace FunnyOS::Bootloader32 {
     using namespace Stdlib;
 
+    constexpr static uint32_t MAX_REAL_MODE_ADDR = 0xFFFF * 16 + 0xFFFF;
+
     Memory::SizedBuffer<uint8_t>& GetRealModeBuffer() {
         static Memory::SizedBuffer<uint8_t> c_realModeBuffer{
             &g_realBuffer, reinterpret_cast<size_t>(&g_realBufferTop) - reinterpret_cast<size_t>(&g_realBuffer)};
@@ -19,11 +21,20 @@ namespace FunnyOS::Bootloader32 {
         return c_realModeBuffer;
     }
 
-    void GetRealModeBufferAddress(uint16_t& segment, uint16_t& offset) {
-        auto address = reinterpret_cast<uintptr_t>(GetRealModeBuffer().Data);
+    void GetRealModeAddress(void* address, uint16_t& segment, uint16_t& offset) {
+        GetRealModeAddress(reinterpret_cast<uint32_t>(address), segment, offset);
+    }
+
+    void GetRealModeAddress(uint32_t address, uint16_t& segment, uint16_t& offset) {
+        F_ASSERT(address < MAX_REAL_MODE_ADDR, "address >= MAX_REAL_MODE_ADDR");
 
         segment = address / 0x10000;
         offset = address % 0x10000;
+    }
+
+    void GetRealModeBufferAddress(uint16_t& segment, uint16_t& offset) {
+        auto address = reinterpret_cast<uintptr_t>(GetRealModeBuffer().Data);
+        GetRealModeAddress(address, segment, offset);
     }
 
     void RealModeInt(uint8_t interrupt, Registers16& registers) {

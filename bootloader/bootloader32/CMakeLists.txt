@@ -39,6 +39,7 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/Paging.cpp
         src/RealMode.cpp
         src/Sleep.cpp
+        src/VESA.cpp
 )
 
 target_include_directories(FunnyOS_Bootloader_Bootloader32

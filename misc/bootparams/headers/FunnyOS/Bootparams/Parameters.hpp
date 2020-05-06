@@ -4,6 +4,7 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include "BootDriveInfo.hpp"
 #include "MemoryMapDescription.hpp"
+#include "VESA.hpp"
 
 namespace FunnyOS::Bootparams {
 
@@ -18,6 +19,10 @@ namespace FunnyOS::Bootparams {
          */
         MemoryMapDescription MemoryMap;
 
+        /**
+         * VESA informations.
+         */
+        VbeInformation Vbe;
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams

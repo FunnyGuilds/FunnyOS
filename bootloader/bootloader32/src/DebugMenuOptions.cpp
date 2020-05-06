@@ -5,6 +5,8 @@
 #include "DriveInterface.hpp"
 #include "ElfLoader.hpp"
 #include "FileLoader.hpp"
+#include "Sleep.hpp"
+#include "VESA.hpp"
 
 namespace FunnyOS::Bootloader32::DebugMenu {
     using namespace Stdlib;
@@ -240,6 +242,100 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
     }
 
+    void VESAInfo::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Print VESA information");
+    }
+
+    void VESAInfo::FetchState(String::StringBuffer& /*buffer*/) const {}
+
+    void VESAInfo::Enter() {
+        m_currentVideoMode = 0;
+
+        Logging::GetTerminalManager()->ClearScreen();
+
+        FB_LOG_INFO("VESA information: ");
+        const VbeInfoBlock& bloc = GetVbeInfoBlock();
+
+        if (bloc.VbeVersion == 0) {
+            FB_LOG_WARNING("VESA not supported");
+            return;
+        }
+
+        FB_LOG_INFO_F("\tVbeVersion = 0x%04x", bloc.VbeVersion);
+        FB_LOG_INFO_F("\tOemString = %s", static_cast<char*>(VesaPointerToVoidPointer(bloc.OemStringPtr)));
+        FB_LOG_INFO_F("\tCapabilities = 0x%08x", bloc.Capabilities);
+        FB_LOG_INFO_F("\tVideoModePtr = 0x%08x", bloc.VideoModePtr);
+        FB_LOG_INFO_F("\tTotalMemory = 0x%04x", bloc.TotalMemory);
+        FB_LOG_INFO_F("\tOemSoftwareRev = 0x%04x", bloc.OemSoftwareRev);
+        FB_LOG_INFO_F("\tOemVendorName (0x%8x) = %s", bloc.OemVendorNamePtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemVendorNamePtr)));
+        FB_LOG_INFO_F("\tOemProductName (0x%08x) = %s", bloc.OemProductNamePtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductNamePtr)));
+        FB_LOG_INFO_F("\tOemProductRev (0x%8x) = %s", bloc.OemProductRevPtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductRevPtr)));
+
+        FB_LOG_INFO_F("\tAvailable video modes: %d", GetVbeModes().Size);
+        size_t validVideoModes = 0;
+        for (const auto& mode : GetVbeModes()) {
+            if (mode.IsValid) {
+                validVideoModes++;
+            }
+        }
+
+        FB_LOG_INFO_F("\tAvailable valid video modes: %zu", validVideoModes);
+        FB_LOG_INFO("Use arrow keys to iterate over video modes");
+    }
+
+    void VESAInfo::HandleKey(HW::PS2::ScanCode code) {
+        if (code == HW::PS2::ScanCode::Enter_Released) {
+            SelectCurrentSubmenu(-1);
+        } else if (code == HW::PS2::ScanCode::CursorDown_Released) {
+            if (m_currentVideoMode + 1 < GetVbeModes().Size) {
+                m_currentVideoMode++;
+            }
+
+            PrintVideoMode();
+        } else if (code == HW::PS2::ScanCode::CursorUp_Released) {
+            if (m_currentVideoMode > 0) {
+                m_currentVideoMode--;
+            }
+
+            PrintVideoMode();
+        }
+    }
+
+    void VESAInfo::PrintVideoMode() const {
+        Logging::GetTerminalManager()->ClearScreen();
+
+        const auto& mode = *GetVbeModes()[m_currentVideoMode];
+        FB_LOG_INFO_F("Video mode %d: ", m_currentVideoMode);
+
+        if (!mode.IsValid) {
+            FB_LOG_WARNING("Invalid");
+            return;
+        }
+        FB_LOG_INFO_F("\t ModeAttributes: 0b%016b", mode.ModeAttributes);
+        FB_LOG_INFO_F("\t Window attributes: A = 0b%08b B = 0b%08b", mode.WindowA_Attributes, mode.WindowB_Attributes);
+        FB_LOG_INFO_F("\t Window: granularity: %d KB, size = %d KB", mode.GranularityKB);
+        FB_LOG_INFO_F("\t Window Segment Start: A = 0x%08x B = 0x%08x", mode.WindowA_SegmentStart,
+                      mode.WindowB_SegmentStart);
+        FB_LOG_INFO_F("\t WindowPositioningFunctionPtr: 0x%016x", mode.WindowPositioningFunctionPtr);
+        FB_LOG_INFO_F("\t BytesPerScanline: %d", mode.BytesPerScanline);
+        FB_LOG_INFO_F("\t Width: %d. Height: %d", mode.Width, mode.Height);
+        FB_LOG_INFO_F("\t WidthOfCharacter: %d. HeightOfCharacter: %d", mode.WidthOfCharacter, mode.HeightOfCharacter);
+        FB_LOG_INFO_F("\t NumberOfMemoryPlanes: %d", mode.NumberOfMemoryPlanes);
+        FB_LOG_INFO_F("\t BitsPerPixel: %d", mode.BitsPerPixel);
+        FB_LOG_INFO_F("\t NumberOfBanks: %d", mode.NumberOfBanks);
+        FB_LOG_INFO_F("\t MemoryModel: %d", mode.MemoryModel);
+        FB_LOG_INFO_F("\t BankSizeKb: %d", mode.BankSizeKb);
+        FB_LOG_INFO_F("\t NumberOfImagePages: %d", mode.NumberOfImagePages);
+        FB_LOG_INFO_F("\t Red: Mask = %d, Position = %d", mode.RedMask, mode.RedPosition);
+        FB_LOG_INFO_F("\t Green: Mask = %d, Position = %d", mode.GreenMask, mode.GreenPosition);
+        FB_LOG_INFO_F("\t Blue: Mask = %d, Position = %d", mode.BlueMask, mode.BluePosition);
+        FB_LOG_INFO_F("\t Reserved: Mask = %d, Position = %d", mode.ReservedMask, mode.ReservedPosition);
+        FB_LOG_INFO_F("\t DirectColorModeIfo: %d", mode.DirectColorModeIfo);
+        FB_LOG_INFO_F("\t FrameBufferPhysicalAddress: 0x%016x", mode.FrameBufferPhysicalAddress);
+        FB_LOG_INFO_F("\t OffscreenMemoryOffset: %d", mode.OffscreenMemoryOffset);
+        FB_LOG_INFO_F("\t OffscreenMemorySize: %d", mode.OffscreenMemorySize);
+    }
+
     void QuitMenuOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Quit menu");
     }
@@ -260,12 +356,12 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 #ifdef F_DEBUG
         static DebugElfLoaderOption c_debugElfLoaderOption{};
 #endif
-
         static PauseBeforeBootOption c_pauseBeforeBootOption{};
         static PrintMemoryMapOption c_printMemoryMapOption{};
         static PrintBootloaderParametersOption c_printBootloaderParametersOption{};
         static PrintBootDiskParameters c_printBootDiskParameters{};
-        static CPUIDInfo c_cPUIDInfo{};
+        static CPUIDInfo c_CPUIDInfo{};
+        static VESAInfo c_vesaInfo;
         static QuitMenuOption c_quitMenuOption{};
 
         static MenuOption* c_menuOptions[] = {
@@ -279,7 +375,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             &c_printMemoryMapOption,
             &c_printBootloaderParametersOption,
             &c_printBootDiskParameters,
-            &c_cPUIDInfo,
+            &c_CPUIDInfo,
+            &c_vesaInfo,
             &c_quitMenuOption,
         };
 
