@@ -69,7 +69,7 @@ namespace FunnyOS::Misc::TerminalManager {
         ScrollLines(1);
     }
 
-    void TerminalManager::ScrollLines(uint8_t n) {
+    void TerminalManager::ScrollLines(uint16_t n) {
         if (n == 0) {
             return;
         }
@@ -78,31 +78,31 @@ namespace FunnyOS::Misc::TerminalManager {
 
         if (n >= m_interface->GetScreenHeight()) {
             ClearScreen();
-            SessionCursor().Y = static_cast<uint8_t>(m_interface->GetScreenHeight() - 1);
+            SessionCursor().Y = static_cast<uint16_t>(m_interface->GetScreenHeight() - 1);
             FinishUpdateSession();
             return;
         }
 
-        for (uint8_t fromLine = n; fromLine < m_interface->GetScreenHeight(); fromLine++) {
+        for (uint16_t fromLine = n; fromLine < m_interface->GetScreenHeight(); fromLine++) {
             const int16_t toLine = fromLine - n;
 
-            CursorPosition from{0, static_cast<uint8_t>(fromLine)};
-            CursorPosition to{0, static_cast<uint8_t>(toLine)};
+            CursorPosition from{0, static_cast<uint16_t>(fromLine)};
+            CursorPosition to{0, static_cast<uint16_t>(toLine)};
 
-            for (uint8_t x = 0; x < m_interface->GetScreenWidth(); x++) {
+            for (uint16_t x = 0; x < m_interface->GetScreenWidth(); x++) {
                 from.X = to.X = x;
                 m_interface->Move(from, to);
             }
         }
 
-        ClearLine(static_cast<uint8_t>(m_interface->GetScreenHeight() - 1));
+        ClearLine(static_cast<uint16_t>(m_interface->GetScreenHeight() - 1));
 
         SessionCursor().Y -= n;
 
         FinishUpdateSession();
     }
 
-    void TerminalManager::ClearLine(uint8_t n) {
+    void TerminalManager::ClearLine(uint16_t n) {
         BeginUpdateSession();
 
         CursorPosition& cursor = SessionCursor();
@@ -129,7 +129,7 @@ namespace FunnyOS::Misc::TerminalManager {
     void TerminalManager::ClearScreen() {
         BeginUpdateSession();
 
-        for (uint8_t i = 0; i < m_interface->GetScreenHeight(); i++) {
+        for (uint16_t i = 0; i < m_interface->GetScreenHeight(); i++) {
             ClearLine(i);
         }
 
@@ -154,6 +154,8 @@ namespace FunnyOS::Misc::TerminalManager {
                 m_sessionCursor.Y = 0;
                 m_interface->SetCursorPosition(m_sessionCursor);
             }
+
+            m_interface->Submit();
 
             return true;
         }
@@ -200,14 +202,14 @@ namespace FunnyOS::Misc::TerminalManager {
             cursor.Y++;
         }
 
-        const auto scrollAmount = static_cast<int16_t>(
-            static_cast<int16_t>(cursor.Y) - static_cast<int16_t>(m_interface->GetScreenHeight()) + 1);
+        const auto scrollAmount = static_cast<int16_t>(static_cast<int16_t>(cursor.Y) -
+                                                       static_cast<int16_t>(m_interface->GetScreenHeight()) + 1);
 
         if (scrollAmount <= 0) {
             return;
         }
 
-        ScrollLines(static_cast<uint8_t>(scrollAmount));
+        ScrollLines(static_cast<uint16_t>(scrollAmount));
     }
 
     TerminalManagerException::TerminalManagerException(const char* message) : m_message(message) {}

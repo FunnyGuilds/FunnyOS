@@ -32,8 +32,8 @@ namespace FunnyOS::Misc::TerminalManager {
      * Represents a position of the cursor on the screen.
      */
     struct CursorPosition {
-        uint8_t X;
-        uint8_t Y;
+        uint16_t X;
+        uint16_t Y;
     };
 
     /**
@@ -80,12 +80,12 @@ namespace FunnyOS::Misc::TerminalManager {
         /**
          * @return width of the screen
          */
-        [[nodiscard]] virtual uint8_t GetScreenWidth() const noexcept = 0;
+        [[nodiscard]] virtual uint16_t GetScreenWidth() const noexcept = 0;
 
         /**
          * @return height of the screen
          */
-        [[nodiscard]] virtual uint8_t GetScreenHeight() const noexcept = 0;
+        [[nodiscard]] virtual uint16_t GetScreenHeight() const noexcept = 0;
 
         /**
          * @return position of the cursor
@@ -124,6 +124,11 @@ namespace FunnyOS::Misc::TerminalManager {
          * @param[in] to position to copy to
          */
         virtual void Move(const CursorPosition& from, const CursorPosition& to) noexcept = 0;
+
+        /**
+         * Submits the changes and makes them be display on the screen.
+         */
+        virtual void Submit() = 0;
     };
 
 }  // namespace FunnyOS::Misc::TerminalManager

@@ -5,7 +5,7 @@ function(setup_hw_library_variant name)
             src/Interrupts.cpp
             src/PIC.cpp
             src/Serial.cpp
-            src/VGA.cpp
+            src/GFX/VGA.cpp
     )
 
     target_include_directories(${name}

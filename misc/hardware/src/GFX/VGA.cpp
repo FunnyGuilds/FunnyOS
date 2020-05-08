@@ -1,4 +1,4 @@
-#include <FunnyOS/Hardware/VGA.hpp>
+#include <FunnyOS/Hardware/GFX/VGA.hpp>
 
 #include <FunnyOS/Hardware/InputOutput.hpp>
 
@@ -39,8 +39,8 @@ namespace FunnyOS::HW {
     }  // namespace
 
     // Screen dimensions
-    constexpr const uint8_t SCREEN_WIDTH = 80;
-    constexpr const uint8_t SCREEN_HEIGHT = 25;
+    constexpr const uint16_t SCREEN_WIDTH = 80;
+    constexpr const uint16_t SCREEN_HEIGHT = 25;
 
     Memory::SizedBuffer<uint8_t> VGAInterface::SaveScreenData() const noexcept {
         const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2U;
@@ -67,11 +67,11 @@ namespace FunnyOS::HW {
         Memory::FreeBuffer(buffer);
     }
 
-    uint8_t VGAInterface::GetScreenWidth() const noexcept {
+    uint16_t VGAInterface::GetScreenWidth() const noexcept {
         return SCREEN_WIDTH;
     }
 
-    uint8_t VGAInterface::GetScreenHeight() const noexcept {
+    uint16_t VGAInterface::GetScreenHeight() const noexcept {
         return SCREEN_HEIGHT;
     }
 
@@ -124,5 +124,7 @@ namespace FunnyOS::HW {
         *(VIDEO_MEMORY_BASE + toPosition * 2 + 0x00) = *(VIDEO_MEMORY_BASE + fromPosition * 2 + 0x00);
         *(VIDEO_MEMORY_BASE + toPosition * 2 + 0x01) = *(VIDEO_MEMORY_BASE + fromPosition * 2 + 0x01);
     }
+
+    void VGAInterface::Submit() {}
 
 }  // namespace FunnyOS::HW

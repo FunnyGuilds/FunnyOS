@@ -1,5 +1,5 @@
-#ifndef FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP
-#define FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP
+#ifndef FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_GFX_VGAINTERFACE_HPP
+#define FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_GFX_VGAINTERFACE_HPP
 
 #include <FunnyOS/Misc/TerminalManager/ITerminalInterface.hpp>
 
@@ -18,9 +18,9 @@ namespace FunnyOS::HW {
 
         void RestoreScreenData(Stdlib::Memory::SizedBuffer<uint8_t>& buffer) noexcept override;
 
-        [[nodiscard]] uint8_t GetScreenWidth() const noexcept override;
+        [[nodiscard]] uint16_t GetScreenWidth() const noexcept override;
 
-        [[nodiscard]] uint8_t GetScreenHeight() const noexcept override;
+        [[nodiscard]] uint16_t GetScreenHeight() const noexcept override;
 
         [[nodiscard]] CursorPosition GetCursorPosition() const noexcept override;
 
@@ -31,8 +31,10 @@ namespace FunnyOS::HW {
         [[nodiscard]] CharacterData ReadCharacter(const CursorPosition& position) noexcept override;
 
         void Move(const CursorPosition& from, const CursorPosition& to) noexcept override;
+
+        void Submit() override;
     };
 
 }  // namespace FunnyOS::HW
 
-#endif  // FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_VGAINTERFACE_HPP
+#endif  // FUNNYOS_BOOTLOADER_COMMONS_HEADERS_FUNNYOS_BOOTLOADERCOMMONS_GFX_VGAINTERFACE_HPP

@@ -101,14 +101,14 @@ namespace FunnyOS::Misc::TerminalManager {
          *
          * @param n number of lines to scroll.
          */
-        void ScrollLines(uint8_t n);
+        void ScrollLines(uint16_t n);
 
         /**
          * Clears the entire terminal's Nth line using the background color.
          *
          * @param n line to clear
          */
-        void ClearLine(uint8_t n);
+        void ClearLine(uint16_t n);
 
         /**
          * Clears the entire current line using the background color.

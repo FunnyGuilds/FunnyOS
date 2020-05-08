@@ -1,6 +1,6 @@
 #include "Logging.hpp"
 
-#include <FunnyOS/Hardware/VGA.hpp>
+#include <FunnyOS/Hardware/GFX/VGA.hpp>
 #include <FunnyOS/Hardware/Serial.hpp>
 
 namespace FunnyOS::Bootloader32::Logging {
