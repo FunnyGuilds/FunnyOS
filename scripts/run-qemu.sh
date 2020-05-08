@@ -19,4 +19,9 @@ if ! command -v ${QEMU} > /dev/null; then
   exit 1
 fi
 
-qemu-system-x86_64 ${DEBUG_PARAMETERS} -cpu max -vga vmware -hda ${OUTPUT}
+qemu-system-x86_64 ${DEBUG_PARAMETERS} \
+    -enable-kvm \
+    -cpu max \
+    -vga std \
+    -m 1G,slots=3,maxmem=4G \
+    -hda ${OUTPUT}
