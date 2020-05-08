@@ -1,7 +1,9 @@
 #include <FunnyOS/Kernel/Kernel.hpp>
 
 #include <FunnyOS/Stdlib/String.hpp>
-#include <FunnyOS/Hardware/VGA.hpp>
+#include <FunnyOS/Stdlib/Memory.hpp>
+#include <FunnyOS/Hardware/GFX/FramebufferInterface.hpp>
+#include <FunnyOS/Hardware/GFX/FontTerminalInterface.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 #include <FunnyOS/Kernel/GDT.hpp>
 
@@ -9,7 +11,6 @@ extern void* KERNEL_HEAP;
 extern void* KERNEL_HEAP_TOP;
 
 namespace FunnyOS::Kernel {
-
     Kernel64& Kernel64::Get() {
         static Kernel64 c_instance;
         return c_instance;
@@ -35,15 +36,38 @@ namespace FunnyOS::Kernel {
         const auto& videoMode = reinterpret_cast<Bootparams::VbeModeInfoBlock*>(
             parameters.Vbe.ModeInfoStart)[parameters.Vbe.ActiveModeIndex];
 
-        for (size_t x = 1; x < 255; x++) {
-            for (size_t y = 1; y < 255; y++) {
-                uint32_t color = x | y << 8 | (x % y) << 16;
-                uint32_t pixel_offset = y * videoMode.BytesPerScanline + (x * (videoMode.BitsPerPixel / 8));
-                *reinterpret_cast<uint32_t*>(videoMode.FrameBufferPhysicalAddress + pixel_offset) = color;
-            }
+        // Setup framebuffer interface
+        HW::FramebufferInterface framebufferInterface(
+            {.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
+             .ScreenWidth = videoMode.Width,
+             .ScreenHeight = videoMode.Height,
+             .BPS = videoMode.BytesPerScanline,
+             .BPP = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
+             .RedPosition = videoMode.RedPosition,
+             .GreenPosition = videoMode.GreenPosition,
+             .BluePosition = videoMode.BluePosition});
+
+        HW::FontTerminalInterface fontTerminalInterface(reinterpret_cast<uint8_t*>(m_parameters.BiosFonts),
+                                                        &framebufferInterface);
+
+        Misc::TerminalManager::TerminalManager manager(&fontTerminalInterface);
+
+        String::StringBuffer stringBuffer = Memory::AllocateBuffer<char>(128);
+        String::Format(stringBuffer, "screen size in character %dx%d", fontTerminalInterface.GetScreenWidth(),
+                       fontTerminalInterface.GetScreenHeight());
+
+        manager.PrintLine(stringBuffer.Data);
+        manager.PrintLine("Hello world from video mode :woah:");
+
+        for (size_t i = 0; i < 4096; i++) {
+            String::Format(stringBuffer, "hello %d", i);
+            manager.PrintLine(stringBuffer.Data);
         }
 
         for (;;) {
+            asm volatile(
+                "cli\n"
+                "hlt");
         }
     }
 
