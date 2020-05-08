@@ -86,6 +86,16 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    inline T* Optional<T>::operator->() {
+        return &GetValue();
+    }
+
+    template <typename T>
+    inline const T* Optional<T>::operator->() const {
+        return &GetValue();
+    }
+
+    template <typename T>
     inline Optional<T> EmptyOptional() noexcept {
         return Optional<T>{NullOptionalTag::Value};
     }

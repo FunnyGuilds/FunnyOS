@@ -92,21 +92,21 @@ namespace FunnyOS::Stdlib {
         [[nodiscard]] inline bool HasValue() const noexcept;
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optionalis not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline T& GetValue();
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optionalis not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline const T& GetValue() const;
 
         /**
-         * Returns the value of this optional or [defaultValue] if te optional is not initialized.
+         * Returns the value of this optional or [defaultValue] if the optional is not initialized.
          *
          * @param defaultValue default value
          * @return the value of this optional or [defaultValue]
@@ -114,7 +114,7 @@ namespace FunnyOS::Stdlib {
         inline T GetValueOrDefault(T&& defaultValue) noexcept;
 
         /**
-         * Returns the value of this optional or [defaultValue] if te optional is not initialized.
+         * Returns the value of this optional or [defaultValue] if the optional is not initialized.
          *
          * @param defaultValue default value
          * @return the value of this optional or [defaultValue]
@@ -122,32 +122,48 @@ namespace FunnyOS::Stdlib {
         inline T GetValueOrDefault(T&& defaultValue) const noexcept;
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optional is not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline operator T&();
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optional is not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline operator const T&() const;
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optional is not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline operator bool() noexcept;
 
         /**
-         * Returns the value of this optional or throws EmptyOptionalException if te optional is not initialized.
+         * Returns the value of this optional or throws EmptyOptionalException if the optional is not initialized.
          *
          * @return the value of this optional
          */
         [[nodiscard]] inline operator bool() const noexcept;
+
+        /**
+         * Returns a pointer to the value of this optional or throws EmptyOptionalException if the optional is not
+         * initialized.
+         *
+         * @return a pointer to the value of this optional
+         */
+        [[nodiscard]] inline T* operator->();
+
+        /**
+         * Returns a pointer to the value of this optional or throws EmptyOptionalException if the optional is not
+         * initialized.
+         *
+         * @return a pointer to the value of this optional
+         */
+        [[nodiscard]] inline const T* operator->() const;
 
        private:
         template <typename T2, typename... Args>
