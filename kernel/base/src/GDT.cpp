@@ -102,7 +102,7 @@ namespace FunnyOS::Kernel {
             "pushfq\n"
             "push rax\n"
             "push rdx\n"
-            "retfq\n"
+            "iretq\n"
             "2:"
             :
             : "a"(codeSegment << 3), "b"(dataSegment << 3), "d"(location)
