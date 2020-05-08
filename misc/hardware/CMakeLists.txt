@@ -5,6 +5,8 @@ function(setup_hw_library_variant name)
             src/Interrupts.cpp
             src/PIC.cpp
             src/Serial.cpp
+            src/GFX/FramebufferInterface.cpp
+            src/GFX/FontTerminalInterface.cpp
             src/GFX/VGA.cpp
     )
 
