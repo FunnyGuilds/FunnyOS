@@ -35,6 +35,7 @@ namespace FunnyOS::Bootloader32 {
         Register16 CX = {0};
         Register16 DX = {0};
         Register16 BX = {0};
+        Register16 BP = {0};
         Register16 SI = {0};
         Register16 DI = {0};
         Register16 ES = {0};

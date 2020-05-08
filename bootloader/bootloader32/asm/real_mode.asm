@@ -56,6 +56,7 @@ SECTION .real.text
         mov cx, [saved_CX]
         mov dx, [saved_DX]
         mov bx, [saved_BX]
+        mov bp, [saved_BP]
         mov si, [saved_SI]
         mov di, [saved_DI]
         mov es, [saved_ES]
@@ -74,6 +75,7 @@ SECTION .real.text
         mov [saved_CX], cx
         mov [saved_DX], dx
         mov [saved_BX], bx
+        mov [saved_BP], bp
         mov [saved_SI], si
         mov [saved_DI], di
         mov [saved_ES], es
@@ -139,6 +141,7 @@ SECTION .real.data
         saved_CX: dw 0x00
         saved_DX: dw 0x00
         saved_BX: dw 0x00
+        saved_BP: dw 0x00
         saved_SI: dw 0x00
         saved_DI: dw 0x00
         saved_ES: dw 0x00
