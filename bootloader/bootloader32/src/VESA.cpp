@@ -4,7 +4,17 @@
 
 namespace FunnyOS::Bootloader32 {
     namespace {
+        constexpr const uint16_t INVALID_MODE = Stdlib::NumeralTraits::Info<uint16_t>::MaximumValue;
         constexpr const uint8_t VBE_FUNCTION_SUPPORTED = 0x4F;
+
+        struct DefaultResolution {
+            uint32_t Width;
+            uint32_t Height;
+        };
+
+        constexpr const DefaultResolution g_defaultResolutions[] = {
+            {720, 480}, {640, 480}, {360, 480}, {320, 480}, {720, 240}, {640, 240}, {360, 240}, {320, 240},
+        };
 
         F_SECTION(".real.data") VbeInfoBlock g_vbeInfoBlock;
         bool g_vbeInfoBlockInitialized = false;
@@ -65,6 +75,27 @@ namespace FunnyOS::Bootloader32 {
 
             return buffer;
         }
+
+        Stdlib::Optional<EdidInformation> FetchEdidInformation() {
+            uint16_t bufferSegment;
+            uint16_t bufferOffset;
+            GetRealModeBufferAddress(bufferSegment, bufferOffset);
+
+            Registers16 registers16;
+            registers16.AX.Value16 = 0x4F15;
+            registers16.BX.Value16 = 0x001;
+            registers16.CX.Value16 = 0;
+            registers16.DX.Value16 = 0;
+            registers16.ES.Value16 = bufferSegment;
+            registers16.DI.Value16 = bufferOffset;
+            RealModeInt(0x10, registers16);
+
+            if (registers16.AX.Value8.Low != VBE_FUNCTION_SUPPORTED || registers16.AX.Value8.High != 0) {
+                return Stdlib::EmptyOptional<EdidInformation>();
+            }
+
+            return Stdlib::MakeOptional<EdidInformation>(*reinterpret_cast<EdidInformation*>(GetRealModeBuffer().Data));
+        }
     }  // namespace
 
     void* VesaPointerToVoidPointer(uint32_t vesaPointer) {
@@ -82,18 +113,20 @@ namespace FunnyOS::Bootloader32 {
         return g_vbeInfoBlock;
     }
 
+    const Stdlib::Optional<EdidInformation>& GetEdidInformation() {
+        static Stdlib::Optional<EdidInformation> c_edid = FetchEdidInformation();
+        return c_edid;
+    }
+
     Stdlib::Memory::SizedBuffer<VbeModeInfoBlock> GetVbeModes() {
         static Stdlib::Memory::SizedBuffer<VbeModeInfoBlock> c_modes = FetchVbeModes();
         return c_modes;
     }
 
-    Stdlib::Optional<uint16_t> PickBestMode() { // TODO: USE EDID
+    Stdlib::Optional<uint16_t> FindVideoMode(uint32_t width, uint32_t height) {
         using namespace Bootparams;
-        constexpr const uint16_t INVALID_MODE = Stdlib::NumeralTraits::Info<uint16_t>::MaximumValue;
         constexpr const uint16_t requiredAttributes =
             VbeModeAttributes::IsGraphicsMode | VbeModeAttributes::LinearFramebufferModeSupported;
-
-        uint16_t bestMode = INVALID_MODE;
 
         for (size_t i = 0; i < GetVbeModes().Size; i++) {
             const auto& mode = *GetVbeModes()[i];
@@ -111,32 +144,65 @@ namespace FunnyOS::Bootloader32 {
                 continue;
             }
 
-            if (mode.BitsPerPixel != 32) {
-                // TODO: Support any value divisible by 8
+            if (mode.BitsPerPixel != 32 || mode.RedPosition % 8 != 0 || mode.GreenPosition % 8 != 0 ||
+                mode.BluePosition % 8 != 0) {
                 continue;
             }
 
-            if (bestMode == INVALID_MODE) {
-                bestMode = i;
+            if (mode.Width != width || mode.Height != height) {
                 continue;
             }
 
-            const auto& best = *GetVbeModes()[bestMode];
-            const uint32_t bestResolution = static_cast<uint32_t>(best.Width) * static_cast<uint32_t>(best.Height);
-            const uint32_t currentResolution = static_cast<uint32_t>(mode.Width) * static_cast<uint32_t>(mode.Height);
-
-            if (bestResolution > currentResolution) {
-                continue;
-            }
-
-            if (best.BitsPerPixel > mode.BitsPerPixel) {
-                continue;
-            }
-
-            bestMode = i;
+            return Stdlib::MakeOptional<uint16_t>(i);
         }
 
-        return bestMode == INVALID_MODE ? Stdlib::EmptyOptional<uint16_t>() : Stdlib::MakeOptional<uint16_t>(bestMode);
+        return Stdlib::EmptyOptional<uint16_t>();
+    }
+
+    Stdlib::Optional<uint16_t> PickBestMode() {
+        const auto& edid = GetEdidInformation();
+
+        if (edid) {
+            uint16_t edidBestMode = INVALID_MODE;
+            uint32_t edidWidth = 0;
+            uint32_t edidHeight = 0;
+
+            // Find best edid resolution
+            for (int i = 0; i < 3; i++) {
+                uint32_t currentWidth = 0;
+                uint32_t currentHeight = 0;
+                edid->FetchMaxResolution(i, currentWidth, currentHeight);
+
+                if (currentWidth == 0 || currentHeight == 0) {
+                    continue;
+                }
+                Stdlib::Optional<uint16_t> mode = FindVideoMode(currentWidth, currentHeight);
+
+                if (!mode) {
+                    continue;
+                }
+
+                if (currentWidth * currentHeight > edidWidth * edidHeight) {
+                    edidWidth = currentWidth;
+                    edidHeight = currentHeight;
+                    edidBestMode = mode.GetValue();
+                }
+            }
+
+            if (edidBestMode != INVALID_MODE) {
+                return Stdlib::MakeOptional<uint16_t>(edidBestMode);
+            }
+        }
+
+        // No edid, use defaults
+        for (size_t i = 0; i < sizeof(g_defaultResolutions); i++) {
+            auto mode = FindVideoMode(g_defaultResolutions[i].Width, g_defaultResolutions[i].Height);
+            if (mode) {
+                return mode;
+            }
+        }
+
+        return Stdlib::EmptyOptional<uint16_t>();
     }
 
     void SelectVideoMode(uint16_t mode) {

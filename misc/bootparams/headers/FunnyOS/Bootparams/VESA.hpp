@@ -96,8 +96,40 @@ namespace FunnyOS::Bootparams {
         uint16_t VESAVideoMode;
     } F_DONT_ALIGN;
 
+    struct EdidInformation {
+        uint8_t Padding[8];
+        uint16_t ManufactureID;
+        uint16_t EdidIDCode;
+        uint32_t SerialNumber;
+        uint8_t ManufactureWeek;
+        uint8_t ManufactureYear;
+        uint8_t EdidVersion;
+        uint8_t EdidRevision;
+        uint8_t VideoInputTypeFlags;
+        uint8_t MaxHorizontalSizeCm;
+        uint8_t MaxVerticalSizeCm;
+        uint8_t GamaFactor;
+        uint8_t DPMS_Flags;
+        uint8_t ChromaInformation[10];
+        uint8_t EstablishedTimings1;
+        uint8_t EstablishedTimings2;
+        uint8_t ManufacturesReservedTimings;
+        uint16_t StandardTimingIdentification[8];
+        uint8_t DetailedTimingDescription[4][18];
+        uint8_t Unused;
+        uint8_t Checksum;
+
+        void FetchMaxResolution(uint8_t detailedIndex, uint32_t& width, uint32_t& height) const noexcept {
+            F_ASSERT(detailedIndex >= 0 && detailedIndex <= 3, "detailed index invalid");
+            const uint8_t* description = DetailedTimingDescription[detailedIndex];
+            width = description[2] | ((description[4] & 0xF0) << 4);
+            height = description[5] | ((description[7] & 0xF0) << 4);
+        }
+    } F_DONT_ALIGN;
+
     struct VbeInformation {
         uint32_t InfoBlockLocation;
+        uint32_t EdidBlockLocation;
         uint32_t ModeInfoStart;
         uint32_t ModeInfoEntries;
         uint16_t ActiveModeIndex;

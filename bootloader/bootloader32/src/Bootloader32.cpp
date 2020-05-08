@@ -13,6 +13,7 @@
 #include "Interrupts.hpp"
 #include "Logging.hpp"
 #include "Paging.hpp"
+#include "RealMode.hpp"
 #include "Sleep.hpp"
 #include "VESA.hpp"
 
@@ -101,6 +102,19 @@ namespace FunnyOS::Bootloader32 {
         }
     }  // namespace
 
+    void* FetchBiosFonts() {
+        auto biosFonts = Memory::AllocateBuffer<uint8_t>(256 * 16);
+        Registers16 registers16;
+        registers16.AX.Value16 = 0x1130;
+        registers16.BX.Value8.High = 0x06;
+        RealModeInt(0x10, registers16);
+
+        Memory::Copy<uint8_t>(biosFonts,
+                              reinterpret_cast<uint8_t*>(registers16.ES.Value16 * 16 + registers16.BP.Value16));
+
+        return biosFonts.Data;
+    }
+
     [[noreturn]] void Bootloader::Main() {
         GetBootloaderParameters().BootInfo = g_bootInfo;
         GetBootloaderParameters().MemoryMap = g_memoryMap;
@@ -164,7 +178,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Prepare VBE information and find best video mode
         GetBootloaderParameters().Vbe.InfoBlockLocation = reinterpret_cast<uint32_t>(&GetVbeInfoBlock());
-        GetBootloaderParameters().Vbe.ModeInfoStart= reinterpret_cast<uint32_t>(GetVbeModes().Data);
+        GetBootloaderParameters().Vbe.ModeInfoStart = reinterpret_cast<uint32_t>(GetVbeModes().Data);
         Optional<uint16_t> bestVideoMode = PickBestMode();
 
         if (!bestVideoMode) {
@@ -273,6 +287,10 @@ namespace FunnyOS::Bootloader32 {
             .Type = Bootparams::MemoryMapEntryType::PageTableReclaimable,
             .ACPIFlags = static_cast<uint32_t>(memoryMap.HasAcpiExtendedAttribute ? 0b01 : 0)};
         memoryMap.Count++;
+
+        // Fetch bios fonts
+        GetBootloaderParameters().BiosFonts = reinterpret_cast<uint32_t>(FetchBiosFonts());
+        FB_LOG_DEBUG_F("Bios fonts at %08x", GetBootloaderParameters().BiosFonts);
 
         // Pause if necessary
         if (IsPauseBeforeBoot()) {

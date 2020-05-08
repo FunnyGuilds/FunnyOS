@@ -23,6 +23,8 @@ namespace FunnyOS::Bootparams {
          * VESA informations.
          */
         VbeInformation Vbe;
+
+        uint32_t BiosFonts;
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams

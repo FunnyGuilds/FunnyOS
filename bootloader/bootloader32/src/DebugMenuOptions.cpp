@@ -267,9 +267,22 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO_F("\tVideoModePtr = 0x%08x", bloc.VideoModePtr);
         FB_LOG_INFO_F("\tTotalMemory = 0x%04x", bloc.TotalMemory);
         FB_LOG_INFO_F("\tOemSoftwareRev = 0x%04x", bloc.OemSoftwareRev);
-        FB_LOG_INFO_F("\tOemVendorName (0x%8x) = %s", bloc.OemVendorNamePtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemVendorNamePtr)));
-        FB_LOG_INFO_F("\tOemProductName (0x%08x) = %s", bloc.OemProductNamePtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductNamePtr)));
-        FB_LOG_INFO_F("\tOemProductRev (0x%8x) = %s", bloc.OemProductRevPtr, static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductRevPtr)));
+        FB_LOG_INFO_F("\tOemVendorName = %s", static_cast<char*>(VesaPointerToVoidPointer(bloc.OemVendorNamePtr)));
+        FB_LOG_INFO_F("\tOemProductName = %s", static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductNamePtr)));
+        FB_LOG_INFO_F("\tOemProductRev = %s", static_cast<char*>(VesaPointerToVoidPointer(bloc.OemProductRevPtr)));
+
+        const auto& edid = GetEdidInformation();
+        if (!edid) {
+            FB_LOG_WARNING("\tEdidPreferredResolution: NO EDID");
+        } else {
+            uint32_t width;
+            uint32_t height;
+
+            for (int i = 0; i < 4; i++) {
+                edid->FetchMaxResolution(i, width, height);
+                FB_LOG_INFO_F("\tEdidPreferredResolution[%d]: %dx%d", i, width, height);
+            }
+        }
 
         FB_LOG_INFO_F("\tAvailable video modes: %d", GetVbeModes().Size);
         size_t validVideoModes = 0;
