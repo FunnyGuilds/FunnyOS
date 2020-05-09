@@ -2,17 +2,6 @@
 
 %define PAGE_SIZE 0x1000
 
-%macro PRINT 1
-    mov eax, 1
-    lea esi, [ebp + (%%message - $$)]
-    int 0x2F
-    jmp %%code
-
-    %%message: db %1, 0
-    %%code:
-%endmacro
-
-
 EXTERN TEXT_OFFSET
 EXTERN PAGE_OFFSET
 EXTERN SIZE
@@ -26,8 +15,6 @@ SECTION .text
 
         ; Fetch the beginning of .text section
         sub ebp, (main_fetch_address - $$)
-
-        PRINT "main()"
 
         ; Setup long mode
         mov ecx, 0xC0000080

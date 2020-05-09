@@ -10,6 +10,7 @@
 #include "InterruptSetup.hpp"
 #include "Logging.hpp"
 #include "Sleep.hpp"
+#include "VESA.hpp"
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
@@ -117,17 +118,6 @@ namespace FunnyOS::Bootloader32 {
         Bootloader::Get().Panic(panicBuffer.Data);
     }
 
-    void Env64InterruptHandler(InterruptData* data) {
-        if (data->EAX == 0x01) {
-            FB_LOG_DEBUG_F("ENV64 message: %s", data->ESI);
-            return;
-        }
-
-        String::StringBuffer buffer = Memory::AllocateBuffer<char>(64);
-        String::Format(buffer, "ENV 64 interrupt. Code: 0x%02x. Detail: 0x%02x", data->EAX, data->EDX);
-        Bootloader::Get().Panic(buffer.Data);
-    }
-
     void KeyboardHandler(InterruptData* data) {
         using HW::PS2::ScanCode;
 
@@ -175,7 +165,6 @@ namespace FunnyOS::Bootloader32 {
         RegisterInterruptHandler(HW::InterruptType::IRQ_CoProcessor_FPU_IPI_Interrupt, &NoopInterruptHandler);
         RegisterInterruptHandler(HW::InterruptType::IRQ_PrimaryAtaHardDriveInterrupt, &NoopInterruptHandler);
         RegisterInterruptHandler(HW::InterruptType::IRQ_SecondaryAtaHardDriveInterrupt, &NoopInterruptHandler);
-        RegisterInterruptHandler(HW::InterruptType::Env64Interrupt, &Env64InterruptHandler);
 
         SetupInterruptTable(&InterruptHandlerSelector);
 

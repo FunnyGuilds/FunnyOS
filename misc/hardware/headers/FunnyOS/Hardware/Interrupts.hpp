@@ -63,7 +63,6 @@ namespace FunnyOS::HW {
         IRQ_CoProcessor_FPU_IPI_Interrupt = 44,
         IRQ_PrimaryAtaHardDriveInterrupt = 45,
         IRQ_SecondaryAtaHardDriveInterrupt = 46,
-        Env64Interrupt = 47
     };
 
     Stdlib::Optional<const char*> GetInterruptMnemonic(InterruptType type);
