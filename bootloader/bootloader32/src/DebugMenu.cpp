@@ -25,7 +25,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         bool g_exitRequested = false;
 
         void DrawFramePart(char sides, char center) {
-            auto* terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
             String::StringBuffer buffer = Memory::AllocateBuffer<char>(screenWidth + 1);
@@ -42,7 +42,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         void PrintHeader(const char* header) {
-            auto* terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager = Logging::GetTerminalManager();
             terminalManager->ClearScreen();
             DrawFramePart('+', '=');
             DrawFramePart('|', ' ');
@@ -57,7 +57,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         void PrintOption(const MenuOption* option) {
-            auto* terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
             String::StringBuffer buffer = Memory::AllocateBufferInitialized<char>(screenWidth + 1);
@@ -87,7 +87,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
                 return;
             }
 
-            auto* terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager = Logging::GetTerminalManager();
             PrintHeader("FunnyOS v" FUNNYOS_VERSION " Debug menu");
             terminalManager->PrintLine();
 
@@ -146,7 +146,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO("Entering debug menu...");
         g_menuEnabled = true;
 
-        auto* terminalManager = Logging::GetTerminalManager();
+        auto& terminalManager = Logging::GetTerminalManager();
         auto savedScreenData = terminalManager->GetInterface()->SaveScreenData();
         terminalManager->ClearScreen();
         DrawMenu();
@@ -156,6 +156,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
 
         terminalManager->GetInterface()->RestoreScreenData(savedScreenData);
+        terminalManager->GetInterface()->Submit();
+
         g_menuEnabled = false;
         FB_LOG_OK("Debugging menu exited successfully!");
         FB_LOG_DEBUG("Debug mode is enabled");

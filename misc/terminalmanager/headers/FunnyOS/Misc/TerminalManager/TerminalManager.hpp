@@ -1,6 +1,7 @@
 #ifndef FUNNYOS_MISC_TERMINALMANAGER_HEADERS_FUNNYOS_MISC_TERMINALMANAGER_TERMINALMANAGER_HPP
 #define FUNNYOS_MISC_TERMINALMANAGER_HEADERS_FUNNYOS_MISC_TERMINALMANAGER_TERMINALMANAGER_HPP
 
+#include <FunnyOS/Stdlib/Dynamic.hpp>
 #include "ITerminalInterface.hpp"
 
 namespace FunnyOS::Misc::TerminalManager {
@@ -25,12 +26,12 @@ namespace FunnyOS::Misc::TerminalManager {
          *
          * @param[in] interface interface to be used as a backend
          */
-        explicit TerminalManager(ITerminalInterface* interface);
+        explicit TerminalManager(Stdlib::Ref<ITerminalInterface> interface);
 
         /**
          * @return the ITerminalInterface this manager uses.
          */
-        [[nodiscard]] ITerminalInterface* GetInterface() const noexcept;
+        [[nodiscard]] Stdlib::Ref<ITerminalInterface>& GetInterface() noexcept;
 
         /**
          * @return the current background color
@@ -134,7 +135,7 @@ namespace FunnyOS::Misc::TerminalManager {
        private:
         int m_sessionNestingLevel = 0;
         CursorPosition m_sessionCursor{};
-        ITerminalInterface* m_interface;
+        Stdlib::Ref<ITerminalInterface> m_interface;
         Color m_backgroundColor = Color::Black;
         Color m_foregroundColor = Color::White;
     };

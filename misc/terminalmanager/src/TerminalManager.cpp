@@ -2,9 +2,10 @@
 
 namespace FunnyOS::Misc::TerminalManager {
 
-    TerminalManager::TerminalManager(ITerminalInterface* interface) : m_interface(interface) {}
+    TerminalManager::TerminalManager(Stdlib::Ref<ITerminalInterface> interface)
+        : m_interface(Stdlib::Move(interface)) {}
 
-    ITerminalInterface* TerminalManager::GetInterface() const noexcept {
+    Stdlib::Ref<ITerminalInterface>& TerminalManager::GetInterface() noexcept {
         return m_interface;
     }
 

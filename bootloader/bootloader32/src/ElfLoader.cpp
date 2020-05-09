@@ -186,7 +186,7 @@ namespace FunnyOS::Bootloader32 {
 
         va_list args;
         va_start(args, format);
-        Logging::PostLogFormatted(Logging::LogLevel::Debug, format, &args);
+        Logging::GetLogger().PostMessage(Stdlib::LogLevel::Debug, format, &args);
         va_end(args);
     }
 

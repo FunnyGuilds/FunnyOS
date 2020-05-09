@@ -123,7 +123,7 @@ namespace FunnyOS::Bootloader32 {
         GetAllocator().Initialize(reinterpret_cast<Misc::MemoryAllocator::memoryaddress_t>(&HEAP_START), 0x00080000);
         SetupInterrupts();
         SetupPIT();
-        Logging::InitSerialLogging();
+        Logging::InitLogging();
 
         FB_LOG_INFO("FunnyOS Bootloader, hello!");
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
@@ -335,7 +335,7 @@ namespace FunnyOS::Bootloader32 {
 
         using namespace FunnyOS::Misc::TerminalManager;
 
-        TerminalManager* terminal = Logging::GetTerminalManager();
+        auto& terminal = Logging::GetTerminalManager();
         terminal->ChangeColor(Color::Red, Color::White);
         terminal->ClearScreen();
         terminal->PrintString("================================================================================");

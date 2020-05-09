@@ -1,128 +1,80 @@
 #include "Logging.hpp"
 
+#include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Hardware/GFX/VGA.hpp>
 #include <FunnyOS/Hardware/Serial.hpp>
 
 namespace FunnyOS::Bootloader32::Logging {
+    using namespace Stdlib;
     using namespace Misc::TerminalManager;
 
-    namespace {
-        /**
-         * Colors for the tags of the specific log levels.
-         */
-        Color g_logLevelColors[] = {Color::Cyan,   Color::LightBlue, Color::LightGreen,
-                                    Color::Yellow, Color::LightRed,  Color::Red};
+    class SerialLoggingSink : public ILoggingSink {
+       public:
+        constexpr static HW::Serial::COMPort SERIAL_PORT = HW::Serial::COMPort::COM1;
 
-        /**
-         * Tags for the specific log levels.
-         */
-        const char* g_logLevelNames[] = {
-            " DBG", "INFO", " OK ", "WARN", " ERR", "FAIL",
-        };
+       public:
+        static void WriteToSerial(const char* message) {
+            while (*message != 0) {
+                while (!CanWrite(SERIAL_PORT)) {
+                    // Wait
+                }
 
-        constexpr HW::Serial::COMPort SERIAL_PORT = HW::Serial::COMPort::COM1;
-
-#ifdef F_DEBUG
-        bool g_debugModeEnabled = true;
-        bool g_outputToSerial = true;
-#else
-        bool g_debugModeEnabled = false;
-        bool g_outputToSerial = false;
-#endif
-    }  // namespace
-
-    bool IsDebugModeEnabled() {
-        return g_debugModeEnabled;
-    }
-
-    void SetDebugModeEnabled(bool enabled) {
-        g_debugModeEnabled = enabled;
-    }
-
-    bool IsSerialLoggingEnabled() {
-        return g_outputToSerial;
-    }
-
-    void SetSerialLoggingEnabled(bool enabled) {
-        g_outputToSerial = enabled;
-    }
-
-    void InitSerialLogging() {
-        using namespace HW::Serial;
-
-        if (!IsSerialLoggingEnabled()) {
-            return;
+                Write(SERIAL_PORT, static_cast<uint8_t>(*message));
+                message++;
+            }
         }
 
-        InitializeCOMPort(SERIAL_PORT, DataBits::BITS_8, StopBits::STOP_1, ParityBits::NONE, 115200);
-    }
+        void SubmitMessage(LogLevel level, const char* message) override {
+            using namespace HW::Serial;
 
-    void WriteToSerial(const char* message) {
-        using namespace HW::Serial;
-
-        while (*message != 0) {
-            while (!CanWrite(SERIAL_PORT)) {
-                // Wait
+            if (!s_serialInitialized) {
+                InitializeCOMPort(SERIAL_PORT, DataBits::BITS_8, StopBits::STOP_1, ParityBits::NONE, 115200);
+                s_serialInitialized = true;
             }
 
-            Write(SERIAL_PORT, static_cast<uint8_t>(*message));
-            message++;
-        }
-    }
-
-    Misc::TerminalManager::TerminalManager* GetTerminalManager() {
-        static HW::VGAInterface c_interface{};
-        static Misc::TerminalManager::TerminalManager c_terminalManager{&c_interface};
-
-        return &c_terminalManager;
-    }
-
-    void PostLog(LogLevel level, const char* message) {
-        if (IsSerialLoggingEnabled()) {
-            WriteToSerial(g_logLevelNames[static_cast<int>(level)]);
+            WriteToSerial(GetLogLevelName(level));
             WriteToSerial(": ");
             WriteToSerial(message);
             WriteToSerial("\r\n");
         }
 
-        if (level == LogLevel::Debug && !g_debugModeEnabled) {
-            return;
-        }
+       private:
+        inline static bool s_serialInitialized = false;
+    };
 
-        TerminalManager* terminal = GetTerminalManager();
-
-        const Color preservedColor = terminal->GetForegroundColor();
-
-        // Tag start
-        terminal->ChangeForegroundColor(Color::White);
-        terminal->PrintString(" * [");
-
-        // Actual tag
-        terminal->ChangeForegroundColor(g_logLevelColors[static_cast<int>(level)]);
-        terminal->PrintString(g_logLevelNames[static_cast<int>(level)]);
-
-        // Tag finish
-        terminal->ChangeForegroundColor(Color::White);
-        terminal->PrintString("] * ");
-
-        // Message
-        terminal->ChangeForegroundColor(preservedColor);
-        terminal->PrintString(message);
-        terminal->PrintLine();
+    Ref<FilteringLoggingSink>& GetVgaOutputSink() {
+        static Ref<FilteringLoggingSink> c_vgaSink;
+        return c_vgaSink;
     }
 
-    void PostLogFormatted(LogLevel level, const char* format, ...) {
-        va_list args;
-        va_start(args, format);
-        PostLogFormatted(level, format, &args);
-        va_end(args);
+    Ref<FilteringLoggingSink>& GetSerialLoggingSink() {
+        static Ref<FilteringLoggingSink> c_serialSink;
+        return c_serialSink;
     }
 
-    void PostLogFormatted(LogLevel level, const char* format, va_list* args) {
-        static char bufferData[512];
-        static Stdlib::String::StringBuffer buffer{bufferData, 512};
+    void InitLogging() {
+        auto& tm = GetTerminalManager();
+        GetVgaOutputSink().Reset(new FilteringLoggingSink(Ref<ILoggingSink>(new TerminalManagerLoggingSink(tm))));
+        GetSerialLoggingSink().Reset(new FilteringLoggingSink(Ref<ILoggingSink>(new SerialLoggingSink())));
 
-        const bool ret = Stdlib::String::Format(buffer, format, args);
-        PostLog(level, ret ? bufferData : format);
+#ifdef F_DEBUG
+        GetVgaOutputSink()->SetLevel(LogLevel::Debug);
+        GetSerialLoggingSink()->SetLevel(LogLevel::Debug);
+#endif
+
+        GetLogger().AddSink(StaticRefCast<ILoggingSink>(GetSerialLoggingSink()));
+        GetLogger().AddSink(StaticRefCast<ILoggingSink>(GetVgaOutputSink()));
+    }
+
+    Ref<Misc::TerminalManager::TerminalManager>& GetTerminalManager() {
+        static auto c_interface = MakeRef<HW::VGAInterface>();
+        static auto c_terminalManager = MakeRef<TerminalManager>(StaticRefCast<ITerminalInterface>(c_interface));
+
+        return c_terminalManager;
+    }
+
+    Logger& GetLogger() {
+        static Logger c_logger;
+        return c_logger;
     }
 }  // namespace FunnyOS::Bootloader32::Logging

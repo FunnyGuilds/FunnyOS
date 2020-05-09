@@ -2,103 +2,40 @@
 #define FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP
 
 #include <FunnyOS/Stdlib/String.hpp>
+#include <FunnyOS/Stdlib/Logging.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 
 namespace FunnyOS::Bootloader32::Logging {
 
-    /**
-     * Severity level of a log message.
-     */
-    enum class LogLevel { Debug, Info, Ok, Warning, Error, Fatal };
+    Stdlib::Ref<Stdlib::FilteringLoggingSink>& GetVgaOutputSink();
 
-    /**
-     * Returns whether or not logging debug mode is enabled. (Debug messages are actually printed on the screen)
-     * @return whether or not logging debug mode is enabled.
-     */
-    [[nodiscard]] bool IsDebugModeEnabled();
+    Stdlib::Ref<Stdlib::FilteringLoggingSink>& GetSerialLoggingSink();
 
-    /**
-     * Sets whether or not logging debug mode is enabled.
-     *
-     * @param enabled whether or not to enable it
-     */
-    void SetDebugModeEnabled(bool enabled);
-
-    /**
-     * Returns whether or not logging to serial port (COM1) is enabled.
-     *
-     * @return whether or not logging to serial port is enabled.
-     */
-    [[nodiscard]] bool IsSerialLoggingEnabled();
-
-    /**
-     * Sets whether or not logging to serial port (COM1) is enabled.
-     *
-     * @return whether or not logging to serial port is enabled.
-     */
-    void SetSerialLoggingEnabled(bool enabled);
-
-    /**
-     * Initializes the serial logging if it's enabled.
-     */
-    void InitSerialLogging();
+    void InitLogging();
 
     /**
      * Gets the TerminalManager instance used by the logging system.
      */
-    Misc::TerminalManager::TerminalManager* GetTerminalManager();
+    Stdlib::Ref<Misc::TerminalManager::TerminalManager>& GetTerminalManager();
 
-    /**
-     * Posts a new message to the logging system.
-     *
-     * @param[in] level severity of the message
-     * @param[in] message content of the message
-     */
-    void PostLog(LogLevel level, const char* message);
-
-    /**
-     * Posts a new message to the logging system formatted via String::Format
-     *
-     * @param[in] level severity of the message
-     * @param[in] format message format
-     * @param ... String::Format parameters.
-     */
-    void PostLogFormatted(LogLevel level, const char* format, ...);
-
-    /**
-     * Posts a new message to the logging system formatted via String::Format
-     *
-     * @param[in] level severity of the message
-     * @param[in] format message format
-     * @param[in] args String::Format parameters.
-     */
-    void PostLogFormatted(LogLevel level, const char* format, va_list* args);
+    Stdlib::Logger& GetLogger();
 
 }  // namespace FunnyOS::Bootloader32::Logging
 
-#define FB_LOG(level, message)                                                                             \
-    do {                                                                                                   \
-        FunnyOS::Bootloader32::Logging::PostLog(FunnyOS::Bootloader32::Logging::LogLevel::level, message); \
-    } while (0)
+#define FB_LOGGER() FunnyOS::Bootloader32::Logging::GetLogger()
 
-#define FB_LOG_F(level, message, ...)                                                                              \
-    do {                                                                                                           \
-        FunnyOS::Bootloader32::Logging::PostLogFormatted(FunnyOS::Bootloader32::Logging::LogLevel::level, message, \
-                                                         __VA_ARGS__);                                             \
-    } while (0)
+#define FB_LOG_INFO(message) F_LOG_INFO(FB_LOGGER(), message)
+#define FB_LOG_OK(message) F_LOG_OK(FB_LOGGER(), message)
+#define FB_LOG_WARNING(message) F_LOG_WARNING(FB_LOGGER(), message)
+#define FB_LOG_ERROR(message) F_LOG_ERROR(FB_LOGGER(), message)
+#define FB_LOG_FATAL(message) F_LOG_FATAL(FB_LOGGER(), message)
+#define FB_LOG_DEBUG(message) F_LOG_DEBUG(FB_LOGGER(), message)
 
-#define FB_LOG_INFO(message) FB_LOG(Info, message)
-#define FB_LOG_OK(message) FB_LOG(Ok, message)
-#define FB_LOG_WARNING(message) FB_LOG(Warning, message)
-#define FB_LOG_ERROR(message) FB_LOG(Error, message)
-#define FB_LOG_FATAL(message) FB_LOG(Fatal, message)
-
-#define FB_LOG_INFO_F(message, ...) FB_LOG_F(Info, message, __VA_ARGS__)
-#define FB_LOG_OK_F(message, ...) FB_LOG_F(Ok, message, __VA_ARGS__)
-#define FB_LOG_WARNING_F(message, ...) FB_LOG_F(Warning, message, __VA_ARGS__)
-#define FB_LOG_ERROR_F(message, ...) FB_LOG_F(Error, message, __VA_ARGS__)
-#define FB_LOG_FATAL_F(message, ...) FB_LOG_F(Fatal, message, __VA_ARGS__)
-#define FB_LOG_DEBUG(message) FB_LOG(Debug, message)
-#define FB_LOG_DEBUG_F(message, ...) FB_LOG_F(Debug, message, __VA_ARGS__)
+#define FB_LOG_INFO_F(message, ...) F_LOG_INFO_F(FB_LOGGER(), message, __VA_ARGS__)
+#define FB_LOG_OK_F(message, ...) F_LOG_OK_F(FB_LOGGER(), message, __VA_ARGS__)
+#define FB_LOG_WARNING_F(message, ...) F_LOG_WARNING_F(FB_LOGGER(), message, __VA_ARGS__)
+#define FB_LOG_ERROR_F(message, ...) F_LOG_ERROR_F(FB_LOGGER(), message, __VA_ARGS__)
+#define FB_LOG_FATAL_F(message, ...) F_LOG_FATAL_F(FB_LOGGER(), message, __VA_ARGS__)
+#define FB_LOG_DEBUG_F(message, ...) F_LOG_DEBUG_F(FB_LOGGER(), message, __VA_ARGS__)
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_LOGGING_HPP

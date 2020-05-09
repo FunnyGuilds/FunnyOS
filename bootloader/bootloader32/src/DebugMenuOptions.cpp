@@ -27,11 +27,11 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     }
 
     void DebugModeOption::SetMode(bool mode) {
-        Logging::SetDebugModeEnabled(mode);
+        Logging::GetVgaOutputSink()->SetLevel(mode ? Stdlib::LogLevel::Debug : Stdlib::LogLevel::Info);
     }
 
     bool DebugModeOption::GetMode() const {
-        return Logging::IsDebugModeEnabled();
+        return Logging::GetVgaOutputSink()->GetLevel() <= Stdlib::LogLevel::Debug;
     }
 
     void LogToSerial::FetchName(String::StringBuffer& buffer) const {
@@ -39,11 +39,11 @@ namespace FunnyOS::Bootloader32::DebugMenu {
     }
 
     void LogToSerial::SetMode(bool mode) {
-        Logging::SetSerialLoggingEnabled(mode);
+        Logging::GetSerialLoggingSink()->SetLevel(mode ? Stdlib::LogLevel::Debug : Stdlib::LogLevel::Off);
     }
 
     bool LogToSerial::GetMode() const {
-        return Logging::IsSerialLoggingEnabled();
+        return Logging::GetSerialLoggingSink()->GetLevel() == Stdlib::LogLevel::Debug;
     }
 
     void DebugDiskIOOption::FetchName(String::StringBuffer& buffer) const {
@@ -54,7 +54,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FileLoader::SetDebugReads(mode);
 
         if (mode) {
-            Logging::SetDebugModeEnabled(true);
+            Logging::GetVgaOutputSink()->SetLevel(Stdlib::LogLevel::Debug);
         }
     }
 
@@ -70,7 +70,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         ElfLoader::SetDebugElfs(mode);
 
         if (mode) {
-            Logging::SetDebugModeEnabled(true);
+            Logging::GetVgaOutputSink()->SetLevel(Stdlib::LogLevel::Debug);
         }
     }
 
