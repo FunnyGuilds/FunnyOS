@@ -1,6 +1,7 @@
 function(setup_terminal_manager_variant name)
     add_library(${name} STATIC
             src/TerminalManager.cpp
+            src/TerminalManagerLoggingSink.cpp
     )
 
     target_include_directories(${name}
