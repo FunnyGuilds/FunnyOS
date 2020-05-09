@@ -1,10 +1,10 @@
 #include <FunnyOS/Kernel/Kernel.hpp>
 
-#include <FunnyOS/Stdlib/String.hpp>
-#include <FunnyOS/Stdlib/Memory.hpp>
+#include <FunnyOS/Stdlib/Logging.hpp>
 #include <FunnyOS/Hardware/GFX/FramebufferInterface.hpp>
 #include <FunnyOS/Hardware/GFX/FontTerminalInterface.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
+#include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Kernel/GDT.hpp>
 
 extern void* KERNEL_HEAP;
@@ -17,6 +17,8 @@ namespace FunnyOS::Kernel {
     }
 
     [[noreturn]] void Kernel64::Main(Bootparams::Parameters& parameters) {
+        using namespace Misc::TerminalManager;
+
         if (m_initialized) {
             // TODO Panic();
         }
@@ -33,35 +35,35 @@ namespace FunnyOS::Kernel {
         LoadKernelGdt();
         LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
+        // Setup temporary text logging in video mode
         const auto& videoMode = reinterpret_cast<Bootparams::VbeModeInfoBlock*>(
             parameters.Vbe.ModeInfoStart)[parameters.Vbe.ActiveModeIndex];
 
-        // Setup framebuffer interface
-        HW::FramebufferInterface framebufferInterface(
-            {.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
-             .ScreenWidth = videoMode.Width,
-             .ScreenHeight = videoMode.Height,
-             .BPS = videoMode.BytesPerScanline,
-             .BPP = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
-             .RedPosition = videoMode.RedPosition,
-             .GreenPosition = videoMode.GreenPosition,
-             .BluePosition = videoMode.BluePosition});
+        auto framebufferInterface = MakeRef<HW::FramebufferInterface>(
+            HW::FramebufferConfiguration{.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
+                                         .ScreenWidth = videoMode.Width,
+                                         .ScreenHeight = videoMode.Height,
+                                         .BPS = videoMode.BytesPerScanline,
+                                         .BPP = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
+                                         .RedPosition = videoMode.RedPosition,
+                                         .GreenPosition = videoMode.GreenPosition,
+                                         .BluePosition = videoMode.BluePosition});
 
-        HW::FontTerminalInterface fontTerminalInterface(reinterpret_cast<uint8_t*>(m_parameters.BiosFonts),
-                                                        &framebufferInterface);
+        auto fontTerminalInterface = MakeRef<HW::FontTerminalInterface>(
+            reinterpret_cast<uint8_t*>(m_parameters.BiosFonts), framebufferInterface);
 
-        Misc::TerminalManager::TerminalManager manager(&fontTerminalInterface);
+        auto terminalManager = MakeRef<TerminalManager>(StaticRefCast<ITerminalInterface>(fontTerminalInterface));
 
-        String::StringBuffer stringBuffer = Memory::AllocateBuffer<char>(128);
-        String::Format(stringBuffer, "screen size in character %dx%d", fontTerminalInterface.GetScreenWidth(),
-                       fontTerminalInterface.GetScreenHeight());
+        Stdlib::Logger logger;
+        logger.AddSink(Stdlib::Ref<Stdlib::ILoggingSink>(new TerminalManagerLoggingSink(terminalManager)));
 
-        manager.PrintLine(stringBuffer.Data);
-        manager.PrintLine("Hello world from video mode :woah:");
+        F_LOG_DEBUG(logger, "We have kernel logger!");
+        F_LOG_DEBUG_F(logger, "screen size in character %dx%d", fontTerminalInterface->GetScreenWidth(),
+                      fontTerminalInterface->GetScreenHeight());
+        F_LOG_DEBUG(logger, "Hello world from video mode :woah:");
 
-        for (size_t i = 0; i < 4096; i++) {
-            String::Format(stringBuffer, "hello %d", i);
-            manager.PrintLine(stringBuffer.Data);
+        for (size_t i = 0; i < 35; i++) {
+            F_LOG_WARNING_F(logger, "Hello %d", i);
         }
 
         for (;;) {
