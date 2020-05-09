@@ -5,7 +5,6 @@
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
-
 namespace FunnyOS::HW {
     using namespace Stdlib;
 
@@ -18,6 +17,8 @@ namespace FunnyOS::HW {
     F_TRIVIAL_EXCEPTION_WITH_MESSAGE(DriveInterfaceException);
 
     class IDriveInterface {
+        INTERFACE(IDriveInterface);
+
        public:
         /**
          * Gets a unique ID identifying this drive.

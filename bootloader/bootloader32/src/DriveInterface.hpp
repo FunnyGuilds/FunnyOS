@@ -10,7 +10,7 @@ namespace FunnyOS::Bootloader32 {
     using namespace Stdlib;
 
     /**
-     * IDriveInterface implementation for disk IO using BIOS int13
+     * DriveInterface implementation for disk IO using BIOS int13
      *
      * Supports and defaults to the Enhanced Disk Drive 3.0 specification if available.
      */

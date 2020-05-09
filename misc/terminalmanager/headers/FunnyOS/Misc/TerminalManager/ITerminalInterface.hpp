@@ -60,6 +60,8 @@ namespace FunnyOS::Misc::TerminalManager {
      * Interface for low-level screen interactions
      */
     class ITerminalInterface {
+        INTERFACE(ITerminalInterface);
+
        public:
         /**
          * Allocates a buffer containing all data about the current state of the screen.

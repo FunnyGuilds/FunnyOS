@@ -30,6 +30,15 @@
     name(name&&) noexcept; \
     name& operator=(name&&) noexcept
 
+#define INTERFACE(name) \
+   protected:           \
+    name() = default;   \
+                        \
+   public:              \
+    NON_COPYABLE(name); \
+    NON_MOVEABLE(name); \
+    virtual ~name() = default;
+
 //
 // Assertion macros
 //
