@@ -37,6 +37,57 @@ namespace FunnyOS::Stdlib {
 
         return max;
     }
+
+    namespace _Internal {
+        template <typename Container, typename Iterator>
+        struct DefaultEraser {
+            constexpr DefaultEraser() = default;
+
+            Iterator operator()(Container& container, Iterator iterator) {
+                return container.Erase(iterator);
+            }
+        };
+    }  // namespace _Internal
+
+    template <typename Iterator, typename Matcher>
+    Iterator Find(Iterator begin, Iterator end, Matcher matcher) {
+        for (Iterator current = begin; current != end; begin++) {
+            if (matcher(*current)) {
+                return current;
+            }
+        }
+
+        return end;
+    }
+
+    template <typename Container, typename Iterator, typename Matcher>
+    Iterator Find(const Container& container, Matcher matcher) {
+        return Find<Iterator, Matcher>(Begin(container), End(container), matcher);
+    }
+
+    template <typename Iterator, typename Matcher, typename Eraser>
+    void RemoveIf(Iterator begin, Iterator end, Matcher matcher, Eraser eraser) {
+        for (Iterator current = begin; current != end;) {
+            if (matcher(*current)) {
+                current = eraser(current);
+            } else {
+                current++;
+            }
+        }
+    }
+
+    template <typename Container, typename Iterator, typename Matcher, typename ContainerEraser>
+    void RemoveIf(Container& container, Matcher matcher) {
+        static ContainerEraser c_eraser;
+
+        for (Iterator current = Begin(container); current != End(container);) {
+            if (matcher(*current)) {
+                current = c_eraser(container, current);
+            } else {
+                current++;
+            }
+        }
+    }
 }  // namespace FunnyOS::Stdlib
 
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_ALGORITHM_TCC
