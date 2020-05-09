@@ -7,6 +7,7 @@ configure_file(
 function(setup_stdlib_variant name type)
     add_library(${name} ${type}
             src/Division.cpp
+            src/Logging.cpp
             src/Memory.cpp
             src/NewDelete.cpp
             src/String.cpp
@@ -37,7 +38,7 @@ function(setup_stdlib_variant name type)
     list(FIND ARGN "LL" LL_index)
     if (NOT LL_index EQUAL -1)
         target_compile_definitions(${name} PUBLIC F_LL=1)
-        target_compile_options(${name} PUBLIC -mno-sse -fno-exceptions -fno-rtti)
+        target_compile_options(${name} PUBLIC -mno-sse -mno-sse2 -mno-mmx -mno-80387 -fno-exceptions -fno-rtti)
         target_compile_options(${name} PRIVATE -fdata-sections -ffunction-sections)
     endif()
 endfunction()
