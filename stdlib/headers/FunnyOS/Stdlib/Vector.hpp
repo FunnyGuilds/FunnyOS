@@ -28,11 +28,22 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     class Vector {
        public:
+#ifdef F_LL
+        using growth_factor_t = size_t;
+
+        /**
+         * The default growth factory used by vectors.
+         */
+        constexpr const static growth_factor_t DEFAULT_GROWTH_FACTOR = 2;
+
+#else
+        using growth_factor_t = float;
+
         /**
          * The default growth factory used by vectors.
          */
         constexpr const static float DEFAULT_GROWTH_FACTOR = 1.5F;
-
+#endif
        public:
         /**
          * Type used to iterate over this vector.
@@ -67,7 +78,7 @@ namespace FunnyOS::Stdlib {
          * @param[in] growthFactor growth factor, if there's a need to resize the vector, the new heap's size will be
          * the old size times the growth factor.
          */
-        Vector(size_t initialCapacity, float growthFactor);
+        Vector(size_t initialCapacity, growth_factor_t growthFactor);
 
         /**
          * Constructs a new vector and initializes it with entries from the InitializerList.
@@ -287,6 +298,8 @@ namespace FunnyOS::Stdlib {
         HAS_STANDARD_ITERATORS;
 
        private:
+        static void VectorMove(Memory::SizedBuffer<T>& destination, T* source) noexcept;
+
         void CheckBounds(size_t index) const;
 
         void Shift(size_t index, size_t count);
@@ -294,7 +307,7 @@ namespace FunnyOS::Stdlib {
         void EnsureCapacityExact(size_t num);
 
        private:
-        float m_growthFactor{DEFAULT_GROWTH_FACTOR};
+        growth_factor_t m_growthFactor{DEFAULT_GROWTH_FACTOR};
         size_t m_size{0};
         Memory::SizedBuffer<T> m_data;
     };

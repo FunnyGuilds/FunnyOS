@@ -63,7 +63,8 @@ namespace FunnyOS::Stdlib {
     Vector<T>::Vector(size_t initialCapacity) : Vector(initialCapacity, DEFAULT_GROWTH_FACTOR) {}
 
     template <typename T>
-    Vector<T>::Vector(size_t initialCapacity, float growthFactor) : m_growthFactor(growthFactor), m_data({nullptr, 0}) {
+    Vector<T>::Vector(size_t initialCapacity, growth_factor_t growthFactor)
+        : m_growthFactor(growthFactor), m_data({nullptr, 0}) {
         F_ASSERT(m_growthFactor > 1, "vector's growth factor too small");
 
         EnsureCapacityExact(initialCapacity);
@@ -140,7 +141,7 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     void Vector<T>::Append(T&& value) {
         EnsureCapacity(m_size + 1);
-        new (m_data[m_size]) T(value);
+        new (m_data[m_size]) T(Forward<T&&>(value));
         m_size++;
     }
 
@@ -159,7 +160,7 @@ namespace FunnyOS::Stdlib {
         m_data[index]->~T();
 
         Memory::SizedBuffer<T> destination{m_data.Data + index, m_size - index - 1};
-        Memory::Move(destination, m_data.Data + index + 1);
+        VectorMove(destination, m_data.Data + index + 1);
         m_size--;
     }
 
@@ -177,7 +178,7 @@ namespace FunnyOS::Stdlib {
         }
 
         Memory::SizedBuffer<T> destination{m_data.Data + from, m_size - to - 1};
-        Memory::Move(destination, m_data.Data + to + 1);
+        VectorMove(destination, m_data.Data + to + 1);
 
         m_size -= to - from + 1;
     }
@@ -199,7 +200,7 @@ namespace FunnyOS::Stdlib {
 
         size_t desiredCapacity = m_data.Size;
         while (desiredCapacity < num) {
-            desiredCapacity = static_cast<size_t>((static_cast<float>(desiredCapacity) * m_growthFactor)) + 1;
+            desiredCapacity = static_cast<size_t>((static_cast<growth_factor_t>(desiredCapacity) * m_growthFactor)) + 1;
         }
 
         EnsureCapacityExact(desiredCapacity);
@@ -274,6 +275,19 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    void Vector<T>::VectorMove(Memory::SizedBuffer<T>& destination, T* source) noexcept {
+        if (destination.Data < source) {
+            for (size_t i = 0; i < destination.Size; i++) {
+                destination.Data[i] = Forward<T&&>(source[i]);
+            }
+        } else if (destination.Data > source) {
+            for (ssize_t i = destination.Size - 1; i >= 0; i--) {
+                destination.Data[i] = Forward<T&&>(source[i]);
+            }
+        }
+    }
+
+    template <typename T>
     void Vector<T>::CheckBounds(size_t index) const {
         if (index >= m_size) {
             String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
@@ -290,7 +304,7 @@ namespace FunnyOS::Stdlib {
         CheckBounds(index);
 
         Memory::SizedBuffer<T> destination{m_data.Data + index + count, m_size - index};
-        Memory::Move(destination, m_data.Data + index);
+        VectorMove(destination, m_data.Data + index);
     }
 
     template <typename T>
