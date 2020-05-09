@@ -23,11 +23,18 @@ namespace FunnyOS::HW {
     }
 
     Stdlib::Memory::SizedBuffer<uint8_t> FontTerminalInterface::SaveScreenData() const noexcept {
-        // TODO
+        auto data = Stdlib::Memory::AllocateBuffer<uint8_t>(sizeof(CharacterData) * m_characterData.Size);
+        Stdlib::Memory::Copy(data.Data, m_characterData.Data, data.Size);
+        return data;
     }
 
     void FontTerminalInterface::RestoreScreenData(Stdlib::Memory::SizedBuffer<uint8_t>& buffer) noexcept {
-        // TODO
+        Stdlib::Memory::Copy(m_characterData.Data, buffer.Data, buffer.Size);
+        Stdlib::Memory::FreeBuffer(m_characterData);
+
+        for (auto& data : m_characterData) {
+            data.Dirty = true;
+        }
     }
 
     uint16_t FontTerminalInterface::GetScreenWidth() const noexcept {

@@ -3,7 +3,7 @@
 #
 function(custom_link target script)
     set_target_properties(${target} PROPERTIES LINKER_LANGUAGE "CXX")
-    target_link_options(${target} PRIVATE -T "${script}")
+    target_link_options(${target} PRIVATE -Wl,--build-id=none -Wl,-T "${script}")
 endfunction()
 
 #

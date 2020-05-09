@@ -21,10 +21,17 @@ namespace FunnyOS::_Platform {
         return Kernel::Kernel64::Get().GetKernelAllocator().Free(memory);
     }
 
-    void ReportError(const char* error) noexcept {}
+    void ReportError(const char* error) noexcept {
+        static_cast<void>(error);
+    }
 
     void Terminate(const char* error) noexcept {
         ReportError(error);
+        for (;;) {
+            asm volatile(
+                "cli\n"
+                "hlt");
+        }
     }
 
 }  // namespace FunnyOS::_Platform

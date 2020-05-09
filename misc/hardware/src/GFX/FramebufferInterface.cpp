@@ -10,6 +10,7 @@ namespace FunnyOS::HW {
 
     FramebufferInterface::FramebufferInterface(const FramebufferConfiguration& config) : m_config(config) {}
 
+    // NOLINTNEXTLINE(readability-make-member-function-const)
     void FramebufferInterface::PutPixel(uint64_t x, uint64_t y, uint8_t r, uint8_t g, uint8_t b) {
         auto* ptr = reinterpret_cast<uint8_t*>(m_config.Location) + m_config.BPS * y + m_config.BPP * x;
         PutPixelColor(ptr, m_config.RedPosition, r);
