@@ -184,6 +184,18 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    typename Vector<T>::Iterator Vector<T>::Erase(Vector<T>::ConstIterator iterator) {
+        for (size_t i = 0; i < m_size; i++) {
+            if (m_data.Data + i == iterator) {
+                Remove(i);
+                return m_data.Data + i;
+            }
+        }
+
+        return End();
+    }
+
+    template <typename T>
     void Vector<T>::ShrinkToSize() {
         Memory::ReallocateBuffer(m_data, m_size);
 

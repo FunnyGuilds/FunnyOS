@@ -233,6 +233,13 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    typename LinkedList<T>::Iterator LinkedList<T>::Erase(LinkedList<T>::ConstIterator iterator) {
+        Element* next = iterator.GetElement()->Next;
+        RemoveElement(iterator.GetElement());
+        return Iterator(next);
+    }
+
+    template <typename T>
     void LinkedList<T>::Insert(size_t index, const T& value) {
         InsertElement(index, new Element{Storage<T>(value), nullptr, nullptr});
     }

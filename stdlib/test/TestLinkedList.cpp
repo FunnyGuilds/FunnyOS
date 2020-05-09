@@ -132,6 +132,40 @@ TEST(TestLinkedList, CheckRemoveRange) {
     }
 }
 
+TEST(TestLinkedList, CheckErase) {
+    LinkedList<int> list = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    for (auto it = Begin(list); it != list.End();) {
+        if (*it >= 3 && *it <= 5) {
+            it = list.Erase(it);
+        } else {
+            it++;
+        }
+    }
+
+    for (auto it = Begin(list); it != list.End();) {
+        if (*it >= 9) {
+            it = list.Erase(it);
+        } else {
+            it++;
+        }
+    }
+
+    EXPECT_EQ(5, list.Size());
+    EXPECT_EQ(1, list[0]);
+    EXPECT_EQ(2, list[1]);
+    EXPECT_EQ(6, list[2]);
+    EXPECT_EQ(7, list[3]);
+    EXPECT_EQ(8, list[4]);
+
+    try {
+        static_cast<void>(list[5]);
+        FAIL() << "Exception not thrown";
+    } catch (const LinkedListIndexOutOfBounds& ex) {
+        // OK
+    }
+}
+
 TEST(TestLinkedList, CheckRemoveAllocations) {
     {
         TrackableObject::ResetAll();
@@ -180,7 +214,6 @@ TEST(TestLinkedList, CheckInsert) {
     }
 }
 
-
 TEST(TestLinkedList, CheckInsertRangeEnd) {
     LinkedList<int> toInsert = {6, 7, 8, 9};
 
@@ -207,7 +240,6 @@ TEST(TestLinkedList, CheckInsertRangeEnd) {
         // OK
     }
 }
-
 
 TEST(TestLinkedList, CheckInsertRange) {
     LinkedList<int> toInsert = {3, 4, 5};

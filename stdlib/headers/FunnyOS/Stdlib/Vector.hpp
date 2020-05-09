@@ -196,6 +196,14 @@ namespace FunnyOS::Stdlib {
         void RemoveRange(size_t from, size_t to);
 
         /**
+         * Removes an element that the [iterator] points at from the vector.
+         *
+         * @param iterator iterator that points to an element that is to be removed
+         * @return the iterator one after the removed element. (End() if the removed element was the last element)
+         */
+        Iterator Erase(ConstIterator iterator);
+
+        /**
          * Resizes the vector's heap to match the size of the vector.
          */
         void ShrinkToSize();

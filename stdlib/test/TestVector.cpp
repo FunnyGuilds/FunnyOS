@@ -153,6 +153,40 @@ TEST(TestVector, CheckRemoveRange) {
     EXPECT_GE(5, vector.Capacity());
 }
 
+TEST(TestVector, CheckErase) {
+    Vector<int> vector = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    for (auto it = Begin(vector); it != vector.End();) {
+        if (*it >= 3 && *it <= 5) {
+            it = vector.Erase(it);
+        } else {
+            it++;
+        }
+    }
+
+    for (auto it = Begin(vector); it != vector.End();) {
+        if (*it >= 9) {
+            it = vector.Erase(it);
+        } else {
+            it++;
+        }
+    }
+
+    EXPECT_EQ(5, vector.Size());
+    EXPECT_EQ(1, vector[0]);
+    EXPECT_EQ(2, vector[1]);
+    EXPECT_EQ(6, vector[2]);
+    EXPECT_EQ(7, vector[3]);
+    EXPECT_EQ(8, vector[4]);
+
+    try {
+        static_cast<void>(vector[5]);
+        FAIL() << "Exception not thrown";
+    } catch (const VectorIndexOutOfBounds& ex) {
+        // OK
+    }
+}
+
 TEST(TestVector, CheckRemoveAllocations) {
     {
         TrackableObject::ResetAll();
