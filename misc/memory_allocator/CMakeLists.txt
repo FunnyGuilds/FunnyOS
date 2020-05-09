@@ -16,7 +16,7 @@ target_link_libraries(FunnyOS_Misc_MemoryAllocator32
             FunnyOS_Stdlib_Base32_Static_LL
 )
 
-# 64-bit static PIC version to be linked as a kernel module later
+# 64-bit static version to be linked to kernel
 setup_memory_allocator_variant(FunnyOS_Misc_MemoryAllocator64)
 target_link_libraries(FunnyOS_Misc_MemoryAllocator64
         PUBLIC

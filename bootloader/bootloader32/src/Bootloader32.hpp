@@ -43,9 +43,9 @@ namespace FunnyOS::Bootloader32 {
         /**
          * Returns whether or not the bootloader should pause and wait for use input before jumping to kernel.
          *
-         * @return  whether or not the bootloader should pause and wait for use input before jumping to kernel
+         * @return whether or not the bootloader should pause and wait for use input before jumping to kernel
          */
-        bool IsPauseBeforeBoot() const;
+        [[nodiscard]] bool IsPauseBeforeBoot() const;
 
         /**
          * Sets whether or not the bootloader should pause and wait for use input before jumping to kernel.
@@ -63,7 +63,7 @@ namespace FunnyOS::Bootloader32 {
         static Bootloader& Get();
 
        private:
-        Misc::MemoryAllocator::StaticMemoryAllocator m_allocator;
+        Misc::MemoryAllocator::StaticMemoryAllocator m_allocator{};
         bool m_pauseBeforeBoot = false;
     };
 

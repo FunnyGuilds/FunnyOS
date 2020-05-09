@@ -14,13 +14,13 @@ namespace FunnyOS::Bootloader32 {
     ElfLoader::ElfLoader(Misc::MemoryAllocator::StaticMemoryAllocator& memoryAllocator, FileLoader& fileLoader)
         : m_memoryAllocator(memoryAllocator), m_fileLoader(fileLoader) {}
 
-    void* ElfLoader::LoadRegularFile(const char* file) {
+    Stdlib::Memory::SizedBuffer<void> ElfLoader::LoadRegularFile(const char* file) {
         FB_LOG_INFO_F("Loading file: %s", file);
 
         m_fileLoader.OpenFile(file);
         void* memory = m_memoryAllocator.Allocate(m_fileLoader.GetFile().size, 1);
         m_fileLoader.LoadCurrentFile(memory);
-        return memory;
+        return {memory, m_fileLoader.GetFile().size};
     }
 
     ElfFileInfo ElfLoader::LoadElfFile(const void* file) {

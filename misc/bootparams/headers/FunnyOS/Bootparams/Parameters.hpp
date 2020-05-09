@@ -24,6 +24,9 @@ namespace FunnyOS::Bootparams {
          */
         VbeInformation Vbe;
 
+        /**
+         * Pointer to the 16x8 fonts fetched from BIOS.
+         */
         uint32_t BiosFonts;
     } F_DONT_ALIGN;
 

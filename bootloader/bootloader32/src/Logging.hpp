@@ -7,10 +7,19 @@
 
 namespace FunnyOS::Bootloader32::Logging {
 
+    /**
+     * @return the logger sink responsible for writing onto the computer screen.
+     */
     Stdlib::Ref<Stdlib::FilteringLoggingSink>& GetVgaOutputSink();
 
+    /**
+     * @return the logger sink responsible for writing to serial COM1 port.
+     */
     Stdlib::Ref<Stdlib::FilteringLoggingSink>& GetSerialLoggingSink();
 
+    /**
+     * Initializes the logging system.
+     */
     void InitLogging();
 
     /**
@@ -18,6 +27,9 @@ namespace FunnyOS::Bootloader32::Logging {
      */
     Stdlib::Ref<Misc::TerminalManager::TerminalManager>& GetTerminalManager();
 
+    /**
+     * @return logger used by the Bootloader32
+     */
     Stdlib::Logger& GetLogger();
 
 }  // namespace FunnyOS::Bootloader32::Logging

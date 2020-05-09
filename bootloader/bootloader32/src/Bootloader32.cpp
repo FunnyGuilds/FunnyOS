@@ -219,12 +219,12 @@ namespace FunnyOS::Bootloader32 {
 
         // Load env 64
         ElfLoader lowMemoryElfLoader(GetAllocator(), bootPartitionFileLoader);
-        void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64");
+        void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64").Data;
         FB_LOG_DEBUG_F("env64 loaded at %08x", env64);
 
         // Load raw kernel elf to memory
         ElfLoader highMemoryElfLoader(highMemoryAllocator, bootPartitionFileLoader);
-        void* kernelRawElf = highMemoryElfLoader.LoadRegularFile("/system/fkrnl.fxe");
+        void* kernelRawElf = highMemoryElfLoader.LoadRegularFile("/system/fkrnl.fxe").Data;
         FB_LOG_DEBUG_F("fkrnl.fxe loaded at %08x as raw file", kernelRawElf);
 
         // Load kernel .elf

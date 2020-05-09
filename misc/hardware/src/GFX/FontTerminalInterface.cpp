@@ -4,18 +4,22 @@
 
 namespace FunnyOS::HW {
     namespace {
+        constexpr const uint8_t FONT_WIDTH = 8;
+        constexpr const uint8_t FONT_HEIGHT = 16;
+
         constexpr const uint8_t g_colorMap[16][3] = {
             {0x00, 0x00, 0x00}, {0x00, 0x00, 0xAA}, {0x00, 0xAA, 0x00}, {0x00, 0xAA, 0xAA},
             {0xAA, 0x00, 0x00}, {0xAA, 0x00, 0xAA}, {0xAA, 0x55, 0x00}, {0xAA, 0xAA, 0xAA},
             {0x55, 0x55, 0x55}, {0x55, 0x55, 0xFF}, {0x55, 0xFF, 0x55}, {0x55, 0xFF, 0xFF},
             {0xFF, 0x55, 0x55}, {0xFF, 0x55, 0xFF}, {0xFF, 0xFF, 0x55}, {0xFF, 0xFF, 0xFF},
         };
-    }
+    }  // namespace
 
-    FontTerminalInterface::FontTerminalInterface(uint8_t* fontLocation, FramebufferInterface* interface)
+    FontTerminalInterface::FontTerminalInterface(uint8_t* fontLocation, Stdlib::Ref<FramebufferInterface> interface)
         : m_fontLocation(fontLocation),
-          m_interface(interface),
-          m_characterData((m_interface->GetScreenWidth() / 8) * (m_interface->GetScreenHeight() / 16)) {
+          m_interface(Stdlib::Move(interface)),
+          m_characterData((m_interface->GetScreenWidth() / FONT_WIDTH) *
+                          (m_interface->GetScreenHeight() / FONT_HEIGHT)) {
         const CharacterDataCache defaultData = {
             {0, Misc::TerminalManager::Color::Black, Misc::TerminalManager::Color::White},
             false};
@@ -38,11 +42,11 @@ namespace FunnyOS::HW {
     }
 
     uint16_t FontTerminalInterface::GetScreenWidth() const noexcept {
-        return m_interface->GetScreenWidth() / 8;
+        return m_interface->GetScreenWidth() / FONT_WIDTH;
     }
 
     uint16_t FontTerminalInterface::GetScreenHeight() const noexcept {
-        return m_interface->GetScreenHeight() / 16;
+        return m_interface->GetScreenHeight() / FONT_HEIGHT;
     }
 
     FontTerminalInterface::CursorPosition FontTerminalInterface::GetCursorPosition() const noexcept {
@@ -88,12 +92,12 @@ namespace FunnyOS::HW {
     void FontTerminalInterface::DrawSingle(CursorPosition position, CharacterDataCache& data) {
         uint8_t* fontCharacter = m_fontLocation + (static_cast<uint16_t>(data.Data.Character) * 16);
 
-        for (size_t x = 0; x < 8; x++) {
-            for (size_t y = 0; y < 16; y++) {
+        for (size_t x = 0; x < FONT_WIDTH; x++) {
+            for (size_t y = 0; y < FONT_HEIGHT; y++) {
                 const bool isForeground = (fontCharacter[y] & (1 << (7 - x))) != 0;
                 const uint8_t* c = g_colorMap[isForeground ? static_cast<size_t>(data.Data.Foreground)
                                                            : static_cast<size_t>(data.Data.Background)];
-                m_interface->PutPixel(position.X * 8 + x, position.Y * 16 + y, c[0], c[1], c[2]);
+                m_interface->PutPixel(position.X * FONT_WIDTH + x, position.Y * FONT_HEIGHT + y, c[0], c[1], c[2]);
             }
         }
 

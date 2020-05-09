@@ -8,6 +8,9 @@ namespace FunnyOS::Bootloader32 {
 
     F_TRIVIAL_EXCEPTION_WITH_MESSAGE(FileLoadingFailure);
 
+    /**
+     * Represents an ELF object type
+     */
     enum class ElfObjectType : uint16_t {
         ET_NONE = 0x00,
         ET_REL = 0x01,
@@ -20,6 +23,9 @@ namespace FunnyOS::Bootloader32 {
         ET_HIPROC = 0xffff,
     };
 
+    /**
+     * Represents an ELF file header.
+     */
     struct ElfHeader {
         uint32_t Magic;
         uint8_t Size;
@@ -43,6 +49,9 @@ namespace FunnyOS::Bootloader32 {
         uint16_t ShStrIndex;
     } F_DONT_ALIGN;
 
+    /**
+     * Represents a type of a program header.
+     */
     enum class PHType : uint32_t {
         PT_NULL = 0x00000000,
         PT_LOAD = 0x00000001,
@@ -58,6 +67,9 @@ namespace FunnyOS::Bootloader32 {
         PT_HIPROC = 0x7FFFFFFF,
     };
 
+    /**
+     * An ELF program header.
+     */
     struct ProgramHeader {
         PHType Type;
         uint32_t Flags;
@@ -69,6 +81,9 @@ namespace FunnyOS::Bootloader32 {
         uint64_t Alignment;
     } F_DONT_ALIGN;
 
+    /**
+     * Represents a type of a section header.
+     */
     enum class SHType : uint32_t {
         SHT_NULL = 0x0,
         SHT_PROGBITS = 0x1,
@@ -107,6 +122,9 @@ namespace FunnyOS::Bootloader32 {
         constexpr uint32_t SHF_EXCLUDE = 0x8000000;
     }  // namespace SHFlags
 
+    /**
+     * Represents an ELF section header.
+     */
     struct SectionHeader {
         uint32_t NameOffset;
         SHType Type;
@@ -120,25 +138,72 @@ namespace FunnyOS::Bootloader32 {
         uint64_t EntrySize;
     } F_DONT_ALIGN;
 
+    /**
+     * Contains additional information gathered while loading an file.
+     */
     struct ElfFileInfo {
+        /**
+         * Virtual location at where the .elf file should be put on.
+         */
         uint64_t VirtualLocationBase;
+
+        /**
+         * Physical location at where the .elf file was loaded at.
+         */
         uint64_t PhysicalLocationBase;
+
+        /**
+         * Total size of the executable in memory.
+         */
         uint64_t TotalMemorySize;
+
+        /**
+         * Virtual address of the .elf entry point.
+         */
         uint64_t EntryPointVirtual;
     };
 
+    /**
+     * Helper for loading files and parsing .elf files.
+     */
     class ElfLoader {
        public:
+        /**
+         * Constructs a new ElfLoader
+         *
+         * @param memoryAllocator allocator that will be used to allocate memory for the loaded files.
+         * @param fileLoader file loader to be used to load files.
+         */
         ElfLoader(Misc::MemoryAllocator::StaticMemoryAllocator& memoryAllocator, FileLoader& fileLoader);
 
        public:
-        void* LoadRegularFile(const char* file);
+        /**
+         * Loads a regular file [file] to memory.
+         *
+         * @param file path to the file
+         * @return pointer to where the file was loaded to.
+         */
+        Stdlib::Memory::SizedBuffer<void> LoadRegularFile(const char* file);
 
+        /**
+         * Parses and loads the given elf file loaded at [file].
+         *
+         * @param file raw .elf file in memory to load.
+         * @return the [ElfFileInfo] struct for the loaded file.
+         */
         ElfFileInfo LoadElfFile(const void* file);
 
        public:
+        /**
+         * @return whether or not .elf debugging is enabled.
+         */
         static bool IsDebugElfs();
 
+        /**
+         * Sets whether or not .elf debugging is enabled.
+         *
+         * @param debugElfs whether or not .elf debugging is enabled
+         */
         static void SetDebugElfs(bool debugElfs);
 
        private:
