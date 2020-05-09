@@ -37,18 +37,23 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    bool LinkedList<T>::ConstIterator::operator==(const LinkedList::ConstIterator& other) noexcept {
+    bool LinkedList<T>::ConstIterator::operator==(const LinkedList::ConstIterator& other) const noexcept {
         return m_element == other.m_element;
     }
 
     template <typename T>
-    bool LinkedList<T>::ConstIterator::operator!=(const LinkedList::ConstIterator& other) noexcept {
+    bool LinkedList<T>::ConstIterator::operator!=(const LinkedList::ConstIterator& other) const noexcept {
         return m_element != other.m_element;
     }
 
     template <typename T>
-    const LinkedList<T>& LinkedList<T>::ConstIterator::GetList() const {
-        return m_list;
+    bool LinkedList<T>::ConstIterator::operator==(LinkedList::ConstIterator& other) noexcept {
+        return m_element == other.m_element;
+    }
+
+    template <typename T>
+    bool LinkedList<T>::ConstIterator::operator!=(LinkedList::ConstIterator& other) noexcept {
+        return m_element != other.m_element;
     }
 
     template <typename T>
@@ -57,8 +62,8 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    LinkedList<T>::ConstIterator::ConstIterator(const LinkedList& list, LinkedList::Element* element)
-        : m_list(list), m_element(element) {}
+    LinkedList<T>::ConstIterator::ConstIterator(LinkedList::Element* element)
+        : m_element(element) {}
 
     template <typename T>
     T& LinkedList<T>::Iterator::operator*() noexcept {
@@ -115,10 +120,10 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    LinkedList<T>::Iterator::Iterator(LinkedList& list, LinkedList::Element* element) : ConstIterator(list, element) {}
+    LinkedList<T>::Iterator::Iterator(LinkedList::Element* element) : ConstIterator(element) {}
 
     template <typename T>
-    LinkedList<T>::LinkedList() : m_head(new Element{Storage<T>(), nullptr}), m_tail(m_head) {}
+    LinkedList<T>::LinkedList() : m_head(new Element{Storage<T>(), nullptr, nullptr}), m_tail(m_head) {}
 
     template <typename T>
     LinkedList<T>::LinkedList(InitializerList<T> list) : LinkedList() {
@@ -194,15 +199,7 @@ namespace FunnyOS::Stdlib {
     void LinkedList<T>::Remove(size_t index) {
         CheckBounds(index);
 
-        Element* before;
-        Element* toRemove = ElementAt(index, &before);
-        before->Next = toRemove->Next;
-        if (toRemove == m_tail) {
-            m_tail = before;
-        }
-
-        delete toRemove;
-        m_size--;
+        RemoveElement(ElementAt(index));
     }
 
     template <typename T>
@@ -214,13 +211,12 @@ namespace FunnyOS::Stdlib {
             F_ERROR_WITH_MESSAGE(LinkedListIndexOutOfBounds, "from > to");
         }
 
-        Element* before;
-        Element* current = ElementAt(from, &before);
+        Element* current = ElementAt(from);
         Element* toRemoveLast = ElementAt(to);
 
-        before->Next = toRemoveLast->Next;
+        current->Previous->Next = toRemoveLast->Next;
         if (toRemoveLast == m_tail) {
-            m_tail = before;
+            m_tail = current->Previous;
         }
 
         for (;;) {
@@ -238,18 +234,19 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     void LinkedList<T>::Insert(size_t index, const T& value) {
-        InsertElement(index, new Element{Storage<T>(value), nullptr});
+        InsertElement(index, new Element{Storage<T>(value), nullptr, nullptr});
     }
 
     template <typename T>
     void LinkedList<T>::Insert(size_t index, T&& value) {
-        InsertElement(index, new Element{Storage<T>(value), nullptr});
+        InsertElement(index, new Element{Storage<T>(value), nullptr, nullptr});
     }
 
     template <typename T>
     template <typename... Args>
     void LinkedList<T>::InsertInPlace(size_t index, Args&&... args) {
-        InsertElement(index, new Element{Storage<T>(InPlaceConstructor::Value, Forward<Args>(args)...), nullptr});
+        InsertElement(index,
+                      new Element{Storage<T>(InPlaceConstructorTag::Value, Forward<Args>(args)...), nullptr, nullptr});
     }
 
     template <typename T>
@@ -261,7 +258,7 @@ namespace FunnyOS::Stdlib {
 
         if (index == m_size) {
             for (size_t i = 0; i < size; i++) {
-                m_tail->Next = new Element{Storage<T>(*value), nullptr};
+                m_tail->Next = new Element{Storage<T>(*value), m_tail, nullptr};
                 m_tail = m_tail->Next;
                 m_size++;
                 value++;
@@ -270,12 +267,11 @@ namespace FunnyOS::Stdlib {
             return;
         }
 
-        Element* before;
-        Element* insertAfter = ElementAt(index, &before);
+        Element* insertAfter = ElementAt(index);
+        Element* current = insertAfter->Previous;
 
-        Element* current = before;
         for (size_t i = 0; i < size; i++) {
-            current->Next = new Element{Storage<T>(*value), nullptr};
+            current->Next = new Element{Storage<T>(*value), nullptr, current};
             current = current->Next;
 
             m_size++;
@@ -301,22 +297,22 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     typename LinkedList<T>::Iterator LinkedList<T>::Begin() noexcept {
-        return Iterator(*this, m_head->Next);
+        return Iterator(m_head->Next);
     }
 
     template <typename T>
     typename LinkedList<T>::Iterator LinkedList<T>::End() noexcept {
-        return Iterator(*this, nullptr);
+        return Iterator(nullptr);
     }
 
     template <typename T>
     typename LinkedList<T>::ConstIterator LinkedList<T>::Begin() const noexcept {
-        return ConstIterator(*this, m_head->Next);
+        return ConstIterator(m_head->Next);
     }
 
     template <typename T>
     typename LinkedList<T>::ConstIterator LinkedList<T>::End() const noexcept {
-        return ConstIterator(*this, nullptr);
+        return ConstIterator(nullptr);
     }
 
     template <typename T>
@@ -329,11 +325,10 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    typename LinkedList<T>::Element* LinkedList<T>::ElementAt(size_t index, Element** preceding) const {
+    typename LinkedList<T>::Element* LinkedList<T>::ElementAt(size_t index) const {
         Element* current = m_head;
 
         for (size_t i = 0; i < index + 1; i++) {
-            *preceding = current;
             current = current->Next;
         }
 
@@ -341,25 +336,36 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    typename LinkedList<T>::Element* LinkedList<T>::ElementAt(size_t index) const {
-        Element* ignored;
-        return ElementAt(index, &ignored);
-    }
-
-    template <typename T>
     void LinkedList<T>::InsertElement(size_t index, Element* element) {
         if (index == m_size) {
             m_tail->Next = element;
+            element->Previous = m_tail;
             m_tail = element;
             m_size++;
             return;
         }
 
-        Element* before;
-        Element* current = ElementAt(index, &before);
-        before->Next = element;
+        Element* current = ElementAt(index);
+        current->Previous->Next = element;
+        element->Previous = current->Previous;
         element->Next = current;
         m_size++;
+    }
+
+    template <typename T>
+    void LinkedList<T>::RemoveElement(Element* element) {
+        element->Previous->Next = element->Next;
+
+        if (element->Next != nullptr) {
+            element->Next->Previous = element->Previous;
+        }
+
+        if (element == m_tail) {
+            m_tail = element->Previous;
+        }
+
+        delete element;
+        m_size--;
     }
 
 }  // namespace FunnyOS::Stdlib

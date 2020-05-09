@@ -73,7 +73,7 @@ namespace FunnyOS::Stdlib {
              * @param other other iterator to compare
              * @return whether or not the other iterator is pointing at the same element
              */
-            bool operator==(const ConstIterator& other) noexcept;
+            bool operator==(const ConstIterator& other) const noexcept;
 
             /**
              * Checks whether or not the [other] iterator is not pointing at the exact same element as this one.
@@ -81,19 +81,32 @@ namespace FunnyOS::Stdlib {
              * @param other other iterator to compare
              * @return whether or not the other iterator is not pointing at the same element
              */
-            bool operator!=(const ConstIterator& other) noexcept;
+            bool operator!=(const ConstIterator& other) const noexcept;
+
+            /**
+             * Checks whether or not the [other] iterator is pointing at the exact same element as this one.
+             *
+             * @param other other iterator to compare
+             * @return whether or not the other iterator is pointing at the same element
+             */
+            bool operator==(ConstIterator& other) noexcept;
+
+            /**
+             * Checks whether or not the [other] iterator is not pointing at the exact same element as this one.
+             *
+             * @param other other iterator to compare
+             * @return whether or not the other iterator is not pointing at the same element
+             */
+            bool operator!=(ConstIterator& other) noexcept;
 
            protected:
-            ConstIterator(const LinkedList& list, Element* element);
+            ConstIterator(Element* element);
 
             friend class LinkedList;
-
-            const LinkedList& GetList() const;
 
             Element* GetElement() const;
 
            private:
-            const LinkedList& m_list;
             Element* m_element;
         };
 
@@ -125,7 +138,7 @@ namespace FunnyOS::Stdlib {
             T* operator->() noexcept;
 
            protected:
-            Iterator(LinkedList& list, Element* element);
+            Iterator(Element* element);
 
             friend class LinkedList;
         };
@@ -339,17 +352,18 @@ namespace FunnyOS::Stdlib {
        private:
         struct Element {
             Storage<T> Data;
+            Element* Previous;
             Element* Next;
         };
 
        private:
         void CheckBounds(size_t num) const;
 
-        Element* ElementAt(size_t num, Element** preceding) const;
-
         Element* ElementAt(size_t num) const;
 
         void InsertElement(size_t index, Element* element);
+
+        void RemoveElement(Element* element);
 
        private:
         size_t m_size{0};
