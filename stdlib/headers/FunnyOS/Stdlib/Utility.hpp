@@ -38,18 +38,18 @@ namespace FunnyOS::Stdlib {
     /**
      * Represents a global tag that can be used to use a function variant supporting in-place construction.
      */
-    struct InPlaceConstructor {
+    struct InPlaceConstructorTag {
        public:
-        constexpr static const InPlaceConstructor* Value = static_cast<const InPlaceConstructor*>(nullptr);
+        constexpr static const InPlaceConstructorTag* Value = static_cast<const InPlaceConstructorTag*>(nullptr);
 
-        InPlaceConstructor() = delete;
+        InPlaceConstructorTag() = delete;
     };
 
     /**
      * Indicates whether or not T is one a global Stdlib tag.
      */
     template <typename T>
-    constexpr bool IsGlobalTag = IsSame<T, InPlaceConstructor>;
+    constexpr bool IsGlobalTag = IsSame<T, InPlaceConstructorTag>;
 
     /**
      * Represents an arbitrary object wrapper that may or may not be initialized.
@@ -88,7 +88,7 @@ namespace FunnyOS::Stdlib {
          * @param args arguments to pass to the constructor
          */
         template <typename... Args>
-        inline explicit Storage(const InPlaceConstructor* /*unused*/, Args&&... args);
+        inline explicit Storage(const InPlaceConstructorTag* /*unused*/, Args&&... args);
 
         /**
          * Converts this storage to the type of the underlying object

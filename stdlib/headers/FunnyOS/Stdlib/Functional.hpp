@@ -170,7 +170,7 @@ namespace FunnyOS::Stdlib {
         friend Optional<T2> MakeOptional(Args&&... args);
 
         template <typename... Args>
-        inline explicit Optional(const InPlaceConstructor* /*tag*/, Args&&... args);
+        inline explicit Optional(const InPlaceConstructorTag* /*tag*/, Args&&... args);
 
        private:
         Storage<T> m_storage;

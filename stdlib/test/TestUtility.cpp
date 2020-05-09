@@ -22,7 +22,7 @@ TEST(TestUtility, TestStorageCopy) {
         TrackableObject testObject{flag};
         flag = false;
 
-        Storage<TrackableObject> test{InPlaceConstructor::Value, testObject};
+        Storage<TrackableObject> test{InPlaceConstructorTag::Value, testObject};
 
         ASSERT_FALSE(flag) << "Copy storage initialization called the object constructor";
         ASSERT_EQ(TrackableObject::GetStandardConstructionCount(), 1)
@@ -42,7 +42,7 @@ TEST(TestUtility, TestStorageInPlace) {
         bool flag = false;
         TrackableObject::ResetAll();
 
-        Storage<TrackableObject> test{InPlaceConstructor::Value, flag};
+        Storage<TrackableObject> test{InPlaceConstructorTag::Value, flag};
 
         ASSERT_TRUE(flag) << "In-place storage initialization did not call the object constructor";
         ASSERT_EQ(TrackableObject::GetTotalConstructionCount(), 1)
@@ -61,7 +61,7 @@ TEST(TestUtility, TestAssignments) {
         bool unused = false;
         TrackableObject test(unused);  // construction 1
 
-        Storage<TrackableObject> inPlace{InPlaceConstructor::Value, unused};  // construction 2
+        Storage<TrackableObject> inPlace{InPlaceConstructorTag::Value, unused};  // construction 2
         Storage<TrackableObject> copied{inPlace};                             // copy 1
         Storage<TrackableObject> moved{Move(inPlace)};                        // move 1
 

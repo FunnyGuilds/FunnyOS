@@ -37,7 +37,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     template <typename... Args>
-    Storage<T>::Storage(const InPlaceConstructor* /*unused*/, Args&&... args) : m_initialized(true) {
+    Storage<T>::Storage(const InPlaceConstructorTag* /*unused*/, Args&&... args) : m_initialized(true) {
         new (static_cast<void*>(&m_data)) T(Forward<Args>(args)...);
     }
 
