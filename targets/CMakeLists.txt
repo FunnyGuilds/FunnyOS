@@ -8,6 +8,7 @@ add_custom_command(
             FunnyOS_Bootloader_MBR
             FunnyOS_Bootloader_Stage1
             FunnyOS_Bootloader_FatLoader
+            FunnyOS_Bootloader_FatLoader_Binary
             FunnyOS_Bootloader_Bootloader32
             FunnyOS_Bootloader_Bootloader32_Binary
             FunnyOS_Bootloader_Env64

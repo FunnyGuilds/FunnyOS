@@ -60,3 +60,23 @@ namespace FunnyOS::Stdlib::Memory {
         _Platform::FreeMemory(data);
     }
 }  // namespace FunnyOS::Stdlib::Memory
+
+extern "C" {
+using namespace FunnyOS::Stdlib;
+
+void* memcpy(void* dest, const void* src, size_t count) {
+    Memory::Copy(dest, src, count);
+    return dest;
+}
+
+void* memmove(void* dest, const void* src, size_t count) {
+    Memory::Move(dest, src, count);
+    return dest;
+}
+
+void* memset(void* dest, int value, size_t count) {
+    Memory::SizedBuffer<uint8_t> buffer{static_cast<uint8_t*>(dest), count};
+    Memory::Set<uint8_t>(buffer, static_cast<uint8_t>(value));
+    return dest;
+}
+}

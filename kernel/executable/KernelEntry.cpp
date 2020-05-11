@@ -4,19 +4,21 @@
 
 extern void* KERNEL_STACK_TOP;
 
-extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
-    FunnyOS::Bootparams::Parameters* parameters;
+namespace {
+    extern "C" void start_kernel(FunnyOS::Bootparams::Parameters* parameters) {
+        FunnyOS::Kernel::Kernel64::Get().Main(*parameters);
+    }
+}  // namespace
 
+extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
 #ifdef __GNUC__
     asm volatile(
-        "pop %0\n"       // Pop parameters
-        "mov rsp, %1\n"  // Setup new stack
-        "mov rbp, rsp\n"
-        : "=r"(parameters)
+        "pop %%rdi\n"          // Pop parameters
+        "mov %0, %%rsp\n"      // Setup new stack
+        "mov %%rsp, %%rbp\n"
+        "jmp start_kernel"
+        :
         : "bN"(&KERNEL_STACK_TOP)
         : "rbp");
 #endif
-
-    FunnyOS::Kernel::Kernel64::Get().Main(*parameters);
-    F_NO_RETURN;
 }

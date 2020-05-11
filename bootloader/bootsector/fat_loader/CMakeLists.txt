@@ -35,7 +35,7 @@ target_include_directories(FunnyOS_Bootloader_FatLoader
 )
 
 custom_link(FunnyOS_Bootloader_FatLoader "${CMAKE_CURRENT_BINARY_DIR}/fat_loader.lds")
-target_output_filename(FunnyOS_Bootloader_FatLoader fat_loader.bin)
+target_output_filename(FunnyOS_Bootloader_FatLoader fat_loader.elf)
 
 target_link_options(FunnyOS_Bootloader_FatLoader
         PRIVATE
@@ -44,11 +44,24 @@ target_link_options(FunnyOS_Bootloader_FatLoader
 
 target_compile_options(FunnyOS_Bootloader_FatLoader
         PRIVATE
-            -m32 -Os -fno-pie -ffreestanding -fno-stack-protector
+            -m32 -Os -fno-pie -ffreestanding -fno-stack-protector -mno-sse -mno-sse2 -mno-mmx -mno-80387
 )
 
 target_link_libraries(FunnyOS_Bootloader_FatLoader
         PUBLIC
             FunnyOS_Misc_QuickFat32
             FunnyOS_Bootloader_Commons_ASM
+)
+
+# .bin file target
+add_custom_command(
+        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/fat_loader.bin"
+        COMMAND ${CMAKE_OBJCOPY} -O binary "$<TARGET_FILE:FunnyOS_Bootloader_FatLoader>" "${CMAKE_CURRENT_BINARY_DIR}/fat_loader.bin"
+        DEPENDS
+        FunnyOS_Bootloader_FatLoader
+)
+
+add_custom_target(
+        FunnyOS_Bootloader_FatLoader_Binary
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/fat_loader.bin"
 )

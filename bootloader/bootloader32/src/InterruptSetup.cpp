@@ -40,7 +40,7 @@ namespace FunnyOS::Bootloader32 {
 
 #ifdef __GNUC__
             asm volatile(
-                "lidt [%0]"
+                "lidt %0"
                 :
                 : "m"(idt));
 #endif

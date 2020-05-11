@@ -46,7 +46,7 @@ namespace FunnyOS::Kernel {
                            reinterpret_cast<uint64_t>(buffer.Data)};
 
 #ifdef __GNUC__
-        asm("lgdt [%0]" : : "m"(gdtr) : "memory");
+        asm("lgdt %0" : : "m"(gdtr) : "memory");
 #endif
     }
 
@@ -66,20 +66,21 @@ namespace FunnyOS::Kernel {
     void LoadNewSegments(uint16_t codeSegment, uint16_t dataSegment) {
 #ifdef __GNUC__
         asm volatile(
-            "mov ds, bx\n"
-            "mov es, bx\n"
-            "mov fs, bx\n"
-            "mov gs, bx\n"
-            "mov ss, bx\n"
-            "mov rdx, rsp\n"
-            "push rbx\n"
-            "push rdx\n"
+            "xchg %%bx, %%bx\n"
+            "mov %%bx, %%ds\n"
+            "mov %%bx, %%es\n"
+            "mov %%bx, %%fs\n"
+            "mov %%bx, %%gs\n"
+            "mov %%bx, %%ss\n"
+            "mov %%rsp, %%rdx\n"
+            "push %%rbx\n"
+            "push %%rdx\n"
             "pushfq\n"
-            "push rax\n"
-            "lea rdx, [rip]\n"
+            "push %%rax\n"
+            "lea (%%rip), %%rdx\n"
             "1:\n"
-            "add rdx, (2f - 1b)\n"
-            "push rdx\n"
+            "add $(2f - 1b), %%rdx\n"
+            "push %%rdx\n"
             "iretq\n"
             "2:"
             :
@@ -91,17 +92,17 @@ namespace FunnyOS::Kernel {
     void LoadNewSegmentsAndJump(uint16_t codeSegment, uint16_t dataSegment, void* location) {
 #ifdef __GNUC__
         asm volatile(
-            "mov ds, bx\n"
-            "mov es, bx\n"
-            "mov fs, bx\n"
-            "mov gs, bx\n"
-            "mov ss, bx\n"
-            "mov rdx, rsp\n"
-            "push rbx\n"
-            "push rdx\n"
+            "mov %%bx, %%ds\n"
+            "mov %%bx, %%es\n"
+            "mov %%bx, %%fs\n"
+            "mov %%bx, %%gs\n"
+            "mov %%bx, %%ss\n"
+            "mov %%rsp, %%rdx\n"
+            "push %%rbx\n"
+            "push %%rdx\n"
             "pushfq\n"
-            "push rax\n"
-            "push rdx\n"
+            "push %%rax\n"
+            "push %%rdx\n"
             "iretq\n"
             "2:"
             :

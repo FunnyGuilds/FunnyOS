@@ -178,6 +178,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Prepare VBE information and find best video mode
         GetBootloaderParameters().Vbe.InfoBlockLocation = reinterpret_cast<uint32_t>(&GetVbeInfoBlock());
+        GetBootloaderParameters().Vbe.EdidBlockLocation = reinterpret_cast<uint32_t>(&GetEdidInformation());
         GetBootloaderParameters().Vbe.ModeInfoStart = reinterpret_cast<uint32_t>(GetVbeModes().Data);
         Optional<uint16_t> bestVideoMode = PickBestMode();
 
@@ -314,12 +315,12 @@ namespace FunnyOS::Bootloader32 {
 
         auto bootParamsAddressLow = reinterpret_cast<uint32_t>(&GetBootloaderParameters());
 
-        asm("push 0\n"   // Boot params address high
+        asm("push $0\n"   // Boot params address high
             "push %3\n"  // Boot params address low
             "push %2\n"  // Kernel entry point high
             "push %1\n"  // Kernel entry point low
             "push %0\n"  // PML4 base
-            "jmp ebx\n"
+            "jmp *%%ebx\n"
             :
             : "r"(pageTableAllocator.GetPml4Base()), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh),
               "r"(bootParamsAddressLow), "b"(env64));

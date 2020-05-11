@@ -1,4 +1,4 @@
-OUTPUT_FORMAT(binary)
+OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
 {
@@ -36,10 +36,5 @@ SECTIONS
     .magic :
     {
         LONG(@F_FATLOADER_MAGIC@);
-    }
-
-    /DISCARD/ :
-    {
-        *(.*)
     }
 }

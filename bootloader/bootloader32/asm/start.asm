@@ -12,7 +12,7 @@ SECTION .text
         mov fs, ax
         mov gs, ax
 
-        mov esp, 0x0007FFFF
+        mov esp, 0x00080000
         mov ebp, esp
 
         ; Jump to C code

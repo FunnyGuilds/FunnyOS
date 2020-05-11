@@ -71,6 +71,8 @@ typedef struct PACKED {
     char name3[4];
 } QuickFat_lfn_entry;
 
+extern void memcpy(void* destination, const void* source, size_t size);
+
 static int quickfat_do_read(QuickFat_Context* context, uint32_t lba, uint32_t count, uint8_t* out) {
     return context->read_function(context->read_function_data, lba, count, out);
 }
@@ -120,15 +122,6 @@ int quickfat_init_context(QuickFat_Context* context, const QuickFat_initializati
     context->fat_start_lba = context->partition_start_lba + bpb->reserved_sectors + bpb->hidden_sectors_count;
     context->data_start_lba = context->fat_start_lba + bpb->fats_count * bpb->sectors_per_fat_32;
     return 0;
-}
-
-/**
- * Copies [size] bytes, from [source] to [destination]
- */
-static void quickfat_memcpy(void* destination, const void* source, unsigned int size) {
-    for (unsigned int i = 0; i < size; i++) {
-        *(((uint8_t*)destination) + i) = *(((uint8_t*)source) + i);
-    }
 }
 
 /**
@@ -359,14 +352,14 @@ int quickfat_open_file(QuickFat_Context* context, QuickFat_File* file, const cha
 
         for (unsigned int i = 0; i < sizeof(current_part) / sizeof(current_part[0]); i++) {
             if (file_path[i + current_index] == 0) {
-                quickfat_memcpy(current_part, file_path + current_index, i);
+                memcpy(current_part, file_path + current_index, i);
                 current_part[i] = 0;
                 expect_directory = false;
                 break;
             }
 
             if (file_path[i + current_index] == '/') {
-                quickfat_memcpy(current_part, file_path + current_index, i);
+                memcpy(current_part, file_path + current_index, i);
                 current_part[i] = 0;
                 current_index += i + 1;
                 expect_directory = true;
@@ -413,7 +406,7 @@ int quickfat_read_file(QuickFat_Context* context, QuickFat_File* file, void* des
         return error;
     }
 
-    quickfat_memcpy(destination, &g_clusterBuffer, file->size % QUICK_FAT_SECTOR_SIZE);
+    memcpy(destination, &g_clusterBuffer, file->size % QUICK_FAT_SECTOR_SIZE);
 
     return error;
 }

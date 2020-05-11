@@ -44,25 +44,26 @@ namespace FunnyOS::Bootloader32 {
 #ifdef __GNUC__
         asm(
             // Save state
-            "pushfd\n"
-            "pushad\n"
-            "push es\n"
-            "push fs\n"
-            "push gs\n"
+            "pushfl\n"
+            "pushal\n"
+            "pushw %%es\n"
+            "pushw %%fs\n"
+            "pushw %%gs\n"
 
             // Call do_real_mode_interrupt
-            "push eax\n"
+            "push %%eax\n"
             "call do_real_mode_interrupt\n"
-            "add esp, 4\n"
+            "add $4, %%esp\n"
 
             // Restore state
-            "pop gs\n"
-            "pop fs\n"
-            "pop es\n"
-            "popad\n"
-            "popfd\n"
+            "popw %%gs\n"
+            "popw %%fs\n"
+            "popw %%es\n"
+            "popal\n"
+            "popfl\n"
             :
-            : "a"(static_cast<uintmax_t>(interrupt)));
+            : "a"(static_cast<uintmax_t>(interrupt))
+            : "memory");
 #endif
 
         Memory::Copy(static_cast<void*>(&registers), static_cast<void*>(&g_savedRegisters), sizeof(Registers16));

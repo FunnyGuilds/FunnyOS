@@ -40,6 +40,35 @@ noreturn extern void fl_jump_to_bootloader(void* bootloader_location);
  */
 noreturn extern void fl_hang(void);
 
+void* memcpy(void* dest, const void* src, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        ((uint8_t*)dest)[i] = ((uint8_t*)src)[i];
+    }
+    return dest;
+}
+
+void* memmove(void* dest, const void* src, size_t count) {
+    if (dest < src) {
+        for (size_t i = 0; i < count; i++) {
+            ((uint8_t*)dest)[i] = ((uint8_t*)src)[i];
+        }
+    } else if (dest > src) {
+        for (size_t i = count; i > 0; i--) {
+            ((uint8_t*)dest)[i - 1] = ((uint8_t*)src)[i - 1];
+        }
+    }
+
+    return dest;
+}
+
+void* memset(void* dest, int value, size_t count) {
+    for (size_t i = 0; i < count; i++) {
+        ((uint8_t*)dest)[i] = value;
+    }
+
+    return dest;
+}
+
 /**
  * Prints an integer onto the screen.
  */

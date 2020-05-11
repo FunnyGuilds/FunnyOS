@@ -11,7 +11,7 @@ if (NOT ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles" AND NOT ${CMAKE_GENERATOR} 
     message(FATAL_ERROR "Unsupported generator")
 endif ()
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(FATAL_ERROR "Unsupported compiler")
 endif ()
 
@@ -32,16 +32,15 @@ endif()
 
 # Global variables
 set(WARNING_OPTIONS
-        "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function"
+        "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function -Wno-unused-const-variable"
 )
 
 # C and C++ standards
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_C_STANDARD 11)
 
 # Global flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -masm=intel ${WARNING_OPTIONS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -masm=intel ${WARNING_OPTIONS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_OPTIONS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_OPTIONS}")
 
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> <INCLUDES> <FLAGS> -o <OBJECT> <SOURCE>")
 
