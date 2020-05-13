@@ -66,7 +66,6 @@ namespace FunnyOS::Kernel {
     void LoadNewSegments(uint16_t codeSegment, uint16_t dataSegment) {
 #ifdef __GNUC__
         asm volatile(
-            "xchg %%bx, %%bx\n"
             "mov %%bx, %%ds\n"
             "mov %%bx, %%es\n"
             "mov %%bx, %%fs\n"

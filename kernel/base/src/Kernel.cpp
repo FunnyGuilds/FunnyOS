@@ -1,8 +1,7 @@
 #include <FunnyOS/Kernel/Kernel.hpp>
 
 #include <FunnyOS/Stdlib/Logging.hpp>
-#include <FunnyOS/Hardware/GFX/FramebufferInterface.hpp>
-#include <FunnyOS/Hardware/GFX/FontTerminalInterface.hpp>
+#include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Kernel/GDT.hpp>
@@ -35,11 +34,11 @@ namespace FunnyOS::Kernel {
         LoadKernelGdt();
         LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
-        // Setup temporary text logging in video mode
+        // Setup basic screen manager
         const auto& videoMode = reinterpret_cast<Bootparams::VbeModeInfoBlock*>(
             parameters.Vbe.ModeInfoStart)[parameters.Vbe.ActiveModeIndex];
 
-        auto framebufferInterface = MakeRef<HW::FramebufferInterface>(
+        auto framebufferConfig =
             HW::FramebufferConfiguration{.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
                                          .ScreenWidth = videoMode.Width,
                                          .ScreenHeight = videoMode.Height,
@@ -47,30 +46,24 @@ namespace FunnyOS::Kernel {
                                          .BPP = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
                                          .RedPosition = videoMode.RedPosition,
                                          .GreenPosition = videoMode.GreenPosition,
-                                         .BluePosition = videoMode.BluePosition});
+                                         .BluePosition = videoMode.BluePosition};
 
-        auto fontTerminalInterface = MakeRef<HW::FontTerminalInterface>(
-            reinterpret_cast<uint8_t*>(m_parameters.BiosFonts), framebufferInterface);
+        m_screenManager.InitializeWith(framebufferConfig, reinterpret_cast<uint8_t*>(parameters.BiosFonts));
 
-        auto terminalManager = MakeRef<TerminalManager>(StaticRefCast<ITerminalInterface>(fontTerminalInterface));
+        // Setup logging
+        m_logManager.EnableOnscreenLogging(
+            MakeRef<TerminalManager>(StaticRefCast<ITerminalInterface>(m_screenManager.GetTextInterface())));
 
-        Stdlib::Logger logger;
-        logger.AddSink(Stdlib::Ref<Stdlib::ILoggingSink>(new TerminalManagerLoggingSink(terminalManager)));
-
-        F_LOG_DEBUG(logger, "We have kernel logger!");
-        F_LOG_DEBUG_F(logger, "screen size in character %dx%d", fontTerminalInterface->GetScreenWidth(),
-                      fontTerminalInterface->GetScreenHeight());
-        F_LOG_DEBUG(logger, "Hello world from video mode :woah:");
-
-        for (size_t i = 0; i < 35; i++) {
-            F_LOG_WARNING_F(logger, "Hello %d", i);
-        }
+        // Some info
+        FK_LOG_DEBUG("We have kernel logger!");
+        FK_LOG_DEBUG_F("screen size in character %dx%d", m_screenManager.GetTextInterface()->GetScreenWidth(),
+                       m_screenManager.GetTextInterface()->GetScreenHeight());
+        FK_LOG_DEBUG("Hello world from video mode :woah:");
 
         for (;;) {
-            asm volatile(
-                "cli\n"
-                "hlt");
+            HW::CPU::Halt();
         }
+        F_NO_RETURN;
     }
 
     const Bootparams::Parameters& Kernel64::GetParameters() const {
@@ -83,6 +76,10 @@ namespace FunnyOS::Kernel {
 
     Misc::MemoryAllocator::StaticMemoryAllocator& Kernel64::GetKernelAllocator() {
         return m_kernelAllocator;
+    }
+
+    LogManager& Kernel64::GetLogManager() {
+        return m_logManager;
     }
 
     Kernel64::Kernel64() = default;

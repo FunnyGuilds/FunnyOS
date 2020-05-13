@@ -22,7 +22,7 @@ namespace FunnyOS::_Platform {
     }
 
     void ReportError(const char* error) noexcept {
-        static_cast<void>(error);
+        FK_LOG_ERROR(error);
     }
 
     void Terminate(const char* error) noexcept {

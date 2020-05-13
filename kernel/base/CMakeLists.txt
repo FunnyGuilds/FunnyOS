@@ -1,8 +1,10 @@
 add_library(FunnyOS_Kernel_Base STATIC
+        src/GFX/ScreenManager.cpp
         src/VMM/VirtualMemoryManager.cpp
         src/GDT.cpp
         src/KABI.cpp
         src/Kernel.cpp
+        src/LogManager.cpp
         src/PlatformK64.cpp
 )
 

@@ -3,7 +3,25 @@
 
 #include <FunnyOS/Bootparams/Parameters.hpp>
 #include <FunnyOS/Misc/MemoryAllocator/StaticMemoryAllocator.hpp>
+#include "GFX/ScreenManager.hpp"
 #include "VMM/VirtualMemoryManager.hpp"
+#include "LogManager.hpp"
+
+#define FK_LOGGER() FunnyOS::Kernel::Kernel64::Get().GetLogManager().GetLogger()
+
+#define FK_LOG_INFO(message) F_LOG_INFO(FK_LOGGER(), message)
+#define FK_LOG_OK(message) F_LOG_OK(FK_LOGGER(), message)
+#define FK_LOG_WARNING(message) F_LOG_WARNING(FK_LOGGER(), message)
+#define FK_LOG_ERROR(message) F_LOG_ERROR(FK_LOGGER(), message)
+#define FK_LOG_FATAL(message) F_LOG_FATAL(FK_LOGGER(), message)
+#define FK_LOG_DEBUG(message) F_LOG_DEBUG(FK_LOGGER(), message)
+
+#define FK_LOG_INFO_F(message, ...) F_LOG_INFO_F(FK_LOGGER(), message, __VA_ARGS__)
+#define FK_LOG_OK_F(message, ...) F_LOG_OK_F(FK_LOGGER(), message, __VA_ARGS__)
+#define FK_LOG_WARNING_F(message, ...) F_LOG_WARNING_F(FK_LOGGER(), message, __VA_ARGS__)
+#define FK_LOG_ERROR_F(message, ...) F_LOG_ERROR_F(FK_LOGGER(), message, __VA_ARGS__)
+#define FK_LOG_FATAL_F(message, ...) F_LOG_FATAL_F(FK_LOGGER(), message, __VA_ARGS__)
+#define FK_LOG_DEBUG_F(message, ...) F_LOG_DEBUG_F(FK_LOGGER(), message, __VA_ARGS__)
 
 namespace FunnyOS::Kernel {
 
@@ -40,6 +58,20 @@ namespace FunnyOS::Kernel {
          */
         [[nodiscard]] Misc::MemoryAllocator::StaticMemoryAllocator& GetKernelAllocator();
 
+        /**
+         * Returns the log manager used by the kernel.
+         *
+         * @return kernel log manager
+         */
+        [[nodiscard]] LogManager& GetLogManager();
+
+        /**
+         * Returns the screen manager used by the kernel.
+         *
+         * @return kernel screen manager
+         */
+        [[nodiscard]] GFX::ScreenManager& GetScreenManager();
+
        private:
         Kernel64();
 
@@ -48,6 +80,8 @@ namespace FunnyOS::Kernel {
         Bootparams::Parameters m_parameters{};
         VMM::VirtualMemoryManager m_virtualMemoryManager{};
         Misc::MemoryAllocator::StaticMemoryAllocator m_kernelAllocator{};
+        LogManager m_logManager{};
+        GFX::ScreenManager m_screenManager{};
     };
 
 }  // namespace FunnyOS::Kernel
