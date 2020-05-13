@@ -305,8 +305,9 @@ namespace FunnyOS::Bootloader32 {
 
         FB_LOG_OK("Booting...");
 
-        // Disable all interrupts hardware interrupts..
+        // Disable all interrupts
         HW::DisableHardwareInterrupts();
+        HW::DisableNonMaskableInterrupts();
         HW::PIC::SetEnabledInterrupts(0);
 
         // Jump to env64
