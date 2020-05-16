@@ -1,39 +1,26 @@
 %include "config.asm"
 
-%macro push_addr_16 1
-    %if __BITS__ == 16
-        push %1
-    %elif __BITS__ == 32
-        sub esp, 2
-        mov [esp], word %1
-    %endif
-%endmacro
-
-%macro push_addr_32 1
-    %if __BITS__ == 16
-        push 0
-        push %1
-    %elif __BITS__ == 32
-        push %1
-    %endif
-%endmacro
-
 [bits 16]
 SECTION .intro
     EXTERN fat_loader
     EXTERN load_lba
 
     intro:
-        mov [g_boot_drive], dl
-        mov [g_boot_partition], ch
+        ; Fetch boot parametres
+        mov [g_boot_drive],     dl
+        mov [g_boot_partition], dh
 
+        ; Setup stack
         mov esp, stack_end
 
+        ; Setup video mode
+        mov ax, 0x0003
+        int 0x10
+
+        ; Jump to protected
         lgdt [gdt_description]
-
-        push_addr_32 fat_loader
+        push dword fat_loader ; C code entry
         jmp jump_to_protected
-
 
 SECTION .text
     [bits 16]
@@ -45,8 +32,8 @@ SECTION .text
         mov eax, cr0
         or eax, 1
         mov cr0, eax
-        jmp 0x08:jump_to_protected_far
-        jump_to_protected_far:
+        jmp 0x08:.protected32
+        .protected32:
         [bits 32]
         mov ax, 0x10
         mov ds, ax
@@ -60,17 +47,18 @@ SECTION .text
     ;
     ; Jumps to real mode and returns, expects 16-bit return address on the stack
     ;
+    [bits 32]
     jump_to_real:
         ; First jump to protected 16-bit mode
-        jmp 0x18:jump_to_real_protected_16
-        jump_to_real_protected_16:
+        jmp 0x18:.protected16
+        .protected16:
         [bits 16]
         push eax
         mov eax, cr0
         and eax, ~1
         mov cr0, eax
-        jmp 0x00:jump_to_real_far
-        jump_to_real_far:
+        jmp 0x00:.real16
+        .real16:
         xor ax, ax
         mov ds, ax
         mov ss, ax
@@ -81,76 +69,47 @@ SECTION .text
         ret
 
     [bits 32]
-    GLOBAL fl_print
-    fl_print:
-        push_addr_16 fl_print_16
-        jmp jump_to_real
-        fl_print_16:
-        [bits 16]
-        pushad
-        mov esi, [esp + 9 * 4]
-        mov ah, 0x0F
-        int 0x10
-        mov ah, 0x0E
-        mov bl, 0x00
-
-        cld
-        fl_print__loop:
-           lodsb
-           cmp al, 0
-           je fl_print__ret
-           int 0x10
-           jmp fl_print__loop
-
-        fl_print__ret:
-        popad
-        ; 32-bit return address already on the stack
-        jmp jump_to_protected
-
-    [bits 32]
+    EXTERN g_read_buffer
     GLOBAL fl_load_from_disk
     fl_load_from_disk:
-        ; Deal with the parameters first
+        ; Store state
         push ebp
         mov ebp, esp
         pushad
 
         ; LBA
         mov eax, [ebp + 4 * 2]
-        mov [load_from_disk__lba], eax
 
-        ; Buffer**
-        mov esi, [ebp + 4 * 3]
-        mov [esi], dword load_from_disk__buffer
-
-        push_addr_16 fl_load_from_disk_16
+        ; Jump to real mode
+        push word .real
         jmp jump_to_real
-        fl_load_from_disk_16:
+
         [bits 16]
+        .real:
+            mov dl, [g_boot_drive]
+            mov cl, 1
+            xor bx, bx
+            mov es, bx
+            mov bx, g_read_buffer
+            call load_lba
+            jc .fail
 
-        mov si, load_from_disk__lba
-        mov dl, [g_boot_drive]
-        mov cl, 1
-        xor bx, bx
-        mov es, bx
-        mov bx, load_from_disk__buffer
+            ; Success
+            mov [load_from_disk__return], dword 0
+            jmp .ret
 
-        call load_lba
-        popad
-        pop ebp
+        .fail:
+            movzx eax, ah
+            mov [load_from_disk__return], eax
 
-        xor eax, eax
-        pushf
-        pop ax
-        jnc fl_load_from_ok
+        .ret:
+            popad
+            mov esp, ebp
+            pop ebp
 
-        ; Fail, move ah to al
-        shr ax, 8
-        and eax, 0xFFFF
-        jmp jump_to_protected
+            mov eax, [load_from_disk__return]
 
-        fl_load_from_ok:
-            xor eax, eax
+            ; Return via jump_to_protected, return address is on top of the stack
             jmp jump_to_protected
 
     [bits 32]
@@ -165,16 +124,14 @@ SECTION .text
     fl_jump_to_bootloader:
         add esp, 4 ; We don't need return address since we are never returning
         pop eax
-        and eax, 0xFFFF
 
         ; AX now holds the address to jump to
-        push_addr_16 fl_jump_to_bootloader_real
-        jmp jump_to_real
-        fl_jump_to_bootloader_real:
-        [bits 16]
         mov dl, [g_boot_drive]
-        mov ch, [g_boot_partition]
-        jmp ax
+        mov dh, [g_boot_partition]
+
+        ; Jump to bootloader
+        push word ax
+        jmp jump_to_real
 
 SECTION .data
     %macro gdt_entry 4
@@ -211,5 +168,5 @@ SECTION .bss
     stack:                                resb 0x800
     stack_end:
 
-    load_from_disk__lba:                  resd 1
     load_from_disk__buffer:               resd 0x200
+    load_from_disk__return:               resd 1

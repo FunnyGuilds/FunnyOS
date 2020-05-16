@@ -13,22 +13,22 @@
  */
 #define FILE_NAME "/boot/bootload32"
 
+#define VIDEO_MEMORY ((uint8_t(*))0xB8000)
+#define SCREEN_WIDTH 80
+
 // Boot parameters
 extern uint8_t g_boot_partition;
 
-/**
- * Prints string onto the screen.
- */
-extern void fl_print(const char* str);
+// Read buffer
+uint8_t g_read_buffer[SECTOR_SIZE];
 
 /**
  * Loads one sector from the boot drive starting from logical sector address [lba].
- *
- * @param[out] out pointer to output buffer will be put in here
+ * Result in stored in [read_buffer]
  *
  * @return 0 if success, a non-zero error code if fail
  */
-extern int fl_load_from_disk(uint32_t lba, uint8_t** out);
+__attribute__((cdecl)) extern int fl_load_from_disk(uint32_t lb);
 
 /**
  * Jumps back to real mode, loads boot parameters and jumps to address at [bootloader_location]
@@ -67,6 +67,28 @@ void* memset(void* dest, int value, size_t count) {
     }
 
     return dest;
+}
+
+extern void fl_print(const char* str) {
+    static unsigned int c_cursor_base = 0;
+
+    for (; *str; str++) {
+        switch (*str) {
+            case '\n':
+                c_cursor_base += SCREEN_WIDTH;
+                break;
+            case '\r':
+                c_cursor_base -= c_cursor_base % SCREEN_WIDTH;
+                break;
+            case 0:
+                return;
+            default:
+                *(VIDEO_MEMORY + c_cursor_base * 2 + 0) = *str;
+                *(VIDEO_MEMORY + c_cursor_base * 2 + 1) = 0x0F;
+                c_cursor_base++;
+                break;
+        }
+    }
 }
 
 /**
@@ -114,18 +136,13 @@ extern int fl_load_from_disk_wrapper(void* unused, uint32_t lba, uint32_t count,
     (void)unused;
 
     int error;
-    uint8_t* tmp_buf = NULL;
 
     for (uint32_t i = 0; i < count; i++) {
-        if ((error = fl_load_from_disk(lba + i, &tmp_buf)) != 0) {
+        if ((error = fl_load_from_disk(lba + i)) != 0) {
             return error;
         }
 
-        for (uint32_t j = 0; j < 0x200; j++) {
-            out[j] = tmp_buf[j];
-        }
-
-        out += 0x200;
+        memcpy(out + (i * SECTOR_SIZE), g_read_buffer, SECTOR_SIZE);
     }
 
     return 0;

@@ -15,7 +15,6 @@ add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
         asm/interrupt_setup.asm
         asm/make_memory_map.asm
         asm/real_mode.asm
-        asm/real_mode_intro.asm
         asm/start.asm
 )
 target_compile_options(FunnyOS_Bootloader_Bootloader32_ASM PRIVATE -f elf)

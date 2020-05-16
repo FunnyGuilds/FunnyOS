@@ -19,9 +19,10 @@ SECTION .intro
     EXTERN error
 
     intro:
-        ; To make sure that CS is 0
+        ; Reset CS
         jmp 0x00:stage1
 
+SECTION .text
     stage1:
         ; We don't need any interrupts at this stage
         cli
@@ -36,13 +37,11 @@ SECTION .intro
         mov sp, 0x7C00
         mov bp, sp
 
-        ; Find the partition we were booted from
-        mov ah, 0x02
-        mov al, 1
-        mov ch, 0
+        ; Load MBR at 0x500
+        mov eax, 0
         mov cl, 1
-        mov dh, 0
         mov bx, 0x500
+        call load_lba
         int 0x13
         jc error
 
@@ -50,17 +49,16 @@ SECTION .intro
         call print
 
         ; Find the drive we were booted from
-        mov bx,  0x500 + 0x1BE ; 1BE - start of partition table
-        mov ch, 1
+        mov dh, 1                   ; partition number
+        mov bx, 0x500 + 0x1BE       ; partition entry base, 0x1BE - start of partition table
+        mov cx, 4
 
-        find_bootable_drive_loop:
-            mov ax, [bx]
-            test ax, 0x80
+        .loop:
+            test byte [bx], 0x80
             jnz bootable_drive_found
             add bx, 0x10
-            cmp ch, 4
-            jl find_bootable_drive_loop
-            inc ch
+            inc dh
+            loop .loop
 
         ; No drive found
         mov ah, 0xFF
@@ -68,13 +66,9 @@ SECTION .intro
 
     bootable_drive_found:
         ; Load the bootloader
-        mov si, bx
-        add si, 0x08
-        mov eax, [si]
+        mov eax, [bx + 0x08]
         add eax, 2
-        mov [bootloader_lbs], eax
 
-        mov si, bootloader_lbs
         mov bx, F_FATLOADER_MEMORY_LOCATION
         mov cl, F_FATLOADER_SIZE_IN_SECTORS
         call load_lba
@@ -86,14 +80,13 @@ SECTION .intro
         jne error
 
         ; Jump to bootloader
+        ; DL - drive number
+        ; DH - partition number
         jmp 0x00:F_FATLOADER_MEMORY_LOCATION
 
 SECTION .rodata
     message_booting:     db "FunnyOS Bootloader", 0
     message_boot_failed: db "Boot failed. ", 0
-
-SECTION .bss
-    bootloader_lbs: resd 1
 
 SECTION .boot_signature
     dw 0xAA55

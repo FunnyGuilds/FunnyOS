@@ -1,11 +1,5 @@
 [bits 32]
 
-%define PAGE_SIZE 0x1000
-
-EXTERN TEXT_OFFSET
-EXTERN PAGE_OFFSET
-EXTERN SIZE
-
 SECTION .text
     main:
         ; Fetch EIP into EBP
@@ -64,6 +58,7 @@ SECTION .text
         pop rbx
         jmp rbx
 
+SECTION .data
     %macro gdt_entry 4
         ; %1 - base address
         ; %2 - limit

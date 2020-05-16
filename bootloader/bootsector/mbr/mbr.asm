@@ -1,7 +1,6 @@
 ;
 ; Stage1 Bootloader code
 ;
-
 [bits 16]
 ;
 ; The intro section should use no addressing as the linker thinks that the code is at another location at this point.
@@ -35,89 +34,57 @@ SECTION .text
     EXTERN print
     EXTERN error
 
-    do_boot:
-        mov bl, al
-        add bl, '0'
-        mov [do_boot__booting + 23], bl
-        mov si, do_boot__booting
-        call print
-
-        dec al
-        mov bl, 0x10
-        mul bl
-
-        mov si, pt_entry1
-        add si, ax
-        add si, 0x08
-
-        mov bx, 0x7C00
-        mov cl, 1
-        call load_lba
-        jc error
-
-        ;
-        ; Check if the sector is actually bootable
-        ;
-        cmp word [0x7C00 + 0x200 - 2], 0xAA55
-        je jump_to_bootloader
-
-        ; Check failed
-        mov ah, 0xFD
-        jmp error
-
-    jump_to_bootloader:
-        ; Loaded, let's clean up, it's not necessary but we are nice :)
-        ; Clear general purpose registers
-        xor ax, ax
-        xor bx, bx
-        xor cx, cx
-        xor dh, dh       ; dl - drive boot number, preserve this
-        xor di, di
-        xor si, si
-
-        ; Segment registers are already cleared, we never used them
-
-        ; Fix stack
-        mov sp, 0x7A00
-        mov bp, sp
-
-        ; Goodbye!
-        jmp 0x00:0x7C00
-
     relocated:
         ; Hello world!
         mov si, relocated__welcome_message
         call print
 
-        mov bx, pt_entry1   ; partition entry base in memory
-        mov dh, 1           ; partition number starting from 1
-        mov al, 0           ; active, bootable partition
-        mov cx, 4
+        mov al, 1         ; Partition number
+        mov bx, pt_entry1 ; Partition entry base
+        mov cx, 4         ; Partition entries count
 
-        relocated__loop:
-            test byte [bx], 0x80
-            jz relocated__loop_continue
-
-            ; Found active
-
-            ; If there already is an active, die
-            cmp al, 0
-            mov ah, 0xFE
-            jne error
-
-            mov al, dh
-
-            relocated__loop_continue:
-            inc dh
+        .loop:
+            call try_boot
+            inc al
             add bx, 0x10
-            loop relocated__loop
+            loop .loop
 
-        cmp al, 0
-        jne do_boot
-
-        ; no bootable partitions
+        ; Booting failed, no bootable partitions
         mov ah, 0xFF
         jmp error
+
+    try_boot:
+        ; Check if active
+        test byte [bx], 0x80
+        jnz boot
+        ret
+
+    boot:
+        ; AL - partition number
+        ; BX - partition entry base
+        mov cl, al
+        add cl, '0'
+        mov [boot__booting + 23], cl
+        mov si, boot__booting
+        call print
+
+        ; Read VBR
+        mov eax, [bx + 0x08]
+        mov bx, 0x7C00
+        mov cl, 1
+        call load_lba
+        jc error
+
+        ; Check if the sector is actually bootable
+        cmp word [0x7C00 + 0x200 - 2], 0xAA55
+        je .jump_to_vbr
+
+        ; Check failed
+        mov ah, 0xFD
+        jmp error
+
+        .jump_to_vbr:
+        jmp 0x00:0x7C00
 
 ;
 ; Data
@@ -126,7 +93,7 @@ SECTION .rodata
     relocated__welcome_message:                 db "FunnyOS MBR", 0
 
 SECTION .data
-    do_boot__booting:                           db "Booting from partition ?", 0
+    boot__booting:                              db "Booting from partition ?", 0
 
 SECTION .partition_table
     ; This will be overwritten by a partitioning tool, it is used only to have labels for the entries

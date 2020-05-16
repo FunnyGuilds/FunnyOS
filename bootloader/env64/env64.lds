@@ -7,6 +7,11 @@ SECTIONS
         *(.text*)
     }
 
+    .data :
+    {
+        *(.data*)
+    }
+
     /DISCARD/ :
     {
         *(.*)

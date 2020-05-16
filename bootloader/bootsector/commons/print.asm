@@ -19,16 +19,15 @@ SECTION .text
         mov ah, 0x0E
         mov bl, 0x00
 
-        print__loop:
-           cmp byte [si], 0
-           je print__ret
+        .loop:
+           lodsb
+           cmp al, 0
+           je .ret
 
-           mov al, [si]
            int 0x10
-           inc si
-           jmp print__loop
+           jmp .loop
 
-        print__ret:
+        .ret:
            mov al, 0x0D
            int 0x10
            mov al, 0x0A
@@ -40,33 +39,30 @@ SECTION .text
     ; Prints the error code from AH and halts
     GLOBAL error
     error:
-        xor ch, ch
-        mov cl, ah
-        shr cl, 4
-        xor dh, dh
-        mov dl, ah
-        and dl, 0b00001111
+        movzx si, ah
+        movzx di, ah
+        shr si, 4           ; First digit
+        and di, 0b00001111  ; Second digit
 
-        mov si, print_error__character_array
-        add si, cx
-        mov ax, [si]
-        mov [print_error__buf + 0x07], al
+        mov cl, [print_error__character_array + si]
+        mov [print_error__buf_digit1], cl
 
-        mov si, print_error__character_array
-        add si, dx
-        mov ax, [si]
-        mov [print_error__buf + 0x08], al
+        mov cl, [print_error__character_array + di]
+        mov [print_error__buf_digit2], cl
 
-        mov si, print_error__buf
+        mov si, print_error__buf_start
         call print
 
-    halt:
-        cli
-        hlt
-        jmp halt
+        .hang:
+            cli
+            hlt
+            jmp .hang
 
 SECTION .rodata
     print_error__character_array:               db '0123456789ABCDEF'
 
 SECTION .data
-    print_error__buf:                           db "Error: ??h", 0
+    print_error__buf_start:                     db "Error: "
+    print_error__buf_digit1:                    db "?"
+    print_error__buf_digit2:                    db "?"
+    print_error__buf_end:                       db "h", 0
