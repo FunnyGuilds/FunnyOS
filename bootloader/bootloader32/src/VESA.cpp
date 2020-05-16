@@ -24,10 +24,10 @@ namespace FunnyOS::Bootloader32 {
             uint16_t bufferOffset;
             GetRealModeAddress(&g_vbeInfoBlock, bufferSegment, bufferOffset);
 
-            Registers16 registers16;
-            registers16.AX.Value16 = 0x4F00;
+            Registers32 registers16;
+            registers16.EAX.Value16 = 0x4F00;
             registers16.ES.Value16 = bufferSegment;
-            registers16.DI.Value16 = bufferOffset;
+            registers16.EDI.Value16 = bufferOffset;
 
             g_vbeInfoBlock.VbeSignature[0] = 'V';
             g_vbeInfoBlock.VbeSignature[1] = 'B';
@@ -35,7 +35,7 @@ namespace FunnyOS::Bootloader32 {
             g_vbeInfoBlock.VbeSignature[3] = '2';
             RealModeInt(0x10, registers16);
 
-            if (registers16.AX.Value8.Low != VBE_FUNCTION_SUPPORTED) {
+            if (registers16.EAX.Value8.Low != VBE_FUNCTION_SUPPORTED) {
                 g_vbeInfoBlock.VbeVersion = 0;
             }
         }
@@ -56,14 +56,14 @@ namespace FunnyOS::Bootloader32 {
             for (size_t i = 0; i < modesCount; i++) {
                 Stdlib::Memory::Set<uint8_t>(GetRealModeBuffer(), 0);
 
-                Registers16 registers16;
-                registers16.AX.Value16 = 0x4F01;
-                registers16.CX.Value16 = modes[i];
+                Registers32 registers16;
+                registers16.EAX.Value16 = 0x4F01;
+                registers16.ECX.Value16 = modes[i];
                 registers16.ES.Value16 = bufferSegment;
-                registers16.DI.Value16 = bufferOffset;
+                registers16.EDI.Value16 = bufferOffset;
 
                 RealModeInt(0x10, registers16);
-                if (registers16.AX.Value8.Low != VBE_FUNCTION_SUPPORTED || registers16.AX.Value8.High != 0x00) {
+                if (registers16.EAX.Value8.Low != VBE_FUNCTION_SUPPORTED || registers16.EAX.Value8.High != 0x00) {
                     buffer[i]->IsValid = false;
                 } else {
                     Stdlib::Memory::Copy(buffer[i], GetRealModeBuffer().Data, sizeof(VbeModeInfoBlock));
@@ -81,16 +81,16 @@ namespace FunnyOS::Bootloader32 {
             uint16_t bufferOffset;
             GetRealModeBufferAddress(bufferSegment, bufferOffset);
 
-            Registers16 registers16;
-            registers16.AX.Value16 = 0x4F15;
-            registers16.BX.Value16 = 0x001;
-            registers16.CX.Value16 = 0;
-            registers16.DX.Value16 = 0;
+            Registers32 registers16;
+            registers16.EAX.Value16 = 0x4F15;
+            registers16.EBX.Value16 = 0x001;
+            registers16.ECX.Value16 = 0;
+            registers16.EDX.Value16 = 0;
             registers16.ES.Value16 = bufferSegment;
-            registers16.DI.Value16 = bufferOffset;
+            registers16.EDI.Value16 = bufferOffset;
             RealModeInt(0x10, registers16);
 
-            if (registers16.AX.Value8.Low != VBE_FUNCTION_SUPPORTED || registers16.AX.Value8.High != 0) {
+            if (registers16.EAX.Value8.Low != VBE_FUNCTION_SUPPORTED || registers16.EAX.Value8.High != 0) {
                 return Stdlib::EmptyOptional<EdidInformation>();
             }
 
@@ -206,9 +206,9 @@ namespace FunnyOS::Bootloader32 {
     }
 
     void SelectVideoMode(uint16_t mode) {
-        Registers16 registers16;
-        registers16.AX.Value16 = 0x4F02;
-        registers16.BX.Value16 = GetVbeModes()[mode]->VESAVideoMode;
+        Registers32 registers16;
+        registers16.EAX.Value16 = 0x4F02;
+        registers16.EBX.Value16 = GetVbeModes()[mode]->VESAVideoMode;
 
         RealModeInt(0x10, registers16);
     }

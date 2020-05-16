@@ -37,38 +37,38 @@ SECTION .real.text
             lidt [bios_idt]
 
             ; Set registers
-            push word [saved_EFLAGS]
-            popf
+            push dword [saved_EFLAGS]
+            popfd
 
-            mov ax, [saved_AX]
-            mov cx, [saved_CX]
-            mov dx, [saved_DX]
-            mov bx, [saved_BX]
-            mov bp, [saved_BP]
-            mov si, [saved_SI]
-            mov di, [saved_DI]
-            mov es, [saved_ES]
-            mov fs, [saved_FS]
-            mov gs, [saved_GS]
+            mov eax, [saved_EAX]
+            mov ecx, [saved_ECX]
+            mov edx, [saved_EDX]
+            mov ebx, [saved_EBX]
+            mov ebp, [saved_EBP]
+            mov esi, [saved_ESI]
+            mov edi, [saved_EDI]
+            mov es,  [saved_ES]
+            mov fs,  [saved_FS]
+            mov gs,  [saved_GS]
 
             ; Execute interrupt
             .interrupt_opcode: db 0xCD
             .interrupt_number: db 0x00
 
             ; Read registers
-            pushf
-            pop word [saved_EFLAGS]
+            pushfd
+            pop dword [saved_EFLAGS]
 
-            mov [saved_AX], ax
-            mov [saved_CX], cx
-            mov [saved_DX], dx
-            mov [saved_BX], bx
-            mov [saved_BP], bp
-            mov [saved_SI], si
-            mov [saved_DI], di
-            mov [saved_ES], es
-            mov [saved_FS], fs
-            mov [saved_GS], gs
+            mov [saved_EAX], eax
+            mov [saved_ECX], ecx
+            mov [saved_EDX], edx
+            mov [saved_EBX], ebx
+            mov [saved_EBP], ebp
+            mov [saved_ESI], esi
+            mov [saved_EDI], edi
+            mov [saved_ES ], es
+            mov [saved_FS ], fs
+            mov [saved_GS ], gs
 
             ; Restore previous IDT and GDT
             lidt [stored_idt]
@@ -120,17 +120,17 @@ SECTION .real.data
     ; 16-bit mode registers status
     GLOBAL g_savedRegisters:
     g_savedRegisters:
-        saved_AX:     dw 0x00
-        saved_CX:     dw 0x00
-        saved_DX:     dw 0x00
-        saved_BX:     dw 0x00
-        saved_BP:     dw 0x00
-        saved_SI:     dw 0x00
-        saved_DI:     dw 0x00
-        saved_ES:     dw 0x00
-        saved_FS:     dw 0x00
-        saved_GS:     dw 0x00
-        saved_EFLAGS: dw 0x00
+        saved_EAX:     dd 0x00
+        saved_ECX:     dd 0x00
+        saved_EDX:     dd 0x00
+        saved_EBX:     dd 0x00
+        saved_EBP:     dd 0x00
+        saved_ESI:     dd 0x00
+        saved_EDI:     dd 0x00
+        saved_EFLAGS:  dd 0x00
+        saved_ES:      dw 0x00
+        saved_FS:      dw 0x00
+        saved_GS:      dw 0x00
 
     ; Buffer for real mode data
     GLOBAL g_realBuffer

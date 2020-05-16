@@ -104,13 +104,13 @@ namespace FunnyOS::Bootloader32 {
 
     void* FetchBiosFonts() {
         auto biosFonts = Memory::AllocateBuffer<uint8_t>(256 * 16);
-        Registers16 registers16;
-        registers16.AX.Value16 = 0x1130;
-        registers16.BX.Value8.High = 0x06;
+        Registers32 registers16;
+        registers16.EAX.Value16 = 0x1130;
+        registers16.EBX.Value8.High = 0x06;
         RealModeInt(0x10, registers16);
 
-        Memory::Copy<uint8_t>(biosFonts,
-                              reinterpret_cast<uint8_t*>(registers16.ES.Value16 * 16 + registers16.BP.Value16));
+        const auto* fontsLocation = reinterpret_cast<uint8_t*>(registers16.ES.Value16 * 16 + registers16.EBP.Value16);
+        Memory::Copy<uint8_t>(biosFonts, fontsLocation);
 
         return biosFonts.Data;
     }

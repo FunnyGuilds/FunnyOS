@@ -7,14 +7,31 @@
 #include <FunnyOS/Stdlib/System.hpp>
 
 namespace FunnyOS::Bootloader32 {
+    struct RegisterParts {
+        uint8_t Low;
+        uint8_t High;
+    } F_DONT_ALIGN;
+
     /**
      * Represents a 16-bit register.
      */
     union Register16 {
-        struct Parts {
-            uint8_t Low;
-            uint8_t High;
-        } F_DONT_ALIGN;
+        /**
+         * 16-bit value of the register.
+         */
+        uint16_t Value16;
+
+        /**
+         * structure holding low and high bytes of the register.
+         */
+        RegisterParts Value8;
+    } F_DONT_ALIGN;
+
+    union Register32 {
+        /**
+         * 32-bit value of the register
+         */
+        uint32_t Value32;
 
         /**
          * 16-bit value of the register.
@@ -22,26 +39,26 @@ namespace FunnyOS::Bootloader32 {
         uint16_t Value16;
 
         /**
-         * Structure holding low and high bytes of the register.
+         * structure holding low and high bytes of the register.
          */
-        Parts Value8;
+        RegisterParts Value8;
     } F_DONT_ALIGN;
 
     /**
      * Represents all registers that can be used to make a real mode interrupt.
      */
-    struct Registers16 {
-        Register16 AX = {0};
-        Register16 CX = {0};
-        Register16 DX = {0};
-        Register16 BX = {0};
-        Register16 BP = {0};
-        Register16 SI = {0};
-        Register16 DI = {0};
+    struct Registers32 {
+        Register32 EAX = {0};
+        Register32 ECX = {0};
+        Register32 EDX = {0};
+        Register32 EBX = {0};
+        Register32 EBP = {0};
+        Register32 ESI = {0};
+        Register32 EDI = {0};
+        Register32 EFLAGS = {0};
         Register16 ES = {0};
         Register16 FS = {0};
         Register16 GS = {0};
-        Register16 FLAGS = {0};
     } F_DONT_ALIGN;
 
     /**
@@ -83,7 +100,7 @@ namespace FunnyOS::Bootloader32 {
      *
      * @param[in,out] registers value of the 16-bit registers to hold parameters and return values for the interrupt.
      */
-    void RealModeInt(uint8_t interrupt, Registers16& registers);
+    void RealModeInt(uint8_t interrupt, Registers32& registers);
 
 }  // namespace FunnyOS::Bootloader32
 

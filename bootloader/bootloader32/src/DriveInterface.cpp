@@ -36,13 +36,13 @@ namespace FunnyOS::Bootloader32 {
 
         char errorBuffer[128];
 
-        void CheckErrors(const char* when, const Registers16& regs) {
-            if ((regs.FLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0) {
+        void CheckErrors(const char* when, const Registers32& regs) {
+            if ((regs.EFLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0) {
                 return;
             }
 
             String::StringBuffer buffer{errorBuffer, 128};
-            String::Format(buffer, "BIOS error when %s. CF is set. AH = 0x%02x", when, regs.AX.Value8.High);
+            String::Format(buffer, "BIOS error when %s. CF is set. AH = 0x%02x", when, regs.EAX.Value8.High);
             F_ERROR_WITH_MESSAGE(DriveInterfaceException, errorBuffer);
         }
     }  // namespace
@@ -125,19 +125,19 @@ namespace FunnyOS::Bootloader32 {
             const SectorNumber leftSectorsOnTrack = m_sectorsPerTrack - sector + 1;
             const SectorNumber currentReadSize = Min(leftToRead, leftSectorsOnTrack, bufferSize);
 
-            Registers16 regs;
-            regs.AX.Value8.High = 0x02;
-            regs.AX.Value8.Low = currentReadSize;
-            regs.CX.Value8.High = cylinder & 0xFF;
-            regs.CX.Value8.Low = (((cylinder >> 8) & 0b11) << 6) | (currentSector & 0b00111111);
-            regs.DX.Value8.High = head;
-            regs.DX.Value8.Low = m_drive;
+            Registers32 regs;
+            regs.EAX.Value8.High = 0x02;
+            regs.EAX.Value8.Low = currentReadSize;
+            regs.ECX.Value8.High = cylinder & 0xFF;
+            regs.ECX.Value8.Low = (((cylinder >> 8) & 0b11) << 6) | (currentSector & 0b00111111);
+            regs.EDX.Value8.High = head;
+            regs.EDX.Value8.Low = m_drive;
 
             uint16_t bufferSegment = 0;
             uint16_t bufferSegmentOffset = 0;
             GetRealModeBufferAddress(bufferSegment, bufferSegmentOffset);
             regs.ES.Value16 = bufferSegment;
-            regs.BX.Value16 = bufferSegmentOffset;
+            regs.EBX.Value16 = bufferSegmentOffset;
 
             RealModeInt(0x13, regs);
             CheckErrors("reading via INT13 AH=0x02", regs);
@@ -151,16 +151,16 @@ namespace FunnyOS::Bootloader32 {
 
     void DriveInterface::Query() {
         // Int13 extension installation check
-        Registers16 regs;
-        regs.AX.Value8.High = 0x41;
-        regs.BX.Value16 = 0x55AA;
-        regs.DX.Value8.Low = m_drive;
+        Registers32 regs;
+        regs.EAX.Value8.High = 0x41;
+        regs.EBX.Value16 = 0x55AA;
+        regs.EDX.Value8.Low = m_drive;
         RealModeInt(0x13, regs);
 
-        if ((regs.FLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0 && regs.BX.Value16 == 0xAA55) {
-            m_hasExtendedDiskAccess = (regs.CX.Value16 & 0b1) != 0;
-            m_hasEnhancedDiskDriveFunctions = (regs.CX.Value16 & 0b100) != 0;
-            m_supportsFlat64Addresses = (regs.CX.Value16 & 0b1000) != 0;
+        if ((regs.EFLAGS.Value16 & static_cast<uint16_t>(CPU::Flags::CarryFlag)) == 0 && regs.EBX.Value16 == 0xAA55) {
+            m_hasExtendedDiskAccess = (regs.ECX.Value16 & 0b1) != 0;
+            m_hasEnhancedDiskDriveFunctions = (regs.ECX.Value16 & 0b100) != 0;
+            m_supportsFlat64Addresses = (regs.ECX.Value16 & 0b1000) != 0;
         } else {
             m_hasExtendedDiskAccess = false;
             m_hasEnhancedDiskDriveFunctions = false;
@@ -173,9 +173,9 @@ namespace FunnyOS::Bootloader32 {
 
             auto* parameters = reinterpret_cast<EDDParameters*>(GetRealModeBuffer().Data);
             parameters->BufferSize = sizeof(EDDParameters);
-            regs.AX.Value8.High = 0x48;
-            regs.DX.Value8.Low = m_drive;
-            regs.SI.Value16 = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(parameters));
+            regs.EAX.Value8.High = 0x48;
+            regs.EDX.Value8.Low = m_drive;
+            regs.ESI.Value16 = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(parameters));
             RealModeInt(0x13, regs);
             CheckErrors("reading EDD", regs);
 
@@ -187,15 +187,15 @@ namespace FunnyOS::Bootloader32 {
         } else {
             m_sectorSize = DEFAULT_SECTOR_SIZE;
 
-            regs.AX.Value8.High = 0x08;
-            regs.DX.Value8.Low = m_drive;
-            regs.DI.Value16 = 0;
+            regs.EAX.Value8.High = 0x08;
+            regs.EDX.Value8.Low = m_drive;
+            regs.EDI.Value16 = 0;
             RealModeInt(0x13, regs);
             CheckErrors("getting drive parameters", regs);
 
-            m_sectorsPerTrack = regs.CX.Value8.Low & 0b0011'1111;
-            m_maxCylinderNumber = ((((regs.CX.Value8.Low & 0b1100'0000) >> 6) << 8) | regs.CX.Value8.High) + 1;
-            m_headsPerCylinder = regs.DX.Value8.High + 1;
+            m_sectorsPerTrack = regs.ECX.Value8.Low & 0b0011'1111;
+            m_maxCylinderNumber = ((((regs.ECX.Value8.Low & 0b1100'0000) >> 6) << 8) | regs.ECX.Value8.High) + 1;
+            m_headsPerCylinder = regs.EDX.Value8.High + 1;
             m_sectorCount = m_sectorsPerTrack * m_headsPerCylinder * m_maxCylinderNumber;
         }
     }
@@ -206,11 +206,11 @@ namespace FunnyOS::Bootloader32 {
         g_eddPacket.Unused[0] = 0;
         g_eddPacket.Unused[1] = 0;
 
-        Registers16 regs;
-        regs.AX.Value8.High = 0x42;
-        regs.BX.Value16 = 0x55AA;
-        regs.SI.Value16 = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(&g_eddPacket));
-        regs.DX.Value8.Low = m_drive;
+        Registers32 regs;
+        regs.EAX.Value8.High = 0x42;
+        regs.EBX.Value16 = 0x55AA;
+        regs.ESI.Value16 = static_cast<uint16_t>(reinterpret_cast<uintptr_t>(&g_eddPacket));
+        regs.EDX.Value8.Low = m_drive;
         RealModeInt(0x13, regs);
         CheckErrors(when, regs);
     }

@@ -3,7 +3,7 @@
 #include <FunnyOS/Hardware/Interrupts.hpp>
 
 // Defined in real_mode.asm
-extern FunnyOS::Bootloader32::Registers16 g_savedRegisters;
+extern FunnyOS::Bootloader32::Registers32 g_savedRegisters;
 extern uint8_t g_realBuffer;
 extern uint8_t g_realBufferTop;
 
@@ -37,9 +37,9 @@ namespace FunnyOS::Bootloader32 {
         GetRealModeAddress(address, segment, offset);
     }
 
-    void RealModeInt(uint8_t interrupt, Registers16& registers) {
+    void RealModeInt(uint8_t interrupt, Registers32& registers) {
         HW::NoInterruptsBlock noInterrupts;
-        Memory::Copy(static_cast<void*>(&g_savedRegisters), static_cast<void*>(&registers), sizeof(Registers16));
+        Memory::Copy(static_cast<void*>(&g_savedRegisters), static_cast<void*>(&registers), sizeof(Registers32));
 
 #ifdef __GNUC__
         asm(
@@ -66,7 +66,7 @@ namespace FunnyOS::Bootloader32 {
             : "memory");
 #endif
 
-        Memory::Copy(static_cast<void*>(&registers), static_cast<void*>(&g_savedRegisters), sizeof(Registers16));
+        Memory::Copy(static_cast<void*>(&registers), static_cast<void*>(&g_savedRegisters), sizeof(Registers32));
     }
 
 }  // namespace FunnyOS::Bootloader32
