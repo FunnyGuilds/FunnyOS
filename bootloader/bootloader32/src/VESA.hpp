@@ -23,14 +23,14 @@ namespace FunnyOS::Bootloader32 {
      *
      * @return the VbeInfoBlock
      */
-    const VbeInfoBlock& GetVbeInfoBlock();
+    VbeInfoBlock& GetVbeInfoBlock();
 
     /**
      * Returns the Extended Display Identification Data fetched from BIOS.
      *
      * @return the EdidInformation or empty optional if EDID not supported.
      */
-    const Stdlib::Optional<EdidInformation>& GetEdidInformation();
+    Stdlib::Optional<EdidInformation>& GetEdidInformation();
 
     /**
      * Gets a buffer that contains all available video modes reported by the graphics card.

@@ -4,6 +4,7 @@
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include "BootDriveInfo.hpp"
 #include "MemoryMapDescription.hpp"
+#include "Pointer32.hpp"
 #include "VESA.hpp"
 
 namespace FunnyOS::Bootparams {
@@ -27,7 +28,7 @@ namespace FunnyOS::Bootparams {
         /**
          * Pointer to the 16x8 fonts fetched from BIOS.
          */
-        uint32_t BiosFonts;
+        Pointer32<uint8_t> BiosFonts;
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams

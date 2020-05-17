@@ -104,7 +104,7 @@ namespace FunnyOS::Bootloader32 {
         return ptr;
     }
 
-    const VbeInfoBlock& GetVbeInfoBlock() {
+    VbeInfoBlock& GetVbeInfoBlock() {
         if (!g_vbeInfoBlockInitialized) {
             FetchVbeInfoBlock();
             g_vbeInfoBlockInitialized = true;
@@ -113,7 +113,7 @@ namespace FunnyOS::Bootloader32 {
         return g_vbeInfoBlock;
     }
 
-    const Stdlib::Optional<EdidInformation>& GetEdidInformation() {
+    Stdlib::Optional<EdidInformation>& GetEdidInformation() {
         static Stdlib::Optional<EdidInformation> c_edid = FetchEdidInformation();
         return c_edid;
     }

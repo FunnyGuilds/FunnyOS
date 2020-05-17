@@ -33,7 +33,7 @@ namespace FunnyOS::Bootloader32 {
         return c_bootloaderParameters;
     }
 
-    void* FetchBiosFonts() {
+    uint8_t* FetchBiosFonts() {
         auto biosFonts = Memory::AllocateBuffer<uint8_t>(256 * 16);
         Registers32 registers16;
         registers16.EAX.Value16 = 0x1130;
@@ -111,9 +111,12 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_INFO_F("CPU Vendor ID: %s", vendorId);
 
         // Prepare VBE information and find best video mode
-        GetBootloaderParameters().Vbe.InfoBlockLocation = reinterpret_cast<uint32_t>(&GetVbeInfoBlock());
-        GetBootloaderParameters().Vbe.EdidBlockLocation = reinterpret_cast<uint32_t>(&GetEdidInformation());
-        GetBootloaderParameters().Vbe.ModeInfoStart = reinterpret_cast<uint32_t>(GetVbeModes().Data);
+        GetBootloaderParameters().Vbe.EdidBlock =
+            GetEdidInformation().Map<Bootparams::Pointer32<EdidInformation>>([](auto& block) { return &block; });
+
+        GetBootloaderParameters().Vbe.InfoBlock = &GetVbeInfoBlock();
+        GetBootloaderParameters().Vbe.ModeInfoStart = GetVbeModes().Data;
+        GetBootloaderParameters().Vbe.ModeInfoEntries = static_cast<uint16_t>(GetVbeModes().Size);
         Optional<uint16_t> bestVideoMode = PickBestMode();
 
         if (!bestVideoMode) {
@@ -205,7 +208,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Add new entries to memory map
         auto& memoryMap = GetBootloaderParameters().MemoryMap;
-        auto* memoryMapBase = reinterpret_cast<Bootparams::MemoryMapEntry*>(memoryMap.First);
+        Bootparams::MemoryMapEntry* memoryMapBase = memoryMap.First;
 
         // Kernel image entry
         memoryMapBase[memoryMap.Count] = {
@@ -224,7 +227,7 @@ namespace FunnyOS::Bootloader32 {
         memoryMap.Count++;
 
         // Fetch bios fonts
-        GetBootloaderParameters().BiosFonts = reinterpret_cast<uint32_t>(FetchBiosFonts());
+        GetBootloaderParameters().BiosFonts = FetchBiosFonts();
         FB_LOG_DEBUG_F("Bios fonts at %08x", GetBootloaderParameters().BiosFonts);
 
         // Pause if necessary

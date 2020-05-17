@@ -41,7 +41,7 @@ namespace FunnyOS::Bootloader32 {
             }
         }
 
-        map.First = reinterpret_cast<uint32_t>(entries);
+        map.First = entries;
         map.Count = static_cast<uint16_t>(i);
 
         return 0;
@@ -54,7 +54,7 @@ namespace FunnyOS::Bootloader32 {
         Bootparams::MemoryMapEntry biggestEntry{0, 0, Bootparams::MemoryMapEntryType::Reserved, 0};
 
         for (size_t i = 0; i < memoryMap.Count; i++) {
-            const auto& entry = memoryMap[i];
+            const auto& entry = memoryMap.First[i];
 
             if (entry.Type != Bootparams::MemoryMapEntryType::AvailableMemory) {
                 continue;

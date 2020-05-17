@@ -35,8 +35,7 @@ namespace FunnyOS::Kernel {
         LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
         // Setup basic screen manager
-        const auto& videoMode = reinterpret_cast<Bootparams::VbeModeInfoBlock*>(
-            parameters.Vbe.ModeInfoStart)[parameters.Vbe.ActiveModeIndex];
+        const auto& videoMode = parameters.Vbe.ModeInfoStart[parameters.Vbe.ActiveModeIndex];
 
         auto framebufferConfig =
             HW::FramebufferConfiguration{.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
@@ -48,7 +47,7 @@ namespace FunnyOS::Kernel {
                                          .GreenPosition = videoMode.GreenPosition,
                                          .BluePosition = videoMode.BluePosition};
 
-        m_screenManager.InitializeWith(framebufferConfig, reinterpret_cast<uint8_t*>(parameters.BiosFonts));
+        m_screenManager.InitializeWith(framebufferConfig, parameters.BiosFonts);
 
         // Setup logging
         m_logManager.EnableOnscreenLogging(

@@ -102,7 +102,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         const auto& memoryMap = Bootloader::Get().GetBootloaderParameters().MemoryMap;
 
         for (size_t i = 0; i < memoryMap.Count; i++) {
-            const auto& entry = memoryMap[i];
+            const auto& entry = memoryMap.First[i];
 
             const char* type;
             switch (entry.Type) {

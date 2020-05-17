@@ -3,6 +3,7 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
+#include "Pointer32.hpp"
 
 namespace FunnyOS::Bootparams {
 
@@ -128,10 +129,10 @@ namespace FunnyOS::Bootparams {
     } F_DONT_ALIGN;
 
     struct VbeInformation {
-        uint32_t InfoBlockLocation;
-        uint32_t EdidBlockLocation;
-        uint32_t ModeInfoStart;
-        uint32_t ModeInfoEntries;
+        Pointer32<VbeInfoBlock> InfoBlock;
+        Stdlib::Optional<Pointer32<EdidInformation>> EdidBlock;
+        Pointer32<VbeModeInfoBlock> ModeInfoStart;
+        uint16_t ModeInfoEntries;
         uint16_t ActiveModeIndex;
     };
 

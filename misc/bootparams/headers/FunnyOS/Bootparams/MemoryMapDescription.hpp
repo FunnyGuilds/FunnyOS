@@ -3,6 +3,7 @@
 
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
+#include "Pointer32.hpp"
 
 namespace FunnyOS::Bootparams {
 
@@ -107,19 +108,13 @@ namespace FunnyOS::Bootparams {
         /**
          * Address of first element of the memory map.
          */
-        uint32_t First;
+        Pointer32<MemoryMapEntry> First;
 
         /**
          * Number of entries in the memory map.
          */
         uint16_t Count;
 
-        /**
-         * Gets the memory map entry with index [index] from the map.
-         */
-        inline const MemoryMapEntry& operator[](size_t index) const {
-            return reinterpret_cast<MemoryMapEntry*>(First)[index];
-        }
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams
