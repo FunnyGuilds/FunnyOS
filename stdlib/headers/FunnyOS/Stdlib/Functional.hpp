@@ -165,6 +165,18 @@ namespace FunnyOS::Stdlib {
          */
         [[nodiscard]] inline const T* operator->() const;
 
+        /***
+         * Transforms the optional value using the [mapper] functor.
+         * Or returns EmptyOptional<U> if [this] optional is empty.
+         *
+         * @tparam U transformed type
+         * @tparam Mapper transforming functor
+         * @param mapper transforming functor
+         * @return transformed optional.
+         */
+        template <typename U, typename Mapper>
+        Optional<U> Map(Mapper mapper);
+
        private:
         template <typename T2, typename... Args>
         friend Optional<T2> MakeOptional(Args&&... args);

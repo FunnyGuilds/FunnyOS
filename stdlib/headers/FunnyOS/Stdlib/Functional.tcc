@@ -96,6 +96,16 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    template <typename U, typename Mapper>
+    Optional<U> Optional<T>::Map(Mapper mapper) {
+        if (!HasValue()) {
+            return EmptyOptional<U>();
+        }
+
+        return MakeOptional<U>(mapper(GetValue()));
+    }
+
+    template <typename T>
     inline Optional<T> EmptyOptional() noexcept {
         return Optional<T>{NullOptionalTag::Value};
     }
