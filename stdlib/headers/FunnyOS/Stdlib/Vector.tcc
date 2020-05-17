@@ -147,10 +147,11 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     template <typename... Args>
-    void Vector<T>::AppendInPlace(Args&&... args) {
+    T& Vector<T>::AppendInPlace(Args&&... args) {
         EnsureCapacity(m_size + 1);
         new (m_data[m_size]) T(Forward<Args>(args)...);
         m_size++;
+        return m_data[m_size];
     }
 
     template <typename T>
@@ -236,11 +237,12 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     template <typename... Args>
-    void Vector<T>::InsertInPlace(size_t index, Args&&... args) {
+    T& Vector<T>::InsertInPlace(size_t index, Args&&... args) {
         EnsureCapacity(m_size + 1);
         Shift(index, 1);
         new (m_data.Data + index) T(Forward<Args>(args)...);
         m_size++;
+        return m_data.Data[index];
     }
 
     template <typename T>

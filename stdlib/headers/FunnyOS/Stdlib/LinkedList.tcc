@@ -62,8 +62,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
-    LinkedList<T>::ConstIterator::ConstIterator(LinkedList::Element* element)
-        : m_element(element) {}
+    LinkedList<T>::ConstIterator::ConstIterator(LinkedList::Element* element) : m_element(element) {}
 
     template <typename T>
     T& LinkedList<T>::Iterator::operator*() noexcept {
@@ -191,8 +190,8 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     template <typename... Args>
-    void LinkedList<T>::AppendInPlace(Args&&... args) {
-        InsertInPlace(m_size, Forward<Args>(args)...);
+    T& LinkedList<T>::AppendInPlace(Args&&... args) {
+        return InsertInPlace(m_size, Forward<Args>(args)...);
     }
 
     template <typename T>
@@ -251,9 +250,10 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     template <typename... Args>
-    void LinkedList<T>::InsertInPlace(size_t index, Args&&... args) {
-        InsertElement(index,
-                      new Element{Storage<T>(InPlaceConstructorTag::Value, Forward<Args>(args)...), nullptr, nullptr});
+    T& LinkedList<T>::InsertInPlace(size_t index, Args&&... args) {
+        auto* element = new Element{Storage<T>(InPlaceConstructorTag::Value, Forward<Args>(args)...), nullptr, nullptr};
+        InsertElement(index, element);
+        return element->Data.GetObject();
     }
 
     template <typename T>

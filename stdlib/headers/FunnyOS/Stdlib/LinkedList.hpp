@@ -247,7 +247,7 @@ namespace FunnyOS::Stdlib {
          * @param args arguments for the T constructor.
          */
         template <typename... Args>
-        void AppendInPlace(Args&&... args);
+        T& AppendInPlace(Args&&... args);
 
         /**
          * Removes an element from the specified index.
@@ -307,7 +307,7 @@ namespace FunnyOS::Stdlib {
          * @throws LinkedListIndexOutOfBounds when index > GetSize()
          */
         template <typename... Args>
-        void InsertInPlace(size_t index, Args&&... value);
+        T& InsertInPlace(size_t index, Args&&... value);
 
         /**
          * Inserts [size] values at the specified index. Values at and above and further will be shifted to make room

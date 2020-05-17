@@ -18,7 +18,7 @@
 #   define F_DONT_ALIGN                         __attribute__((packed))
 
 // Debugging
-#   define F_UNIVERSAL_DEBUGGER_TRAP asm volatile ("xchg bx, bx")
+#   define F_UNIVERSAL_DEBUGGER_TRAP asm volatile ("xchg %bx, %bx")
 
 // Varags
 #include <stdarg.h>
