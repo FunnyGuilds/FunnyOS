@@ -6,26 +6,24 @@
 #include <FunnyOS/Hardware/CPU.hpp>
 #include <FunnyOS/Hardware/PIC.hpp>
 #include <FunnyOS/Hardware/PS2.hpp>
+#include <FunnyOS/Hardware/GFX/VGA.hpp>
 #include "A20Line.hpp"
 #include "DebugMenu.hpp"
 #include "DriveInterface.hpp"
 #include "ElfLoader.hpp"
 #include "Interrupts.hpp"
 #include "Logging.hpp"
+#include "MemoryMap.hpp"
 #include "Paging.hpp"
 #include "RealMode.hpp"
 #include "Sleep.hpp"
 #include "VESA.hpp"
 
-// Defined in real_mode_intro.asm
+// Defined in start.asm
 extern FunnyOS::Bootparams::BootDriveInfo g_bootInfo;
-extern FunnyOS::Bootparams::MemoryMapDescription g_memoryMap;
 
 // Linker symbols
 extern void* HEAP_START;
-extern void* REAL_CODE_START;
-extern void* REAL_BUFFER_START;
-extern void* REAL_BUFFER_END;
 
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
@@ -34,73 +32,6 @@ namespace FunnyOS::Bootloader32 {
         static Bootparams::Parameters c_bootloaderParameters;
         return c_bootloaderParameters;
     }
-
-    namespace {
-        Bootparams::MemoryMapEntry FindBiggestUsableEntry(const Bootparams::MemoryMapDescription& memoryMap) {
-            constexpr const uint64_t MINIMUM_ADDRESSABLE_BYTE = 1024ULL * 1024ULL * 2ULL;  // 2 MB
-            constexpr const uint64_t MAXIMUM_ADDRESSABLE_BYTE = NumeralTraits::Info<uint32_t>::MaximumValue;
-
-            Bootparams::MemoryMapEntry biggestEntry{0, 0, Bootparams::MemoryMapEntryType::Reserved, 0};
-
-            for (size_t i = 0; i < memoryMap.Count; i++) {
-                const auto& entry = memoryMap[i];
-
-                if (entry.Type != Bootparams::MemoryMapEntryType::AvailableMemory) {
-                    continue;
-                }
-
-                if (memoryMap.HasAcpiExtendedAttribute) {
-                    if ((entry.ACPIFlags & Bootparams::ACPI30Flags::DONT_IGNORE) == 0) {
-                        continue;
-                    }
-
-                    if ((entry.ACPIFlags & Bootparams::ACPI30Flags::MEMORY_VOLATILE) != 0) {
-                        continue;
-                    }
-                }
-
-                if (entry.BaseAddress > MAXIMUM_ADDRESSABLE_BYTE) {
-                    continue;
-                }
-
-                // Found suitable memory, now check for size and boundaries
-                uint64_t entryMinimumByte = entry.BaseAddress;
-                uint64_t entryMaximumByte = entry.BaseAddress + entry.Length - 1;
-
-                // Base address must be page-aligned
-                if ((entryMinimumByte % 0x1000) != 0) {
-                    entryMinimumByte += 0x1000 - (entryMinimumByte % 0x1000);
-                }
-
-                // We cannot use addresses larger than 32-bit in 32-bit mode.
-                if (entryMaximumByte > MAXIMUM_ADDRESSABLE_BYTE) {
-                    entryMaximumByte = MAXIMUM_ADDRESSABLE_BYTE;
-                }
-
-                // We cannot use addresses < than 2 MB since they will be identity mapped
-                if (entryMinimumByte < MINIMUM_ADDRESSABLE_BYTE) {
-                    entryMinimumByte = MINIMUM_ADDRESSABLE_BYTE;
-                }
-
-                if (entryMinimumByte > entryMaximumByte) {
-                    // Whole entry is below minimum or above maximum
-                    continue;
-                }
-
-                const uint64_t totalUsableSpace = entryMaximumByte - entryMinimumByte + 1;
-
-                // Found suitable memory area
-                if (biggestEntry.Length < totalUsableSpace) {
-                    biggestEntry.BaseAddress = entryMinimumByte;
-                    biggestEntry.Length = totalUsableSpace;
-                    biggestEntry.Type = entry.Type;
-                    biggestEntry.ACPIFlags = entry.ACPIFlags;
-                }
-            }
-
-            return biggestEntry;
-        }
-    }  // namespace
 
     void* FetchBiosFonts() {
         auto biosFonts = Memory::AllocateBuffer<uint8_t>(256 * 16);
@@ -117,7 +48,10 @@ namespace FunnyOS::Bootloader32 {
 
     [[noreturn]] void Bootloader::Main() {
         GetBootloaderParameters().BootInfo = g_bootInfo;
-        GetBootloaderParameters().MemoryMap = g_memoryMap;
+        int error = CreateMemoryMap(GetBootloaderParameters().MemoryMap);
+        if (error != 0) {
+            Halt();
+        }
 
         // Initialization stuff
         GetAllocator().Initialize(reinterpret_cast<Misc::MemoryAllocator::memoryaddress_t>(&HEAP_START), 0x00080000);
@@ -193,7 +127,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Find biggest available memory segment
         const size_t minimumSize = 1024 * 1024;  // 16 MB // TODO: calculate the actual size?
-        auto kernelMem = FindBiggestUsableEntry(GetBootloaderParameters().MemoryMap);
+        auto kernelMem = FindBiggestUsableMemoryEntry(GetBootloaderParameters().MemoryMap);
 
         if (kernelMem.Type != Bootparams::MemoryMapEntryType::AvailableMemory) {
             FB_LOG_FATAL("Could not allocate ANY memory to load the kernel.");
@@ -316,7 +250,7 @@ namespace FunnyOS::Bootloader32 {
 
         auto bootParamsAddressLow = reinterpret_cast<uint32_t>(&GetBootloaderParameters());
 
-        asm("push $0\n"   // Boot params address high
+        asm("push $0\n"  // Boot params address high
             "push %3\n"  // Boot params address low
             "push %2\n"  // Kernel entry point high
             "push %1\n"  // Kernel entry point low

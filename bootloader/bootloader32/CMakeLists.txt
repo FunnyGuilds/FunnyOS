@@ -13,7 +13,6 @@ configure_file(
 # Build ASM objects
 add_library(FunnyOS_Bootloader_Bootloader32_ASM OBJECT
         asm/interrupt_setup.asm
-        asm/make_memory_map.asm
         asm/real_mode.asm
         asm/start.asm
 )
@@ -35,6 +34,7 @@ add_executable(FunnyOS_Bootloader_Bootloader32
         src/Interrupts.cpp
         src/InterruptSetup.cpp
         src/Logging.cpp
+        src/MemoryMap.cpp
         src/Paging.cpp
         src/RealMode.cpp
         src/Sleep.cpp

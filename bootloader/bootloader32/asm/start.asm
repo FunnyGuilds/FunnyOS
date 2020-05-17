@@ -9,11 +9,6 @@ SECTION .intro
         mov [boot_info__boot_drive_id], dl
         mov [boot_info__boot_partition], dh
 
-        call make_memory_map
-        mov [memory_map__acpi_extended], al
-        mov [memory_map__first], ebx
-        mov [memory_map__count], cx
-
         ; Setup video mode
         mov ah, 0x00
         mov al, 0x03
@@ -28,6 +23,7 @@ SECTION .intro
         or al, 0x80
         out 0x70, al
 
+        ; Enter protected mode
         mov eax, cr0
         or eax, 1
         mov cr0, eax
@@ -82,9 +78,3 @@ SECTION .real.data
     g_bootInfo:
         boot_info__boot_drive_id:        db 0            ; Boot drive ID
         boot_info__boot_partition:       db 0            ; Boot partition
-
-    GLOBAL g_memoryMap
-    g_memoryMap:
-        memory_map__acpi_extended:       db 0            ; Memory map has ACPI extend attributes
-        memory_map__first:               dd 0            ; Address of the first element in the memory map
-        memory_map__count:               dw 0            ; Memory map number of entries
