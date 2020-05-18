@@ -42,7 +42,7 @@ namespace FunnyOS::Bootloader32 {
         }
 
         map.First = entries;
-        map.Count = static_cast<uint16_t>(i);
+        map.Count = static_cast<uint16_t>(i + 1);
 
         return 0;
     }
