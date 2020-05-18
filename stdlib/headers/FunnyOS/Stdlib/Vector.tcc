@@ -151,7 +151,7 @@ namespace FunnyOS::Stdlib {
         EnsureCapacity(m_size + 1);
         new (m_data[m_size]) T(Forward<Args>(args)...);
         m_size++;
-        return m_data[m_size];
+        return m_data.Data[m_size - 1];
     }
 
     template <typename T>
