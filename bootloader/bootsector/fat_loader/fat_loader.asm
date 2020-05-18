@@ -1,5 +1,23 @@
 %include "config.asm"
 
+%macro INTERRUPTS_OFF 0
+    cli
+    push ax
+    in al, 0x70
+    or al, 0x80
+    out 0x70, al
+    pop ax
+%endmacro
+
+%macro INTERRUPTS_ON 0
+    sti
+    push ax
+    in al, 0x70
+    and al, ~0x80
+    out 0x70, al
+    pop ax
+%endmacro
+
 [bits 16]
 SECTION .intro
     EXTERN fat_loader
@@ -28,6 +46,7 @@ SECTION .text
     ; Jumps to protected mode and returns, expects 32-bit return address on the stack
     ;
     jump_to_protected:
+        INTERRUPTS_OFF
         push eax
         mov eax, cr0
         or eax, 1
@@ -42,6 +61,7 @@ SECTION .text
         mov fs, ax
         mov gs, ax
         pop eax
+        INTERRUPTS_ON
         ret
 
     ;
@@ -49,6 +69,7 @@ SECTION .text
     ;
     [bits 32]
     jump_to_real:
+        INTERRUPTS_OFF
         ; First jump to protected 16-bit mode
         jmp 0x18:.protected16
         .protected16:
@@ -66,6 +87,7 @@ SECTION .text
         mov fs, ax
         mov gs, ax
         pop eax
+        INTERRUPTS_ON
         ret
 
     [bits 32]
