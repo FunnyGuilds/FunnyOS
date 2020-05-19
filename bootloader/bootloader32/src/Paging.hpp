@@ -28,6 +28,11 @@ namespace FunnyOS::Bootloader32 {
     constexpr uint64_t SINGLE_TABLE_MAPPING_SIZE = PAGE_SIZE * ENTRIES_PER_PAGE;
 
     /**
+     * Size of a page directory mapping (2 MB)
+     */
+    constexpr uint64_t PAGE_DIRECTORY_ENTRY_SIZE = PAGE_SIZE * ENTRIES_PER_PAGE;
+
+    /**
      * Aligns the memory address to SINGLE_TABLE_MAPPING_SIZE upwards (the aligned address will be equal or smaller than
      * [memory]).
      *
@@ -48,6 +53,11 @@ namespace FunnyOS::Bootloader32 {
     uint64_t GetKernelVirtualLocation();
 
     /**
+     * @return the virtual location at where the physical memory should be mapped at.
+     */
+    uint64_t GetPhysicalMemoryVirtualLocation();
+
+    /**
      * Simple allocator for page tables.
      */
     class SimplePageTableAllocator {
@@ -62,11 +72,13 @@ namespace FunnyOS::Bootloader32 {
         /**
          * Maps a memory region in the page table structure.
          *
-         * @param location location at where to start the mapping, must be aligned to [PAGE_SIZE.
+         * @param location location at where to start the mapping, must be aligned to [PAGE_SIZE].
          * @param size size of the memory to map. Will be rounded up to a multiple of SINGLE_TABLE_MAPPING_SIZE.
          * @param virtualLocationBase virtual address for the mapping must be a aligned to [SINGLE_TABLE_MAPPING_SIZE]
          */
         void MapLocation(uint64_t location, uint64_t size, uint64_t virtualLocationBase);
+
+        void Map2MbPage(uint64_t physicalAddress, uint64_t virtualAddress);
 
         /**
          * @return the PML4 base address.
@@ -76,7 +88,7 @@ namespace FunnyOS::Bootloader32 {
        private:
         void* AllocateClearPage();
 
-        void* GetPageTable(void* currentBase, uint64_t virtualAddress, unsigned int level);
+        void* GetPageStructure(void* currentBase, uint64_t virtualAddress, unsigned int level, unsigned int target);
 
         void MapSingleTable(uint64_t virtualAddress, uint64_t physicalAddress);
 

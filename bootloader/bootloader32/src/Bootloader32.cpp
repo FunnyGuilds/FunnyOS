@@ -184,26 +184,24 @@ namespace FunnyOS::Bootloader32 {
         SimplePageTableAllocator pageTableAllocator(pageTableMemoryAllocator);
 
         // Identity map first two megabytes
-        pageTableAllocator.MapLocation(0, 0x200000, 0);
+        pageTableAllocator.Map2MbPage(0, 0);
 
         // Map kernel
         pageTableAllocator.MapLocation(kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize,
                                        GetKernelVirtualLocation());
 
-        // Identity map frame buffer
-        const auto& videoMode = GetVbeModes()[GetBootloaderParameters().Vbe.ActiveModeIndex];
-        const uint64_t frameBufferAddress = videoMode->FrameBufferPhysicalAddress;
-        const uint64_t frameBufferAligned = AlignToMappingUpwards(frameBufferAddress);
-        const uint64_t frameBufferSize =
-            videoMode->Height * videoMode->BytesPerScanline + (frameBufferAddress - frameBufferAligned);
+        // Map physical memory, first 4 GB
+        constexpr const uint64_t PHYSICAL_MEMORY_MAP_SIZE = 1024ULL * 1024ULL * 1024ULL * 4ULL;  // 4 GB
 
-        pageTableAllocator.MapLocation(frameBufferAligned, frameBufferSize, frameBufferAligned);
-        FB_LOG_DEBUG_F("frameBufferAligned = %llu, frameBufferSize = %llu", frameBufferAddress, frameBufferSize);
+        for (uint64_t i = 0; i < (PHYSICAL_MEMORY_MAP_SIZE / PAGE_DIRECTORY_ENTRY_SIZE); i++) {
+            const uint64_t offset = i * PAGE_DIRECTORY_ENTRY_SIZE;
+            pageTableAllocator.Map2MbPage(offset, GetPhysicalMemoryVirtualLocation() + offset);
+        }
 
         // Debug info
         const uintmax_t pageTableMemorySize = pageTableMemoryAllocator.GetCurrentMemoryTop() - pageTableMemoryLocation;
 
-        FB_LOG_DEBUG_F("Temporary page table physical memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
+        FB_LOG_DEBUG_F("Temporary page table memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
                        pageTableMemorySize);
 
         // Add new entries to memory map

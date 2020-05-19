@@ -26,6 +26,10 @@ namespace FunnyOS::Bootloader32 {
         return F_KERNEL_VIRTUAL_ADDRESS;
     }
 
+    uint64_t GetPhysicalMemoryVirtualLocation() {
+        return F_KERNEL_PHYSICAL_MAPPING_ADDRESS;
+    }
+
     SimplePageTableAllocator::SimplePageTableAllocator(StaticMemoryAllocator& allocator)
         : m_pageTableAllocator(allocator), m_pml4base(AllocateClearPage()) {}
 
@@ -43,6 +47,15 @@ namespace FunnyOS::Bootloader32 {
         }
     }
 
+    void SimplePageTableAllocator::Map2MbPage(uint64_t physicalAddress, uint64_t virtualAddress) {
+        F_ASSERT((virtualAddress % PAGE_DIRECTORY_ENTRY_SIZE) == 0, "Virtual address not aligned");
+        F_ASSERT((physicalAddress % PAGE_DIRECTORY_ENTRY_SIZE) == 0, "Physical address not aligned");
+
+        void* directory = GetPageStructure(m_pml4base, virtualAddress, 4, 2);
+        auto* entries = static_cast<uint64_t*>(directory);
+        entries[(virtualAddress >> 21) & 0x1FF] = reinterpret_cast<uint64_t>(physicalAddress) | 0b10000011;
+    }
+
     void* SimplePageTableAllocator::GetPml4Base() const {
         return m_pml4base;
     }
@@ -54,9 +67,10 @@ namespace FunnyOS::Bootloader32 {
         return page;
     }
 
-    void* SimplePageTableAllocator::GetPageTable(void* currentBase, uint64_t virtualAddress, unsigned int level) {
+    void* SimplePageTableAllocator::GetPageStructure(void* currentBase, uint64_t virtualAddress, unsigned int level,
+                                                     unsigned int target) {
         F_ASSERT(((reinterpret_cast<uintptr_t>(currentBase) % PAGE_SIZE) == 0), "virtual address not page aligned");
-        if (level == 1) {
+        if (level == target) {
             return currentBase;
         }
 
@@ -71,7 +85,7 @@ namespace FunnyOS::Bootloader32 {
 
         void* nextBase = reinterpret_cast<void*>(entries[currentIndex] & 0xFFFFFFF000);
 
-        return GetPageTable(nextBase, virtualAddress, level - 1);
+        return GetPageStructure(nextBase, virtualAddress, level - 1, target);
     }
 
     void SimplePageTableAllocator::MapSingleTable(uint64_t virtualAddress, uint64_t physicalAddress) {
@@ -80,7 +94,7 @@ namespace FunnyOS::Bootloader32 {
 
         FB_LOG_DEBUG_F("Maping table %016llx to %016llx", virtualAddress, physicalAddress);
 
-        void* table = GetPageTable(m_pml4base, virtualAddress, 4);
+        void* table = GetPageStructure(m_pml4base, virtualAddress, 4, 1);
         auto* tableEntries = static_cast<uint64_t*>(table);
 
         for (size_t i = 0; i < ENTRIES_PER_PAGE; i++) {
