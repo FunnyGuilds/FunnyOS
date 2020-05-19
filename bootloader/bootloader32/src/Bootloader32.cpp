@@ -28,13 +28,15 @@ extern void* HEAP_START;
 namespace FunnyOS::Bootloader32 {
     using namespace FunnyOS::Stdlib;
 
+    constexpr const size_t BIOS_FONTS_SIZE = 256 * 16;
+
     Bootparams::Parameters& Bootloader::GetBootloaderParameters() {
         static Bootparams::Parameters c_bootloaderParameters;
         return c_bootloaderParameters;
     }
 
     uint8_t* FetchBiosFonts() {
-        auto biosFonts = Memory::AllocateBuffer<uint8_t>(256 * 16);
+        auto biosFonts = Memory::AllocateBuffer<uint8_t>(BIOS_FONTS_SIZE);
         Registers32 registers16;
         registers16.EAX.Value16 = 0x1130;
         registers16.EBX.Value8.High = 0x06;
@@ -231,6 +233,7 @@ namespace FunnyOS::Bootloader32 {
 
         // Fetch bios fonts
         GetBootloaderParameters().BiosFonts = FetchBiosFonts();
+        GetBootloaderParameters().BiosFontsSize = BIOS_FONTS_SIZE;
         FB_LOG_DEBUG_F("Bios fonts at %08x", GetBootloaderParameters().BiosFonts);
 
         // Pause if necessary

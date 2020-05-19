@@ -29,6 +29,11 @@ namespace FunnyOS::Bootparams {
          * Pointer to the 16x8 fonts fetched from BIOS.
          */
         Pointer32<uint8_t> BiosFonts;
+
+        /**
+         * Size of the BiosFonts array.
+         */
+        uint32_t BiosFontsSize;
     } F_DONT_ALIGN;
 
 }  // namespace FunnyOS::Bootparams
