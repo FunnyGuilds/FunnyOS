@@ -28,8 +28,8 @@ namespace FunnyOS::Bootloader32 {
     void GetRealModeAddress(uint32_t address, uint16_t& segment, uint16_t& offset) {
         F_ASSERT(address < MAX_REAL_MODE_ADDR, "address >= MAX_REAL_MODE_ADDR");
 
-        segment = address / 0x10000;
-        offset = address % 0x10000;
+        segment = static_cast<uint16_t>((address & 0xF0000) >> 4);
+        offset = static_cast<uint16_t>(address & 0xFFFF);
     }
 
     void GetRealModeBufferAddress(uint16_t& segment, uint16_t& offset) {
