@@ -42,9 +42,9 @@ namespace FunnyOS::Kernel {
         [[noreturn]] void Main(Bootparams::Parameters& parameters);
 
         /**
-         * @return kernel's boot parameter.
+         * @return kernel's boot drive info.
          */
-        [[nodiscard]] const Bootparams::Parameters& GetParameters() const;
+        [[nodiscard]] const Bootparams::BootDriveInfo& GetBootDriveInfo() const;
 
         /**
          * @return kernel's virtual memory manager
@@ -77,7 +77,7 @@ namespace FunnyOS::Kernel {
 
        private:
         bool m_initialized = false;
-        Bootparams::Parameters m_parameters{};
+        Bootparams::BootDriveInfo m_bootDriveInfo{};
         VMM::VirtualMemoryManager m_virtualMemoryManager{};
         Misc::MemoryAllocator::StaticMemoryAllocator m_kernelAllocator{};
         LogManager m_logManager{};

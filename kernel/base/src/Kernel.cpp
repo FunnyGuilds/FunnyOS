@@ -23,7 +23,9 @@ namespace FunnyOS::Kernel {
         }
 
         m_initialized = true;
-        m_parameters = parameters;
+
+        // Setup boot parameters
+        m_bootDriveInfo = parameters.BootInfo;
 
         // Initialize allocator
         using Misc::MemoryAllocator::memoryaddress_t;
@@ -35,10 +37,27 @@ namespace FunnyOS::Kernel {
         LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
         // Setup basic screen manager
+
+        // Copy video modes
+        Stdlib::Vector<Bootparams::VbeModeInfoBlock> videoModes;
+        videoModes.EnsureCapacity(parameters.Vbe.ModeInfoEntries);
+        for (size_t i = 0; i < parameters.Vbe.ModeInfoEntries; i++) {
+            videoModes.Append(parameters.Vbe.ModeInfoStart[i]);
+        }
+        videoModes.ShrinkToSize();
+
+        // Copy edid
+        Stdlib::Optional<Bootparams::EdidInformation> edid =
+            parameters.Vbe.EdidBlock.Map<Bootparams::EdidInformation>([](const auto& ptr) { return *ptr; });
+
+        // Copy fonts
+        auto fonts = Stdlib::Memory::AllocateBuffer<uint8_t>(parameters.BiosFontsSize);
+        Stdlib::Memory::Copy(fonts, static_cast<uint8_t*>(parameters.BiosFonts));
+
         const auto& videoMode = parameters.Vbe.ModeInfoStart[parameters.Vbe.ActiveModeIndex];
 
         auto framebufferConfig =
-            HW::FramebufferConfiguration{.Location = reinterpret_cast<void*>(videoMode.FrameBufferPhysicalAddress),
+            HW::FramebufferConfiguration{.Location = reinterpret_cast<void *>(0xFFFFA00000000000 + videoMode.FrameBufferPhysicalAddress), // TODO
                                          .ScreenWidth = videoMode.Width,
                                          .ScreenHeight = videoMode.Height,
                                          .BPS = videoMode.BytesPerScanline,
@@ -47,7 +66,8 @@ namespace FunnyOS::Kernel {
                                          .GreenPosition = videoMode.GreenPosition,
                                          .BluePosition = videoMode.BluePosition};
 
-        m_screenManager.InitializeWith(framebufferConfig, parameters.BiosFonts);
+        m_screenManager.InitializeWith(*parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid),
+                                       framebufferConfig, fonts.Data);
 
         // Setup logging
         m_logManager.EnableOnscreenLogging(
@@ -65,8 +85,8 @@ namespace FunnyOS::Kernel {
         F_NO_RETURN;
     }
 
-    const Bootparams::Parameters& Kernel64::GetParameters() const {
-        return m_parameters;
+    const Bootparams::BootDriveInfo& Kernel64::GetBootDriveInfo() const {
+        return m_bootDriveInfo;
     }
 
     VMM::VirtualMemoryManager& Kernel64::GetVirtualMemoryManager() {
@@ -79,6 +99,10 @@ namespace FunnyOS::Kernel {
 
     LogManager& Kernel64::GetLogManager() {
         return m_logManager;
+    }
+
+    GFX::ScreenManager& Kernel64::GetScreenManager() {
+        return m_screenManager;
     }
 
     Kernel64::Kernel64() = default;
