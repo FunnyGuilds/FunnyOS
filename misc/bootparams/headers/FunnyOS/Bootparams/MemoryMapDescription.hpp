@@ -61,14 +61,21 @@ namespace FunnyOS::Bootparams {
         /**
          * Location of kernel image in the memory.
          */
-        KernelImage = 0x06,
+        KernelImage = 0xA0,
 
         /**
          * Location at where the temporary bootloader's page tables are placed.
          *
          * May be reclaimed by kernel after switching to kernel page tables.
          */
-        PageTableReclaimable = 0x07,
+        PageTableReclaimable = 0xA1,
+
+        /**
+         * Location that is available but not usable because the they are outside of mapped physical memory.
+         *
+         * May be reclaimed by kernel after mapping the entire physical memory.
+         */
+        LongMemReclaimable = 0xA2,
     };
 
     /**

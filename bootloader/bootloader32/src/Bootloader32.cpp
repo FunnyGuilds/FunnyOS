@@ -209,19 +209,24 @@ namespace FunnyOS::Bootloader32 {
         Bootparams::MemoryMapEntry* memoryMapBase = memoryMap.First;
 
         // Kernel image entry
-        memoryMapBase[memoryMap.Count] = {
-            .BaseAddress = kernelElf.PhysicalLocationBase,
-            .Length = kernelElf.TotalMemorySize,
-            .Type = Bootparams::MemoryMapEntryType::KernelImage,
-            .ACPIFlags = static_cast<uint32_t>(memoryMap.HasAcpiExtendedAttribute ? 0b01 : 0)};
+        memoryMapBase[memoryMap.Count] = {.BaseAddress = kernelElf.PhysicalLocationBase,
+                                          .Length = kernelElf.TotalMemorySize,
+                                          .Type = Bootparams::MemoryMapEntryType::KernelImage,
+                                          .ACPIFlags = 0b01};
         memoryMap.Count++;
 
         // Page tables entry
-        memoryMapBase[memoryMap.Count] = {
-            .BaseAddress = pageTableMemoryLocation,
-            .Length = pageTableMemorySize,
-            .Type = Bootparams::MemoryMapEntryType::PageTableReclaimable,
-            .ACPIFlags = static_cast<uint32_t>(memoryMap.HasAcpiExtendedAttribute ? 0b01 : 0)};
+        memoryMapBase[memoryMap.Count] = {.BaseAddress = pageTableMemoryLocation,
+                                          .Length = pageTableMemorySize,
+                                          .Type = Bootparams::MemoryMapEntryType::PageTableReclaimable,
+                                          .ACPIFlags = 0b01};
+        memoryMap.Count++;
+
+        // Treat first megabyte as reserved
+        memoryMapBase[memoryMap.Count] = {.BaseAddress = 0,
+                                          .Length = 0x100000,
+                                          .Type = Bootparams::MemoryMapEntryType::ReservedMemory,
+                                          .ACPIFlags = 0b01};
         memoryMap.Count++;
 
         // Fetch bios fonts
