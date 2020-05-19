@@ -60,6 +60,13 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         [[nodiscard]] bool GetMode() const override;
     };
 
+    class IgnoreEdidOption : public SimpleSwitchModeOption {
+       public:
+        void FetchName(String::StringBuffer& buffer) const override;
+        void SetMode(bool mode) override;
+        [[nodiscard]] bool GetMode() const override;
+    };
+
     class PauseBeforeBootOption : public SimpleSwitchModeOption {
        public:
         void FetchName(String::StringBuffer& buffer) const override;

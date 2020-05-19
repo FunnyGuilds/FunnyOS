@@ -78,6 +78,18 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         return ElfLoader::IsDebugElfs();
     }
 
+    void IgnoreEdidOption::FetchName(String::StringBuffer& buffer) const {
+        String::Append(buffer, "Ignore EDID");
+    }
+
+    void IgnoreEdidOption::SetMode(bool mode) {
+        SetIgnoreEdid(mode);
+    }
+
+    bool IgnoreEdidOption::GetMode() const {
+        return IgnoreEdid();
+    }
+
     void PauseBeforeBootOption::FetchName(String::StringBuffer& buffer) const {
         String::Append(buffer, "Pause before booting");
     }
@@ -369,6 +381,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 #ifdef F_DEBUG
         static DebugElfLoaderOption c_debugElfLoaderOption{};
 #endif
+        static IgnoreEdidOption c_ignoreEdidOption{};
         static PauseBeforeBootOption c_pauseBeforeBootOption{};
         static PrintMemoryMapOption c_printMemoryMapOption{};
         static PrintBootloaderParametersOption c_printBootloaderParametersOption{};
@@ -384,6 +397,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 #ifdef F_DEBUG
             &c_debugElfLoaderOption,
 #endif
+            &c_ignoreEdidOption,
             &c_pauseBeforeBootOption,
             &c_printMemoryMapOption,
             &c_printBootloaderParametersOption,

@@ -61,6 +61,21 @@ namespace FunnyOS::Bootloader32 {
      * @param mode mode ID to set
      */
     void SelectVideoMode(uint16_t mode);
+
+    /**
+     * If true EDID is ignored and the best resuolution supported by the graphics card is used, ignoring any EDID
+     * preferences.
+     *
+     * @return whether or not to ignore the edid information.
+     */
+    bool IgnoreEdid();
+
+    /**
+     * Changes whether to ignore EDID when picking best resolution.
+     *
+     * @param ignore whether or not to ignore the edid information.
+     */
+    void SetIgnoreEdid(bool ignore);
 }  // namespace FunnyOS::Bootloader32
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_VESA_HPP

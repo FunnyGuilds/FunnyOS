@@ -7,6 +7,8 @@ namespace FunnyOS::Bootloader32 {
         constexpr const uint16_t INVALID_MODE = Stdlib::NumeralTraits::Info<uint16_t>::MaximumValue;
         constexpr const uint8_t VBE_FUNCTION_SUPPORTED = 0x4F;
 
+        bool g_ignoreEdid = false;
+
         struct DefaultResolution {
             uint32_t Width;
             uint32_t Height;
@@ -162,6 +164,32 @@ namespace FunnyOS::Bootloader32 {
     Stdlib::Optional<uint16_t> PickBestMode() {
         const auto& edid = GetEdidInformation();
 
+        if (g_ignoreEdid) {
+            uint16_t bestMode = INVALID_MODE;
+            uint32_t bestWidth = 0;
+            uint32_t bestHeight = 0;
+
+            for (const auto& mode : GetVbeModes()) {
+                if (mode.Width * mode.Height <= bestWidth * bestHeight) {
+                    continue;
+                }
+
+                auto supportedMode = FindVideoMode(mode.Width, mode.Height);
+                if (!supportedMode) {
+                    // mode is not supported
+                    continue;
+                }
+
+                bestWidth = mode.Width;
+                bestHeight = mode.Height;
+                bestMode = supportedMode.GetValue();
+            }
+
+            if (bestMode != INVALID_MODE) {
+                return Stdlib::MakeOptional<uint16_t>(bestMode);
+            }
+        }
+
         if (edid) {
             uint16_t edidBestMode = INVALID_MODE;
             uint32_t edidWidth = 0;
@@ -211,5 +239,13 @@ namespace FunnyOS::Bootloader32 {
         registers16.EBX.Value16 = GetVbeModes()[mode]->VESAVideoMode;
 
         RealModeInt(0x10, registers16);
+    }
+
+    bool IgnoreEdid() {
+        return g_ignoreEdid;
+    }
+
+    void SetIgnoreEdid(bool ignore) {
+        g_ignoreEdid = ignore;
     }
 }  // namespace FunnyOS::Bootloader32
