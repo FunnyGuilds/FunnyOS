@@ -57,7 +57,7 @@ namespace FunnyOS::Kernel {
         const auto& videoMode = parameters.Vbe.ModeInfoStart[parameters.Vbe.ActiveModeIndex];
 
         auto framebufferConfig =
-            HW::FramebufferConfiguration{.Location = reinterpret_cast<void *>(0xFFFFA00000000000 + videoMode.FrameBufferPhysicalAddress), // TODO
+            HW::FramebufferConfiguration{.Location = MM::PhysicalAddressToPointer(videoMode.FrameBufferPhysicalAddress),
                                          .ScreenWidth = videoMode.Width,
                                          .ScreenHeight = videoMode.Height,
                                          .BPS = videoMode.BytesPerScanline,
@@ -79,6 +79,25 @@ namespace FunnyOS::Kernel {
                        m_screenManager.GetTextInterface()->GetScreenHeight());
         FK_LOG_DEBUG("Hello world from video mode :woah:");
 
+        // Setup memory management
+        m_physicalMemoryManager.Initialize(parameters.MemoryMap);
+
+        // Test allocation
+        MM::physicaladdress_t page1 = m_physicalMemoryManager.AllocatePage();
+        MM::physicaladdress_t page2 = m_physicalMemoryManager.AllocatePagesRaw(10);
+        MM::physicaladdress_t page3 = m_physicalMemoryManager.AllocatePage();
+
+        FK_LOG_DEBUG_F("PAGE1: 0x%016llx", page1);
+        FK_LOG_DEBUG_F("PAGE2: 0x%016llx", page2);
+        FK_LOG_DEBUG_F("PAGE3: 0x%016llx", page3);
+        m_physicalMemoryManager.FreePagesRaw(page2, 2);
+        MM::physicaladdress_t page4 = m_physicalMemoryManager.AllocatePage();
+        MM::physicaladdress_t page5 = m_physicalMemoryManager.AllocatePage();
+        MM::physicaladdress_t page6 = m_physicalMemoryManager.AllocatePage();
+        FK_LOG_DEBUG_F("PAGE4: 0x%016llx", page4);
+        FK_LOG_DEBUG_F("PAGE5: 0x%016llx", page5);
+        FK_LOG_DEBUG_F("PAGE6: 0x%016llx", page6);
+
         for (;;) {
             HW::CPU::Halt();
         }
@@ -89,7 +108,11 @@ namespace FunnyOS::Kernel {
         return m_bootDriveInfo;
     }
 
-    VMM::VirtualMemoryManager& Kernel64::GetVirtualMemoryManager() {
+    MM::PhysicalMemoryManager& Kernel64::GetPhysicalMemoryManager() {
+        return m_physicalMemoryManager;
+    }
+
+    MM::VirtualMemoryManager& Kernel64::GetVirtualMemoryManager() {
         return m_virtualMemoryManager;
     }
 

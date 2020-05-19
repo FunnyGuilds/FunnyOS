@@ -4,7 +4,8 @@
 #include <FunnyOS/Bootparams/Parameters.hpp>
 #include <FunnyOS/Misc/MemoryAllocator/StaticMemoryAllocator.hpp>
 #include "GFX/ScreenManager.hpp"
-#include "VMM/VirtualMemoryManager.hpp"
+#include "MM/PhysicalMemoryManager.hpp"
+#include "MM/VirtualMemoryManager.hpp"
 #include "LogManager.hpp"
 
 #define FK_LOGGER() FunnyOS::Kernel::Kernel64::Get().GetLogManager().GetLogger()
@@ -47,9 +48,14 @@ namespace FunnyOS::Kernel {
         [[nodiscard]] const Bootparams::BootDriveInfo& GetBootDriveInfo() const;
 
         /**
+         * @return kernel's physical memory manager
+         */
+        [[nodiscard]] MM::PhysicalMemoryManager& GetPhysicalMemoryManager();
+
+        /**
          * @return kernel's virtual memory manager
          */
-        [[nodiscard]] VMM::VirtualMemoryManager& GetVirtualMemoryManager();
+        [[nodiscard]] MM::VirtualMemoryManager& GetVirtualMemoryManager();
 
         /*
          * Returns the allocator used to allocate memory in kernel heap.
@@ -78,7 +84,8 @@ namespace FunnyOS::Kernel {
        private:
         bool m_initialized = false;
         Bootparams::BootDriveInfo m_bootDriveInfo{};
-        VMM::VirtualMemoryManager m_virtualMemoryManager{};
+        MM::PhysicalMemoryManager m_physicalMemoryManager{};
+        MM::VirtualMemoryManager m_virtualMemoryManager{m_physicalMemoryManager};
         Misc::MemoryAllocator::StaticMemoryAllocator m_kernelAllocator{};
         LogManager m_logManager{};
         GFX::ScreenManager m_screenManager{};
