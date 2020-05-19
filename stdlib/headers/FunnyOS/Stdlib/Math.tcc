@@ -6,7 +6,7 @@
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MATH_TCC
 
 namespace FunnyOS::Stdlib::Math {
-    template <typename T>
+    template <typename T, typename>
     T DivideRoundUp(T x, T y) {
         if (x == 0) {
             return 0;
