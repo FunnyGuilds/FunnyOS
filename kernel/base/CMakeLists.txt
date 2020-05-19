@@ -1,3 +1,9 @@
+configure_file(
+        Config.hpp.in
+        "${CMAKE_CURRENT_BINARY_DIR}/config/FunnyOS/Kernel/Config.hpp"
+        @ONLY
+)
+
 add_library(FunnyOS_Kernel_Base STATIC
         src/GFX/ScreenManager.cpp
         src/VMM/VirtualMemoryManager.cpp
@@ -11,6 +17,7 @@ add_library(FunnyOS_Kernel_Base STATIC
 target_include_directories(FunnyOS_Kernel_Base
         PUBLIC
             "${CMAKE_CURRENT_SOURCE_DIR}/headers/"
+            "${CMAKE_CURRENT_BINARY_DIR}/config/"
 )
 
 target_link_libraries(FunnyOS_Kernel_Base
