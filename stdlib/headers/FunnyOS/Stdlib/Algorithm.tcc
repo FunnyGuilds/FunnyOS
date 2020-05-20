@@ -51,7 +51,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename Iterator, typename Matcher>
     Iterator Find(Iterator begin, Iterator end, Matcher matcher) {
-        for (Iterator current = begin; current != end; begin++) {
+        for (Iterator current = begin; current != end; current++) {
             if (matcher(*current)) {
                 return current;
             }

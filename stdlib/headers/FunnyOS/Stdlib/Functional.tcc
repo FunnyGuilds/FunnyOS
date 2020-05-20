@@ -116,7 +116,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename Container>
-    typename Container::Iterator Begin(Container& container) {
+    typename Container::iterator Begin(Container& container) {
         return container.begin();
     }
 
@@ -126,7 +126,7 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename Container>
-    typename Container::iterator Begin(const Container& container) {
+    typename Container::const_iterator Begin(const Container& container) {
         return container.begin();
     }
 
