@@ -202,7 +202,9 @@ namespace FunnyOS::Kernel::MM {
 
         // Prepare region map
         m_memoryRegions.Clear();
+        m_memoryMap.Clear();
         m_memoryRegions.EnsureCapacity(map.Count);
+        m_memoryMap.EnsureCapacity(map.Count);
 
         // Reset memory statistics
         m_memoryStatistics.ControlBlockWaste = 0;
@@ -212,7 +214,9 @@ namespace FunnyOS::Kernel::MM {
         m_memoryStatistics.TotalReclaimableMemory = 0;
         m_memoryStatistics.TotalAvailableMemory = 0;
 
-        // Turn map memory entries into regions
+        // Turn map memory entries into regions, save memory map and find memory top
+        m_physicalMemoryTop = 0;
+
         for (size_t i = 0; i < map.Count; i++) {
             const auto& memoryMapEntry = map.First[i];
 
@@ -229,6 +233,9 @@ namespace FunnyOS::Kernel::MM {
             } else if (IsMemoryTypeReclaimable(region.RegionMemoryType)) {
                 m_memoryStatistics.TotalReclaimableMemory += region.GetLength();
             }
+
+            m_memoryMap.Append(memoryMapEntry);
+            m_physicalMemoryTop = Stdlib::Max(m_physicalMemoryTop, region.RegionEnd);
         }
 
         // Check for overlapping regions
@@ -435,6 +442,14 @@ namespace FunnyOS::Kernel::MM {
         buffer.Count = 0;
     }
 
+    physicaladdress_t PhysicalMemoryManager::GetPhysicalMemoryTop() const {
+        return m_physicalMemoryTop;
+    }
+
+    const Stdlib::Vector<Bootparams::MemoryMapEntry>& PhysicalMemoryManager::GetOriginalMemoryMap() const {
+        return m_memoryMap;
+    }
+
     PhysicalMemoryManager::PhysicalMemoryManager() = default;
 
     Stdlib::Optional<MemoryRegion> PhysicalMemoryManager::FindEntryForRegion(physicaladdress_t address) {
@@ -621,4 +636,5 @@ namespace FunnyOS::Kernel::MM {
             DumpMemoryMapEntry(current.RegionMemoryType, "N/A", current.RegionStart, current.RegionEnd);
         }
     }
+
 }  // namespace FunnyOS::Kernel::MM

@@ -351,6 +351,21 @@ namespace FunnyOS::Kernel {
              */
             void FreePages(PageBuffer& buffer);
 
+            /**
+             * Get the highest addressable address in the physical memory.
+             *
+             * @return the highest addressable address in the physical memory.
+             */
+            physicaladdress_t GetPhysicalMemoryTop() const;
+
+            /**
+             * Gets the original memory map passed by the bootloader.
+             * This memory map may contain overlapping areas.
+             *
+             * @return the original memory map
+             */
+            const Stdlib::Vector<Bootparams::MemoryMapEntry>& GetOriginalMemoryMap() const;
+
            private:
             PhysicalMemoryManager();
 
@@ -415,8 +430,10 @@ namespace FunnyOS::Kernel {
             friend class ::FunnyOS::Kernel::Kernel64;
 
            private:
+            Stdlib::Vector<Bootparams::MemoryMapEntry> m_memoryMap;
             Stdlib::Vector<MemoryRegion> m_memoryRegions;
             MemoryStatistics m_memoryStatistics;
+            physicaladdress_t m_physicalMemoryTop;
         };
     }  // namespace MM
 
