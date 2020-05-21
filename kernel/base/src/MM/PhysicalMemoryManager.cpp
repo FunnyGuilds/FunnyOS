@@ -35,6 +35,8 @@ namespace FunnyOS::Kernel::MM {
             FK_LOG_DEBUG_F(PMM_PREFIX "Split happening in region 0x%016llx -> 0x%016llx at 0x%016llx",
                            region.RegionStart, region.RegionEnd, address);
 
+            F_ASSERT(IsInRegion(address, region), PMM_PREFIX "address not in region for split");
+
             MemoryRegion higherRegion = region;
             higherRegion.RegionStart = address;
             region.RegionEnd = address;
@@ -558,6 +560,11 @@ namespace FunnyOS::Kernel::MM {
                         continue;
                     }
 
+                    // Skip over invalidated regions
+                    if (other.RegionStart == 0 && other.RegionEnd == 0) {
+                        continue;
+                    }
+
                     //
                     // Regions with higher weights overwrite regions with lower weights.
                     //
@@ -577,7 +584,9 @@ namespace FunnyOS::Kernel::MM {
                         region.RegionEnd = 0;
                         region.IsUsable = false;
                         hadChanges = true;
-                        continue;
+
+                        // [region] is no longed valid, no need to test it against anything anymore.
+                        goto next_region;
                     }
 
                     if (startInOther) {
@@ -619,6 +628,9 @@ namespace FunnyOS::Kernel::MM {
                         continue;
                     }
                 }
+
+            next_region:
+                continue;
             }
         } while (hadChanges);
 
