@@ -273,7 +273,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T, typename U>
     Ref<T> StaticRefCast(Ref<U>&& ref) {
-        return Ref<T>(Forward<U>(ref), static_cast<T*>(ref.Get()));
+        return Ref<T>(Forward<Ref<U>&&>(ref), static_cast<T*>(ref.Get()));
     }
 }  // namespace FunnyOS::Stdlib
 
