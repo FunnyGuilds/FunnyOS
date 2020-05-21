@@ -236,7 +236,7 @@ namespace FunnyOS::Bootloader32 {
     void SelectVideoMode(uint16_t mode) {
         Registers32 registers16;
         registers16.EAX.Value16 = 0x4F02;
-        registers16.EBX.Value16 = GetVbeModes()[mode]->VESAVideoMode;
+        registers16.EBX.Value16 = (GetVbeModes()[mode]->VESAVideoMode) | (1 << 14);  // bit 14 - use linear framebuffer
 
         RealModeInt(0x10, registers16);
     }
