@@ -226,8 +226,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         }
         Logging::GetTerminalManager()->ClearScreen();
 
-        char string[256];
-        String::StringBuffer buffer{string, 256};
+        char string[512];
+        String::StringBuffer buffer{string, F_SIZEOF_BUFFER(string)};
 
         FB_LOG_INFO("CPUID");
         HW::CPU::GetVendorId(buffer);
@@ -242,6 +242,10 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
         FB_LOG_INFO_F("  - CpuidMaxFeature: 0x%08x", HW::CPU::GetCpuidMaxFeature());
         FB_LOG_INFO_F("  - CpuidMaxExtendedFeature: 0x%08x", HW::CPU::GetCpuidMaxExtendedFeature());
+
+        string[0] = 0;
+        HW::CPU::DecodeFeatureBits(HW::CPU::GetFeatureBits(), buffer);
+        FB_LOG_INFO_F("  - CpuidFeatureBits: %s", string);
 
         string[0] = 0;
         HW::CPU::DecodeExtendedFeatureBits(HW::CPU::GetExtendedFeatureBits(), buffer);

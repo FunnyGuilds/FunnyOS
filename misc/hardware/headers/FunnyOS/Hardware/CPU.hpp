@@ -33,6 +33,313 @@ namespace FunnyOS::HW::CPU {
         CPUID_Supported = 1 << 21,
     };
 
+    enum class CPUIDFeatures : uint64_t {
+        /**
+         * Onboard x87 FPU
+         */
+        FPU = (1ULL << 0),
+
+        /**
+         * Virtual 8086 mode extensions (such as VIF, VIP, PIV)
+         */
+        VME = (1ULL << 1),
+
+        /**
+         * Debugging extensions (CR4 bit 3)
+         */
+        DE = (1ULL << 2),
+
+        /**
+         * Page Size Extension
+         */
+        PSE = (1ULL << 3),
+
+        /**
+         * Time Stamp Counter
+         */
+        TSC = (1ULL << 4),
+
+        /**
+         * Model-specific registers
+         */
+        MSR = (1ULL << 5),
+
+        /**
+         * Physical Address Extension
+         */
+        PAE = (1ULL << 6),
+
+        /**
+         * Machine Check Exception
+         */
+        MCE = (1ULL << 7),
+
+        /**
+         * CMPXCHG8 (compare-and-swap) instruction
+         */
+        CX8 = (1ULL << 8),
+
+        /**
+         * Onboard Advanced Programmable Interrupt Controller
+         */
+        APIC = (1ULL << 9),
+
+        /**
+         * SYSENTER and SYSEXIT instructions
+         */
+        SEP = (1ULL << 11),
+
+        /**
+         * Memory Type Range Registers
+         */
+        MTRR = (1ULL << 12),
+
+        /**
+         * Page Global Enable bit in CR4
+         */
+        PGE = (1ULL << 13),
+
+        /**
+         * Machine check architecture
+         */
+        MCA = (1ULL << 14),
+
+        /**
+         * Conditional move and FCMOV instructions
+         */
+        CMOV = (1ULL << 15),
+
+        /**
+         * Page Attribute Table
+         */
+        PAT = (1ULL << 16),
+
+        /**
+         * 36-bit page size extension
+         */
+        PSE36 = (1ULL << 17),
+
+        /**
+         * Processor Serial Number
+         */
+        PSN = (1ULL << 18),
+
+        /**
+         * CLFLUSH instruction (SSE2)
+         */
+        CLFSH = (1ULL << 19),
+
+        /**
+         * Debug store: save trace of executed jumps
+         */
+        DS = (1ULL << 21),
+
+        /**
+         * Onboard thermal control MSRs for ACPI
+         */
+        ACPI = (1ULL << 22),
+
+        /**
+         * MMX instructions	popcnt
+         */
+        MMX = (1ULL << 23),
+
+        /**
+         * FXSAVE, FXRESTOR instructions, CR4 bit 9
+         */
+        FXSR = (1ULL << 24),
+
+        /**
+         * SSE instructions (a.k.a. Katmai New Instructions)
+         */
+        SSE = (1ULL << 25),
+
+        /**
+         * SSE2 instructions
+         */
+        SSE2 = (1ULL << 26),
+
+        /**
+         * CPU cache implements self-snoop
+         */
+        SS = (1ULL << 27),
+
+        /**
+         * Hyper-threading
+         */
+        HTT = (1ULL << 28),
+
+        /**
+         * Thermal monitor automatically limits temperature
+         */
+        TM = (1ULL << 29),
+
+        /**
+         * IA64 processor emulating x86
+         */
+        IA64 = (1ULL << 30),
+
+        /**
+         * Pending Break Enable (PBE# pin) wakeup capability
+         */
+        PBE = (1ULL << 31),
+
+        /**
+         * Prescott New Instructions-SSE3 (PNI)
+         */
+        SSE3 = (1ULL << 32),
+
+        /**
+         * PCLMULQDQ
+         */
+        PCLMULQDQ = (1ULL << 33),
+
+        /**
+         * 64-bit debug store (edx bit 21)
+         */
+        DTES64 = (1ULL << 34),
+
+        /**
+         * MONITOR and MWAIT instructions (SSE3)
+         */
+        MONITOR = (1ULL << 35),
+
+        /**
+         * CPL qualified debug store
+         */
+        DSCPL = (1ULL << 36),
+
+        /**
+         * Virtual Machine eXtensions
+         */
+        VMX = (1ULL << 37),
+
+        /**
+         * Safer Mode Extensions (LaGrande)
+         */
+        SMX = (1ULL << 38),
+
+        /**
+         * Enhanced SpeedStep
+         */
+        EST = (1ULL << 39),
+
+        /**
+         * Thermal Monitor 2
+         */
+        TM2 = (1ULL << 40),
+
+        /**
+         * Supplemental SSE3 instructions
+         */
+        SSSE3 = (1ULL << 41),
+
+        /**
+         * L1 Context ID
+         */
+        CNXTID = (1ULL << 42),
+
+        /**
+         * Silicon Debug interface
+         */
+        SDBG = (1ULL << 43),
+
+        /**
+         * Fused multiply-add (FMA3)
+         */
+        FMA = (1ULL << 44),
+
+        /**
+         * CMPXCHG16B instruction
+         */
+        CX16 = (1ULL << 45),
+
+        /**
+         * Can disable sending task priority messages
+         */
+        XTPR = (1ULL << 46),
+
+        /**
+         * Perfmon & debug capability
+         */
+        PDCM = (1ULL << 47),
+
+        /**
+         * Process context identifiers (CR4 bit 17)
+         */
+        PCID = (1ULL << 49),
+
+        /**
+         * Direct cache access for DMA writes[7][8]
+         */
+        DCA = (1ULL << 50),
+
+        /**
+         * SSE4.1 instructions
+         */
+        SSE41 = (1ULL << 51),
+
+        /**
+         * SSE4.2 instructions
+         */
+        SSE42 = (1ULL << 52),
+
+        /**
+         * x2APIC
+         */
+        X2APIC = (1ULL << 53),
+
+        /**
+         * MOVBE instruction (big-endian)
+         */
+        MOVBE = (1ULL << 54),
+
+        /**
+         * instruction
+         */
+        POPCNT = (1ULL << 55),
+
+        /**
+         * APIC implements one-shot operation using a TSC deadline value
+         */
+        TSCDEADLINE = (1ULL << 56),
+
+        /**
+         * AES instruction set
+         */
+        AES = (1ULL << 57),
+
+        /**
+         * XSAVE, XRESTOR, XSETBV, XGETBV
+         */
+        XSAVE = (1ULL << 58),
+
+        /**
+         * XSAVE enabled by OS
+         */
+        OSXSAVE = (1ULL << 59),
+
+        /**
+         * Advanced Vector Extensions
+         */
+        AVX = (1ULL << 60),
+
+        /**
+         * F16C (half-precision) FP feature
+         */
+        F16C = (1ULL << 61),
+
+        /**
+         * RDRAND (on-chip random number generator) feature
+         */
+        RDRND = (1ULL << 62),
+
+        /**
+         * Hypervisor present (always zero on physical CPUs)[9][10]
+         */
+        HYPERVISOR = (1ULL << 63),
+    };
+
     enum class CPUIDExtendedFeatures : uint64_t {
         /**
          * Onboard x87 FPU
@@ -304,6 +611,78 @@ namespace FunnyOS::HW::CPU {
     };
 
     /**
+     * Commons MSRs
+     */
+    namespace MSR {
+        /**
+         * Extended Feature Enable Register (EFER)
+         */
+        constexpr const uint32_t EFER = 0xC0000080;
+    }  // namespace MSR
+
+    enum class EferBits : uint64_t {
+        /**
+         * System Call Extensions
+         */
+        SCE = (1 << 0),
+
+        /**
+         * AMD K6 only: Data Prefetch Enable
+         */
+        DPE = (1 << 1),
+
+        /**
+         * AMD K6 only: Speculative EWBE# Disable
+         */
+        SEWBED = (1 << 2),
+
+        /**
+         * AMD K6 only: Global EWBE# Disable
+         */
+        GEWBED = (1 << 3),
+
+        /**
+         * AMD K6 only: L2 Cache Disable
+         */
+        L2D = (1 << 4),
+
+        /**
+         * Long Mode Enable
+         */
+        LME = (1 << 8),
+
+        /**
+         * Long Mode Active
+         */
+        LMA = (1 << 10),
+
+        /**
+         * No-Execute Enable
+         */
+        NXE = (1 << 11),
+
+        /**
+         * Secure Virtual Machine Enable
+         */
+        SVME = (1 << 12),
+
+        /**
+         * Long Mode Segment Limit Enable
+         */
+        LMSLE = (1 << 13),
+
+        /**
+         * Fast FXSAVE/FXRSTOR
+         */
+        FFXSR = (1 << 14),
+
+        /**
+         * Translation Cache Extension
+         */
+        TCE = (1 << 15),
+    };
+
+    /**
      * Returns the contents of EFLAGS register (or RFLAGS in 64-bit mode)
      *
      * @return the contents of EFLAGS register (or RFLAGS in 64-bit mode)
@@ -353,7 +732,32 @@ namespace FunnyOS::HW::CPU {
      *
      * @return extended feature bits
      */
+    inline uint64_t GetFeatureBits();
+
+    /**
+     * Decode all CPUID features into a string.
+     *
+     * @param feature feature bits (see GetFeatureBits())
+     * @param buffer output string buffer
+     * @return true on success, false if the buffer was too small
+     */
+    inline bool DecodeFeatureBits(uint64_t features, Stdlib::String::StringBuffer& buffer);
+
+    /**
+     * Get extended feature bits.
+     *
+     * @return extended feature bits
+     */
     inline uint64_t GetExtendedFeatureBits();
+
+    /**
+     * Decode all CPUID extended features into a string.
+     *
+     * @param feature feature bits (see GetExtendedFeatureBits())
+     * @param buffer output string buffer
+     * @return true on success, false if the buffer was too small
+     */
+    inline bool DecodeExtendedFeatureBits(uint64_t features, Stdlib::String::StringBuffer& buffer);
 
     /**
      * Retrieves processor brand string from CPUID.
@@ -363,9 +767,27 @@ namespace FunnyOS::HW::CPU {
      */
     inline bool GetBrandString(Stdlib::String::StringBuffer& buffer);
 
+    /**
+     * Read from a model specific register specified by [msr]
+     *
+     * @param msr the msr number
+     * @return value of the msr
+     */
+    inline uint64_t ReadMSR(uint32_t msr);
+
+    /**
+     * Write from a model specific register specified by [msr]
+     *
+     * @param msr the msr number
+     * @param value value to write to that msr
+     */
+    inline void WriteMSR(uint32_t msr, uint64_t value);
+
 }  // namespace FunnyOS::HW::CPU
 
 #ifdef __GNUC__
 #include "CPU_GNUC.tcc"
 #endif
+
+#include "CPU.tcc"
 #endif  // FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_CPU_HPP
