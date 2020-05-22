@@ -6,6 +6,7 @@
 #include "GFX/ScreenManager.hpp"
 #include "MM/PhysicalMemoryManager.hpp"
 #include "MM/VirtualMemoryManager.hpp"
+#include "Interrupt.hpp"
 #include "LogManager.hpp"
 
 #define FK_LOGGER() FunnyOS::Kernel::Kernel64::Get().GetLogManager().GetLogger()
@@ -24,6 +25,18 @@
 #define FK_LOG_FATAL_F(message, ...) F_LOG_FATAL_F(FK_LOGGER(), message, __VA_ARGS__)
 #define FK_LOG_DEBUG_F(message, ...) F_LOG_DEBUG_F(FK_LOGGER(), message, __VA_ARGS__)
 
+#define FK_PANIC(message)                                         \
+    do {                                                          \
+        FunnyOS::Kernel::Kernel64::Get().Panic(nullptr, message); \
+    } while (0)
+
+#define FK_PANIC_IF(condition, message) \
+    do {                                \
+        if ((condition)) {              \
+            FK_PANIC((message));        \
+        }                               \
+    } while (0)
+
 namespace FunnyOS::Kernel {
 
     class Kernel64 {
@@ -41,6 +54,14 @@ namespace FunnyOS::Kernel {
          * @param parameters kernel boot parametesr
          */
         [[noreturn]] void Main(Bootparams::Parameters& parameters);
+
+        /**
+         * Causes a kernel panic with the given detail message and an interrupt frame.
+         *
+         * @param frame interrupt frame with state of all registers when panic occured.
+         * @param detail detailed error message
+         */
+        [[noreturn]] void Panic(InterruptFrame* frame, const char* detail);
 
         /**
          * @return kernel's boot drive info.

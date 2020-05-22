@@ -6,6 +6,9 @@
 #include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Kernel/GDT.hpp>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
+
 extern void* KERNEL_HEAP;
 extern void* KERNEL_HEAP_TOP;
 
@@ -18,9 +21,7 @@ namespace FunnyOS::Kernel {
     [[noreturn]] void Kernel64::Main(Bootparams::Parameters& parameters) {
         using namespace Misc::TerminalManager;
 
-        if (m_initialized) {
-            // TODO Panic();
-        }
+        FK_PANIC_IF(m_initialized, "Kernel already initialized");
 
         m_initialized = true;
 
@@ -87,20 +88,32 @@ namespace FunnyOS::Kernel {
         MM::physicaladdress_t page2 = m_physicalMemoryManager.AllocatePagesRaw(10);
         MM::physicaladdress_t page3 = m_physicalMemoryManager.AllocatePage();
 
-        FK_LOG_DEBUG_F("PAGE1: 0x%016llx", page1);
-        FK_LOG_DEBUG_F("PAGE2: 0x%016llx", page2);
-        FK_LOG_DEBUG_F("PAGE3: 0x%016llx", page3);
-        m_physicalMemoryManager.FreePagesRaw(page2, 2);
-        MM::physicaladdress_t page4 = m_physicalMemoryManager.AllocatePage();
-        MM::physicaladdress_t page5 = m_physicalMemoryManager.AllocatePage();
-        MM::physicaladdress_t page6 = m_physicalMemoryManager.AllocatePage();
-        FK_LOG_DEBUG_F("PAGE4: 0x%016llx", page4);
-        FK_LOG_DEBUG_F("PAGE5: 0x%016llx", page5);
-        FK_LOG_DEBUG_F("PAGE6: 0x%016llx", page6);
+        FK_PANIC("kekw");
 
         for (;;) {
             HW::CPU::Halt();
         }
+        F_NO_RETURN;
+    }
+
+    void Kernel64::Panic(InterruptFrame* frame, const char* detail) {
+        // TODO: If logging is not supported at this point fall back to VGA
+
+        FK_LOG_ERROR("Kernel panic!");
+        FK_LOG_ERROR_F("\t%s", detail);
+
+        if (frame == nullptr) {
+            FK_LOG_ERROR("\tNo interrupt frame");
+        } else {
+            // TODO
+        }
+
+        HW::DisableHardwareInterrupts();
+
+        for (;;) {
+            HW::CPU::Halt();
+        }
+
         F_NO_RETURN;
     }
 
@@ -131,3 +144,5 @@ namespace FunnyOS::Kernel {
     Kernel64::Kernel64() = default;
 
 }  // namespace FunnyOS::Kernel
+
+#pragma clang diagnostic pop
