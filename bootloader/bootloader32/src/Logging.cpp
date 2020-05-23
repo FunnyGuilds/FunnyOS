@@ -67,7 +67,7 @@ namespace FunnyOS::Bootloader32::Logging {
     }
 
     Ref<Misc::TerminalManager::TerminalManager>& GetTerminalManager() {
-        static auto c_interface = MakeRef<HW::VGAInterface>();
+        static auto c_interface       = MakeRef<HW::VGAInterface>();
         static auto c_terminalManager = MakeRef<TerminalManager>(StaticRefCast<ITerminalInterface>(c_interface));
 
         return c_terminalManager;

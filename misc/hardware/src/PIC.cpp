@@ -5,9 +5,9 @@ namespace FunnyOS::HW::PIC {
 
     namespace {
         constexpr uint16_t PORT_MASTER_PIC_COMMAND = 0x0020;
-        constexpr uint16_t PORT_MASTER_PIC_DATA = PORT_MASTER_PIC_COMMAND + 1;
-        constexpr uint16_t PORT_SLAVE_PIC_COMMAND = 0x00A0;
-        constexpr uint16_t PORT_SLAVE_PIC_DATA = PORT_SLAVE_PIC_COMMAND + 1;
+        constexpr uint16_t PORT_MASTER_PIC_DATA    = PORT_MASTER_PIC_COMMAND + 1;
+        constexpr uint16_t PORT_SLAVE_PIC_COMMAND  = 0x00A0;
+        constexpr uint16_t PORT_SLAVE_PIC_DATA     = PORT_SLAVE_PIC_COMMAND + 1;
     }  // namespace
 
     bool IsPICInterrupt(InterruptType type) {

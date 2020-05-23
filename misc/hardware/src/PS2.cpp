@@ -5,8 +5,8 @@
 
 namespace FunnyOS::HW::PS2 {
     namespace {
-        constexpr const uint16_t PS2_PORT_DATA = 0x60;
-        constexpr const uint16_t PS2_PORT_STATUS = 0x64;
+        constexpr const uint16_t PS2_PORT_DATA    = 0x60;
+        constexpr const uint16_t PS2_PORT_STATUS  = 0x64;
         constexpr const uint16_t PS2_PORT_COMMAND = 0x64;
 
         namespace StatusFlags {
@@ -86,7 +86,7 @@ namespace FunnyOS::HW::PS2 {
 
         namespace Response {
             constexpr uint8_t Acknowledged = 0xFA;
-            constexpr uint8_t Resend = 0xFE;
+            constexpr uint8_t Resend       = 0xFE;
         }  // namespace Response
 
         namespace ControllerOutputPort {
@@ -141,9 +141,9 @@ namespace FunnyOS::HW::PS2 {
             return ReadData();
         }
 
-        const uint8_t PRINTSCREEN_PRESSED_SCANCODE[] = {0xE0, 0x2A, 0xE0, 0x37};
+        const uint8_t PRINTSCREEN_PRESSED_SCANCODE[]  = {0xE0, 0x2A, 0xE0, 0x37};
         const uint8_t PRINTSCREEN_RELEASED_SCANCODE[] = {0xE0, 0xB7, 0xE0, 0xAA};
-        const uint8_t PAUSE_PRESSED_SCANCODE[] = {0xE1, 0x1D, 0x45, 0xE1, 0x9D, 0xC5};
+        const uint8_t PAUSE_PRESSED_SCANCODE[]        = {0xE1, 0x1D, 0x45, 0xE1, 0x9D, 0xC5};
 
     }  // namespace
 
@@ -213,7 +213,7 @@ namespace FunnyOS::HW::PS2 {
             if (g_scanCodeBufPosition == 0 && value != 0xE0 && value != 0xE1) {
                 // One-byte scan code
                 g_scanCodeBufPosition = 0;
-                code = static_cast<ScanCode>(g_scanCodeBuffer[0]);
+                code                  = static_cast<ScanCode>(g_scanCodeBuffer[0]);
                 return true;
             }
 
@@ -228,26 +228,26 @@ namespace FunnyOS::HW::PS2 {
 
                 // We have complete 0xE0XX scan code
                 g_scanCodeBufPosition = 0;
-                code = static_cast<ScanCode>(0xE000 | g_scanCodeBuffer[1]);
+                code                  = static_cast<ScanCode>(0xE000 | g_scanCodeBuffer[1]);
                 return true;
             }
 
             // Other, special scan codes
             if (TestForSpecialScanCode(PRINTSCREEN_PRESSED_SCANCODE, sizeof(PRINTSCREEN_PRESSED_SCANCODE))) {
                 g_scanCodeBufPosition = 0;
-                code = ScanCode::PrintScreen_Pressed;
+                code                  = ScanCode::PrintScreen_Pressed;
                 return true;
             }
 
             if (TestForSpecialScanCode(PRINTSCREEN_RELEASED_SCANCODE, sizeof(PRINTSCREEN_RELEASED_SCANCODE))) {
                 g_scanCodeBufPosition = 0;
-                code = ScanCode::PrintScreen_Release;
+                code                  = ScanCode::PrintScreen_Release;
                 return true;
             }
 
             if (TestForSpecialScanCode(PAUSE_PRESSED_SCANCODE, sizeof(PAUSE_PRESSED_SCANCODE))) {
                 g_scanCodeBufPosition = 0;
-                code = ScanCode::Pause_Pressed;
+                code                  = ScanCode::Pause_Pressed;
                 return true;
             }
 

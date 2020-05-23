@@ -37,7 +37,7 @@ namespace FunnyOS::Stdlib::System {
 
         Exception* GetAndClearActiveException() {
             Exception* exception = s_activeException;
-            s_activeException = nullptr;
+            s_activeException    = nullptr;
             return exception;
         }
 

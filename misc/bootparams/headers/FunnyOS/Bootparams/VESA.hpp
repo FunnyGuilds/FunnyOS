@@ -8,40 +8,40 @@
 namespace FunnyOS::Bootparams {
 
     namespace VbeModeAttributes {
-        constexpr const uint16_t ModeSupported = 1 << 0;
+        constexpr const uint16_t ModeSupported                = 1 << 0;
         constexpr const uint16_t OptionalInformationAvailable = 1 << 1;
-        constexpr const uint16_t BiosOutputSupported = 1 << 2;
-        constexpr const uint16_t IsColorMode = 1 << 3;
-        constexpr const uint16_t IsGraphicsMode = 1 << 4;
+        constexpr const uint16_t BiosOutputSupported          = 1 << 2;
+        constexpr const uint16_t IsColorMode                  = 1 << 3;
+        constexpr const uint16_t IsGraphicsMode               = 1 << 4;
 
         // VBE v2.0+
-        constexpr const uint16_t NotVgaCompatible = 1 << 5;
-        constexpr const uint16_t BankSwitchedModeNotSupported = 1 << 6;
+        constexpr const uint16_t NotVgaCompatible               = 1 << 5;
+        constexpr const uint16_t BankSwitchedModeNotSupported   = 1 << 6;
         constexpr const uint16_t LinearFramebufferModeSupported = 1 << 7;
-        constexpr const uint16_t DoubleScanModeSupported = 1 << 8;
+        constexpr const uint16_t DoubleScanModeSupported        = 1 << 8;
 
         // VBE v3.0+
-        constexpr const uint16_t InterlacedMoveAvailable = 1 << 9;
-        constexpr const uint16_t HardwareSupportsTriplebuffering = 1 << 10;
+        constexpr const uint16_t InterlacedMoveAvailable             = 1 << 9;
+        constexpr const uint16_t HardwareSupportsTriplebuffering     = 1 << 10;
         constexpr const uint16_t HardwareSupportsStereoscopicDisplay = 1 << 11;
-        constexpr const uint16_t DualDisplayStartAddressSupport = 1 << 12;
+        constexpr const uint16_t DualDisplayStartAddressSupport      = 1 << 12;
     }  // namespace VbeModeAttributes
 
     namespace VbeWindowAttributes {
-        constexpr const uint16_t Exists = 1 << 0;
+        constexpr const uint16_t Exists   = 1 << 0;
         constexpr const uint16_t Readable = 1 << 1;
         constexpr const uint16_t Writable = 1 << 2;
     }  // namespace VbeWindowAttributes
 
     enum class VbeMemoryModelType : uint8_t {
-        Text = 0x00,
-        CGA_Graphics = 0x01,
-        HerculesGraphics = 0x02,
-        Planar = 0x03,
+        Text                = 0x00,
+        CGA_Graphics        = 0x01,
+        HerculesGraphics    = 0x02,
+        Planar              = 0x03,
         PackedPixelGraphics = 0x04,
-        Nonchain4_256color = 0x05,
-        DirectColor = 0x06,
-        YUV = 0x07
+        Nonchain4_256color  = 0x05,
+        DirectColor         = 0x06,
+        YUV                 = 0x07
     };
 
     struct VbeInfoBlock {
@@ -123,7 +123,8 @@ namespace FunnyOS::Bootparams {
         void FetchMaxResolution(uint8_t detailedIndex, uint32_t& width, uint32_t& height) const noexcept {
             F_ASSERT(detailedIndex >= 0 && detailedIndex <= 3, "detailed index invalid");
             const uint8_t* description = DetailedTimingDescription[detailedIndex];
-            width = description[2] | ((description[4] & 0xF0) << 4);
+
+            width  = description[2] | ((description[4] & 0xF0) << 4);
             height = description[5] | ((description[7] & 0xF0) << 4);
         }
     } F_DONT_ALIGN;

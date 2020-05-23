@@ -81,13 +81,13 @@ namespace FunnyOS::Kernel {
 
         auto framebufferConfig =
             HW::FramebufferConfiguration{.Location = MM::PhysicalAddressToPointer(videoMode.FrameBufferPhysicalAddress),
-                                         .ScreenWidth = videoMode.Width,
-                                         .ScreenHeight = videoMode.Height,
-                                         .BPS = videoMode.BytesPerScanline,
-                                         .BPP = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
-                                         .RedPosition = videoMode.RedPosition,
+                                         .ScreenWidth   = videoMode.Width,
+                                         .ScreenHeight  = videoMode.Height,
+                                         .BPS           = videoMode.BytesPerScanline,
+                                         .BPP           = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
+                                         .RedPosition   = videoMode.RedPosition,
                                          .GreenPosition = videoMode.GreenPosition,
-                                         .BluePosition = videoMode.BluePosition};
+                                         .BluePosition  = videoMode.BluePosition};
 
         m_screenManager.InitializeWith(
             *parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid), framebufferConfig, fonts.Data);

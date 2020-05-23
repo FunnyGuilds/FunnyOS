@@ -7,7 +7,7 @@ using namespace FunnyOS::Stdlib;
 
 TEST(TestMemory, TestCopy) {
     Memory::SizedBuffer<uint8_t> destination = Memory::AllocateBuffer<uint8_t>(5);
-    uint8_t source[] = {1, 2, 3, 4, 5};
+    uint8_t source[]                         = {1, 2, 3, 4, 5};
 
     Memory::Copy(destination, source);
 
@@ -31,7 +31,7 @@ TEST(TestMemory, TestSet) {
 
 TEST(TestMemory, TestFillDivisible) {
     Memory::SizedBuffer<uint8_t> destination = Memory::AllocateBuffer<uint8_t>(8);
-    Memory::SizedBuffer<uint8_t> pattern = Memory::AllocateBuffer<uint8_t>(2);
+    Memory::SizedBuffer<uint8_t> pattern     = Memory::AllocateBuffer<uint8_t>(2);
 
     pattern.Data[0] = 4;
     pattern.Data[1] = 22;
@@ -50,7 +50,7 @@ TEST(TestMemory, TestFillDivisible) {
 
 TEST(TestMemory, TestFillNonDivisible) {
     Memory::SizedBuffer<uint8_t> destination = Memory::AllocateBuffer<uint8_t>(8);
-    Memory::SizedBuffer<uint8_t> pattern = Memory::AllocateBuffer<uint8_t>(3);
+    Memory::SizedBuffer<uint8_t> pattern     = Memory::AllocateBuffer<uint8_t>(3);
 
     pattern.Data[0] = 4;
     pattern.Data[1] = 22;

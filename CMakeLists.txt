@@ -32,7 +32,7 @@ endif()
 
 # Global variables
 set(WARNING_OPTIONS
-        "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function -Wno-unused-const-variable"
+        "-Wall -Wextra -Wno-unknown-pragmas -Wno-unused-function -Wno-unused-const-variable -Wno-c99-designator"
 )
 
 # C and C++ standards

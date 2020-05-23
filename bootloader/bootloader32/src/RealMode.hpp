@@ -48,17 +48,17 @@ namespace FunnyOS::Bootloader32 {
      * Represents all registers that can be used to make a real mode interrupt.
      */
     struct Registers32 {
-        Register32 EAX = {0};
-        Register32 ECX = {0};
-        Register32 EDX = {0};
-        Register32 EBX = {0};
-        Register32 EBP = {0};
-        Register32 ESI = {0};
-        Register32 EDI = {0};
+        Register32 EAX    = {0};
+        Register32 ECX    = {0};
+        Register32 EDX    = {0};
+        Register32 EBX    = {0};
+        Register32 EBP    = {0};
+        Register32 ESI    = {0};
+        Register32 EDI    = {0};
         Register32 EFLAGS = {0};
-        Register16 ES = {0};
-        Register16 FS = {0};
-        Register16 GS = {0};
+        Register16 ES     = {0};
+        Register16 FS     = {0};
+        Register16 GS     = {0};
     } F_DONT_ALIGN;
 
     /**

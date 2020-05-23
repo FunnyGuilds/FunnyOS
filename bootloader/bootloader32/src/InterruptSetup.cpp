@@ -27,11 +27,11 @@ namespace FunnyOS::Bootloader32 {
             // Segment selector for the entries
             const uint32_t offset = g_firstRoutineAddress + i * g_interruptRoutineSize;
 
-            descriptor->OffsetLow = static_cast<uint16_t>(offset & 0xFFFF);
+            descriptor->OffsetLow       = static_cast<uint16_t>(offset & 0xFFFF);
             descriptor->SegmentSelector = 0x08;
-            descriptor->Reserved = 0;
-            descriptor->Flags = c_flags;
-            descriptor->OffsetHigh = static_cast<uint16_t>((offset >> 16) & 0xFFFF);
+            descriptor->Reserved        = 0;
+            descriptor->Flags           = c_flags;
+            descriptor->OffsetHigh      = static_cast<uint16_t>((offset >> 16) & 0xFFFF);
         }
 
         void LoadIDT() {
@@ -39,7 +39,7 @@ namespace FunnyOS::Bootloader32 {
                      reinterpret_cast<uint32_t>(g_idt)};
 
 #ifdef __GNUC__
-            asm volatile("lidt %0" : : "m"(idt));
+            asm volatile("lidt %0" ::"m"(idt));
 #endif
         }
     }  // namespace

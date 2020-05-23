@@ -23,7 +23,7 @@ namespace FunnyOS::Bootloader32 {
 
         void InterruptHandlerSelector(InterruptData* data) {
             const HW::InterruptType type = data->Type;
-            InterruptHandler handler = g_interruptHandlers[static_cast<int>(data->Type)];
+            InterruptHandler handler     = g_interruptHandlers[static_cast<int>(data->Type)];
 
             if (handler == nullptr) {
                 handler = g_unknownInterruptHandler;

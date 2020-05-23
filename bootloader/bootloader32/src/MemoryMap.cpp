@@ -12,7 +12,7 @@ namespace FunnyOS::Bootloader32 {
         Registers32 registers;
         registers.EBX.Value32 = 0;
 
-        auto* entries = reinterpret_cast<Bootparams::MemoryMapEntry*>(0x500);
+        auto* entries      = reinterpret_cast<Bootparams::MemoryMapEntry*>(0x500);
         auto* currentEntry = reinterpret_cast<Bootparams::MemoryMapEntry*>(GetRealModeBuffer().Data);
 
         size_t i;
@@ -103,9 +103,9 @@ namespace FunnyOS::Bootloader32 {
             // Found suitable memory area
             if (biggestEntry.Length < totalUsableSpace) {
                 biggestEntry.BaseAddress = entryMinimumByte;
-                biggestEntry.Length = totalUsableSpace;
-                biggestEntry.Type = entry.Type;
-                biggestEntry.ACPIFlags = entry.ACPIFlags;
+                biggestEntry.Length      = totalUsableSpace;
+                biggestEntry.Type        = entry.Type;
+                biggestEntry.ACPIFlags   = entry.ACPIFlags;
             }
         }
 

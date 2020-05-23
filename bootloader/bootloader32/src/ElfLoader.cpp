@@ -5,8 +5,8 @@
 
 namespace FunnyOS::Bootloader32 {
     namespace {
-        constexpr uint64_t ELF_MAGIC = 0x464C457F;
-        constexpr uint64_t ELF_FORMAT_64 = 2;
+        constexpr uint64_t ELF_MAGIC         = 0x464C457F;
+        constexpr uint64_t ELF_FORMAT_64     = 2;
         constexpr uint64_t ELF_ENDIAN_LITTLE = 1;
 
     }  // namespace
@@ -82,7 +82,7 @@ namespace FunnyOS::Bootloader32 {
             PostElfDebugLog("\tSH header %u", i);
 
 #ifdef F_DEBUG
-            char name[128] = "No strtab";
+            char name[128]                          = "No strtab";
             Stdlib::String::StringBuffer nameBuffer = {name, F_SIZEOF_BUFFER(name)};
 
             if (strtab != nullptr) {
@@ -135,10 +135,11 @@ namespace FunnyOS::Bootloader32 {
             virtualMemoryTop = Stdlib::Max(virtualMemoryTop, phHeader->VirtualAddress + phHeader->SizeInMemory);
         }
 
-        elfFileInfo.TotalMemorySize = virtualMemoryTop - elfFileInfo.VirtualLocationBase;
+        elfFileInfo.TotalMemorySize   = virtualMemoryTop - elfFileInfo.VirtualLocationBase;
         elfFileInfo.EntryPointVirtual = header->EntryPoint;
 
         void* loadedFile = m_memoryAllocator.Allocate(elfFileInfo.TotalMemorySize, 0x1000);
+
         elfFileInfo.PhysicalLocationBase = reinterpret_cast<uint64_t>(loadedFile);
 
 #ifdef F_DEBUG
@@ -170,7 +171,8 @@ namespace FunnyOS::Bootloader32 {
             // Zero out the rest
             if (phHeader->SizeInFile < phHeader->SizeInMemory) {
                 uint8_t* zeroMemoryStart = physicalAddress + phHeader->SizeInMemory;
-                auto zeroSize = static_cast<size_t>(phHeader->SizeInMemory - phHeader->SizeInFile);
+
+                const auto zeroSize = static_cast<size_t>(phHeader->SizeInMemory - phHeader->SizeInFile);
                 Stdlib::Memory::SizedBuffer<uint8_t> zeroBuffer = {zeroMemoryStart, zeroSize};
                 Stdlib::Memory::Set<uint8_t>(zeroBuffer, 0);
             }

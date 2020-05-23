@@ -21,13 +21,13 @@ namespace FunnyOS::Bootloader32 {
          *
          * @param drive drive identification number.
          */
-        explicit DriveInterface(DriveIdentification drive);
+        explicit DriveInterface(drive_indentification_t drive);
 
        public:
-        [[nodiscard]] DriveIdentification GetDriveIdentification() const override;
-        [[nodiscard]] SectorNumber GetTotalSectorCount() const override;
+        [[nodiscard]] drive_indentification_t GetDriveIdentification() const override;
+        [[nodiscard]] sectornumber_t GetTotalSectorCount() const override;
         [[nodiscard]] size_t GetSectorSize() const override;
-        void ReadSectors(SectorNumber sector, SectorNumber count, Memory::SizedBuffer<uint8_t>& buffer) override;
+        void ReadSectors(sectornumber_t sector, sectornumber_t count, Memory::SizedBuffer<uint8_t>& buffer) override;
 
         /**
          * Returns whether or not the EDD Fixed Disk Access Subset is available.
@@ -77,15 +77,15 @@ namespace FunnyOS::Bootloader32 {
         void DoExtendedRead(const char* when) const;
 
        private:
-        DriveIdentification m_drive;
-        SectorNumber m_sectorCount = 0;
-        size_t m_sectorSize = 0;
-        bool m_hasExtendedDiskAccess = false;
+        drive_indentification_t m_drive;
+        sectornumber_t m_sectorCount         = 0;
+        size_t m_sectorSize                  = 0;
+        bool m_hasExtendedDiskAccess         = false;
         bool m_hasEnhancedDiskDriveFunctions = false;
-        bool m_supportsFlat64Addresses = false;
-        uint8_t m_sectorsPerTrack = 0;
-        uint16_t m_maxCylinderNumber = 0;
-        uint8_t m_headsPerCylinder = 0;
+        bool m_supportsFlat64Addresses       = false;
+        uint8_t m_sectorsPerTrack            = 0;
+        uint16_t m_maxCylinderNumber         = 0;
+        uint8_t m_headsPerCylinder           = 0;
     };
 
 }  // namespace FunnyOS::Bootloader32

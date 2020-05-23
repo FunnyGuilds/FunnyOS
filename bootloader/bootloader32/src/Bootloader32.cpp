@@ -38,7 +38,7 @@ namespace FunnyOS::Bootloader32 {
     uint8_t* FetchBiosFonts() {
         auto biosFonts = Memory::AllocateBuffer<uint8_t>(BIOS_FONTS_SIZE);
         Registers32 registers16;
-        registers16.EAX.Value16 = 0x1130;
+        registers16.EAX.Value16     = 0x1130;
         registers16.EBX.Value8.High = 0x06;
         RealModeInt(0x10, registers16);
 
@@ -50,6 +50,7 @@ namespace FunnyOS::Bootloader32 {
 
     [[noreturn]] void Bootloader::Main() {
         GetBootloaderParameters().BootInfo = g_bootInfo;
+
         int error = CreateMemoryMap(GetBootloaderParameters().MemoryMap);
         if (error != 0) {
             Halt();
@@ -117,10 +118,10 @@ namespace FunnyOS::Bootloader32 {
         GetBootloaderParameters().Vbe.EdidBlock =
             GetEdidInformation().Map<Bootparams::Pointer32<EdidInformation>>([](auto& block) { return &block; });
 
-        GetBootloaderParameters().Vbe.InfoBlock = &GetVbeInfoBlock();
-        GetBootloaderParameters().Vbe.ModeInfoStart = GetVbeModes().Data;
+        GetBootloaderParameters().Vbe.InfoBlock       = &GetVbeInfoBlock();
+        GetBootloaderParameters().Vbe.ModeInfoStart   = GetVbeModes().Data;
         GetBootloaderParameters().Vbe.ModeInfoEntries = static_cast<uint16_t>(GetVbeModes().Size);
-        Optional<uint16_t> bestVideoMode = PickBestMode();
+        Optional<uint16_t> bestVideoMode              = PickBestMode();
 
         if (!bestVideoMode) {
             FB_LOG_FATAL("Failed to find a suitable video mode");
@@ -128,12 +129,13 @@ namespace FunnyOS::Bootloader32 {
         }
 
         GetBootloaderParameters().Vbe.ActiveModeIndex = bestVideoMode.GetValue();
+
         const auto& activeMode = *GetVbeModes()[bestVideoMode.GetValue()];
         FB_LOG_INFO_F("Will use %dx%d video mode", activeMode.Width, activeMode.Height);
 
         // Find biggest available memory segment
         const size_t minimumSize = 1024 * 1024;  // 16 MB // TODO: calculate the actual size?
-        auto kernelMem = FindBiggestUsableMemoryEntry(GetBootloaderParameters().MemoryMap);
+        const auto kernelMem     = FindBiggestUsableMemoryEntry(GetBootloaderParameters().MemoryMap);
 
         if (kernelMem.Type != Bootparams::MemoryMapEntryType::AvailableMemory) {
             FB_LOG_FATAL("Could not allocate ANY memory to load the kernel.");
@@ -161,16 +163,16 @@ namespace FunnyOS::Bootloader32 {
 
         // Load env 64
         ElfLoader lowMemoryElfLoader(GetAllocator(), bootPartitionFileLoader);
-        void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64").Data;
+        const void* env64 = lowMemoryElfLoader.LoadRegularFile("/boot/env64").Data;
         FB_LOG_DEBUG_F("env64 loaded at %08x", env64);
 
         // Load raw kernel elf to memory
         ElfLoader highMemoryElfLoader(highMemoryAllocator, bootPartitionFileLoader);
-        void* kernelRawElf = highMemoryElfLoader.LoadRegularFile("/system/fkrnl.fxe").Data;
+        const void* kernelRawElf = highMemoryElfLoader.LoadRegularFile("/system/fkrnl.fxe").Data;
         FB_LOG_DEBUG_F("fkrnl.fxe loaded at %08x as raw file", kernelRawElf);
 
         // Load kernel .elf
-        ElfFileInfo kernelElf = highMemoryElfLoader.LoadElfFile(kernelRawElf);
+        const ElfFileInfo kernelElf = highMemoryElfLoader.LoadElfFile(kernelRawElf);
         FB_LOG_DEBUG_F(
             "Kernel physical memory location: 0x%08llx, size: %llu bytes", kernelElf.PhysicalLocationBase,
             kernelElf.TotalMemorySize);
@@ -213,31 +215,32 @@ namespace FunnyOS::Bootloader32 {
 
         // Add new entries to memory map
         auto& memoryMap = GetBootloaderParameters().MemoryMap;
+
         Bootparams::MemoryMapEntry* memoryMapBase = memoryMap.First;
 
         // Kernel image entry
         memoryMapBase[memoryMap.Count] = {.BaseAddress = kernelElf.PhysicalLocationBase,
-                                          .Length = kernelElf.TotalMemorySize,
-                                          .Type = Bootparams::MemoryMapEntryType::KernelImage,
-                                          .ACPIFlags = 0b01};
+                                          .Length      = kernelElf.TotalMemorySize,
+                                          .Type        = Bootparams::MemoryMapEntryType::KernelImage,
+                                          .ACPIFlags   = 0b01};
         memoryMap.Count++;
 
         // Page tables entry
         memoryMapBase[memoryMap.Count] = {.BaseAddress = pageTableMemoryLocation,
-                                          .Length = pageTableMemorySize,
-                                          .Type = Bootparams::MemoryMapEntryType::PageTableReclaimable,
-                                          .ACPIFlags = 0b01};
+                                          .Length      = pageTableMemorySize,
+                                          .Type        = Bootparams::MemoryMapEntryType::PageTableReclaimable,
+                                          .ACPIFlags   = 0b01};
         memoryMap.Count++;
 
         // Treat first megabyte as reserved
         memoryMapBase[memoryMap.Count] = {.BaseAddress = 0,
-                                          .Length = 0x100000,
-                                          .Type = Bootparams::MemoryMapEntryType::ReservedMemory,
-                                          .ACPIFlags = 0b01};
+                                          .Length      = 0x100000,
+                                          .Type        = Bootparams::MemoryMapEntryType::ReservedMemory,
+                                          .ACPIFlags   = 0b01};
         memoryMap.Count++;
 
         // Fetch bios fonts
-        GetBootloaderParameters().BiosFonts = FetchBiosFonts();
+        GetBootloaderParameters().BiosFonts     = FetchBiosFonts();
         GetBootloaderParameters().BiosFontsSize = BIOS_FONTS_SIZE;
         FB_LOG_DEBUG_F("Bios fonts at %08x", GetBootloaderParameters().BiosFonts);
 
@@ -251,6 +254,12 @@ namespace FunnyOS::Bootloader32 {
         FB_LOG_OK("Setting up video mode");
         SelectVideoMode(GetBootloaderParameters().Vbe.ActiveModeIndex);
 
+        // Inform BIOS that we are going to use long mode
+        Registers32 regs;
+        regs.EAX.Value16    = 0xEC00;
+        regs.EBX.Value8.Low = 2;
+        RealModeInt(0x15, regs);
+
         FB_LOG_OK("Booting...");
 
         // Disable all interrupts
@@ -259,20 +268,21 @@ namespace FunnyOS::Bootloader32 {
         HW::PIC::SetEnabledInterrupts(0);
 
         // Jump to env64
-        auto kernelEntryPointLow = static_cast<uint32_t>(kernelElf.EntryPointVirtual & 0xFFFFFFFF);
+        auto kernelEntryPointLow  = static_cast<uint32_t>(kernelElf.EntryPointVirtual & 0xFFFFFFFF);
         auto kernelEntryPointHigh = static_cast<uint32_t>(kernelElf.EntryPointVirtual >> 32);
 
         auto bootParamsAddressLow = reinterpret_cast<uint32_t>(&GetBootloaderParameters());
 
-        asm("push $0\n"  // Boot params address high
-            "push %3\n"  // Boot params address low
-            "push %2\n"  // Kernel entry point high
-            "push %1\n"  // Kernel entry point low
-            "push %0\n"  // PML4 base
-            "jmp *%%ebx\n"
+        asm("push $0                           \n"  // Boot params address high (always 0 since the address is 32-bit)
+            "push %[bootparams_address_low]    \n"
+            "push %[kernel_entry_high]         \n"
+            "push %[kernel_entry_low]          \n"
+            "push %[pml_4base]                 \n"
+            "jmp *%[env64_entry]               \n"
             :
-            : "r"(pageTableAllocator.GetPml4Base()), "r"(kernelEntryPointLow), "r"(kernelEntryPointHigh),
-              "r"(bootParamsAddressLow), "b"(env64));
+            : [ pml_4base ] "r"(pageTableAllocator.GetPml4Base()), [ kernel_entry_low ] "r"(kernelEntryPointLow),
+              [ kernel_entry_high ] "r"(kernelEntryPointHigh), [ bootparams_address_low ] "r"(bootParamsAddressLow),
+              [ env64_entry ] "b"(env64));
 
         F_NO_RETURN;
     }

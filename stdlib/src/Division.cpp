@@ -32,7 +32,7 @@ uint64_t __ashldi3(uint64_t number, unsigned int shift) {
     if (shift >= 32) {
         // Shift discards lower bits.
         output.Parts.High = output.Parts.Low << (shift - 32);
-        output.Parts.Low = 0;
+        output.Parts.Low  = 0;
     } else {
         // Regular shift
         output.Parts.High <<= shift;
@@ -56,7 +56,7 @@ uint64_t __lshrdi3(uint64_t number, unsigned int shift) {
 
     if (shift >= 32) {
         // Shift discards higher bits.
-        output.Parts.Low = output.Parts.Low >> (shift - 32);
+        output.Parts.Low  = output.Parts.Low >> (shift - 32);
         output.Parts.High = 0;
     } else {
         // Regular shift
@@ -94,7 +94,7 @@ namespace {
 
         while (divisor <= dividend) {
             const uint64_t maxDivisor = __lshrdi3(dividend, 1);
-            uint64_t currentDivisor = divisor;
+            uint64_t currentDivisor   = divisor;
 
             unsigned int shiftCount = 0;
             while (currentDivisor <= maxDivisor) {
@@ -112,7 +112,7 @@ namespace {
     void DivideSigned(int64_t dividend, int64_t divisor, int64_t& quotient, int64_t& reminder) {
         // Sign calculations
         const bool dividendPositive = dividend >= 0;
-        const bool divisorPositive = divisor >= 0;
+        const bool divisorPositive  = divisor >= 0;
         const bool quotientPositive = dividendPositive ^ divisorPositive;
         const bool reminderPositive = dividendPositive;
 

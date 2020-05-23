@@ -40,8 +40,8 @@ namespace FunnyOS::Bootloader32 {
         }
 
         for (uint64_t i = 0; i < mappings; i++) {
-            uint64_t virtualAddr = virtualLocationBase + i * SINGLE_TABLE_MAPPING_SIZE;
-            uint64_t physicalAddr = static_cast<uint64_t>(location) + i * SINGLE_TABLE_MAPPING_SIZE;
+            const uint64_t virtualAddr  = virtualLocationBase + i * SINGLE_TABLE_MAPPING_SIZE;
+            const uint64_t physicalAddr = static_cast<uint64_t>(location) + i * SINGLE_TABLE_MAPPING_SIZE;
 
             MapSingleTable(virtualAddr, physicalAddr);
         }
@@ -52,7 +52,8 @@ namespace FunnyOS::Bootloader32 {
         F_ASSERT((physicalAddress % PAGE_DIRECTORY_ENTRY_SIZE) == 0, "Physical address not aligned");
 
         void* directory = GetPageStructure(m_pml4base, virtualAddress, 4, 2);
-        auto* entries = static_cast<uint64_t*>(directory);
+        auto* entries   = static_cast<uint64_t*>(directory);
+
         entries[(virtualAddress >> 21) & 0x1FF] = reinterpret_cast<uint64_t>(physicalAddress) | 0b10000011;
     }
 
@@ -74,12 +75,13 @@ namespace FunnyOS::Bootloader32 {
             return currentBase;
         }
 
-        unsigned int currentIndex = (reinterpret_cast<uint64_t>(virtualAddress) >> (12 + (level - 1) * 9)) & 0x1FF;
+        const unsigned int currentIndex = (virtualAddress >> (12 + (level - 1) * 9)) & 0x1FF;
+
         auto* entries = static_cast<uint64_t*>(currentBase);
 
         if ((entries[currentIndex] & 1) == 0) {
             // Flags 0b11 - supervisor only, read/write, present
-            void* entry = AllocateClearPage();
+            void* entry           = AllocateClearPage();
             entries[currentIndex] = reinterpret_cast<uint64_t>(entry) | 0b11;
         }
 
@@ -94,7 +96,7 @@ namespace FunnyOS::Bootloader32 {
 
         FB_LOG_DEBUG_F("Maping table %016llx to %016llx", virtualAddress, physicalAddress);
 
-        void* table = GetPageStructure(m_pml4base, virtualAddress, 4, 1);
+        void* table        = GetPageStructure(m_pml4base, virtualAddress, 4, 1);
         auto* tableEntries = static_cast<uint64_t*>(table);
 
         for (size_t i = 0; i < ENTRIES_PER_PAGE; i++) {

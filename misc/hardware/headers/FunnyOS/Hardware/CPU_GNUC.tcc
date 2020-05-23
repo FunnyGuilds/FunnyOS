@@ -12,15 +12,15 @@ namespace FunnyOS::HW::CPU {
 
             // CPUID is supported if the flag can be flipped.
             asm volatile(
-                "pushfl\n"
-                "pushfl\n"
-                "pop %0\n"
-                "xor %2, (%%esp)\n"
-                "popfl\n"
-                "pushfl\n"
-                "pop %1\n"
-                : "=a"(origEflags), "=c"(newEflags)
-                : "d"(Flags::CPUID_Supported));
+                "pushfl                    \n"
+                "pop %[original_flags]     \n"
+                "pushfl                    \n"
+                "xor %[flag], (%%esp)      \n"
+                "popfl                     \n"
+                "pushfl                    \n"
+                "pop %[new_flags]          \n"
+                : [ original_flags ] "=a"(origEflags), [ new_flags ] "=c"(newEflags)
+                : [ flag ] "d"(Flags::CPUID_Supported));
 
             return origEflags != newEflags;
         }

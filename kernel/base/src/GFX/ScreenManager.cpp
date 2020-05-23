@@ -5,11 +5,11 @@ namespace FunnyOS::Kernel::GFX {
         Bootparams::VbeInfoBlock vbeInfo, Stdlib::Vector<Bootparams::VbeModeInfoBlock>&& videoModes,
         Stdlib::Optional<Bootparams::EdidInformation>&& edid, HW::FramebufferConfiguration framebufferConfig,
         uint8_t* fonts) {
-        m_vbeInfo = vbeInfo;
-        m_videoModes = videoModes;
-        m_edid = edid;
+        m_vbeInfo              = vbeInfo;
+        m_videoModes           = videoModes;
+        m_edid                 = edid;
         m_framebufferInterface = Stdlib::MakeRef<HW::FramebufferInterface>(framebufferConfig);
-        m_textInterface = Stdlib::MakeRef<HW::FontTerminalInterface>(fonts, m_framebufferInterface);
+        m_textInterface        = Stdlib::MakeRef<HW::FontTerminalInterface>(fonts, m_framebufferInterface);
     }
 
     const Bootparams::VbeInfoBlock& ScreenManager::GetVbeInfo() const {

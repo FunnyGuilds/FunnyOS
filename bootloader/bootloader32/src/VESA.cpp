@@ -4,7 +4,7 @@
 
 namespace FunnyOS::Bootloader32 {
     namespace {
-        constexpr const uint16_t INVALID_MODE = Stdlib::NumeralTraits::Info<uint16_t>::MaximumValue;
+        constexpr const uint16_t INVALID_MODE          = Stdlib::NumeralTraits::Info<uint16_t>::MaximumValue;
         constexpr const uint8_t VBE_FUNCTION_SUPPORTED = 0x4F;
 
         bool g_ignoreEdid = false;
@@ -28,7 +28,7 @@ namespace FunnyOS::Bootloader32 {
 
             Registers32 registers16;
             registers16.EAX.Value16 = 0x4F00;
-            registers16.ES.Value16 = bufferSegment;
+            registers16.ES.Value16  = bufferSegment;
             registers16.EDI.Value16 = bufferOffset;
 
             g_vbeInfoBlock.VbeSignature[0] = 'V';
@@ -61,7 +61,7 @@ namespace FunnyOS::Bootloader32 {
                 Registers32 registers16;
                 registers16.EAX.Value16 = 0x4F01;
                 registers16.ECX.Value16 = modes[i];
-                registers16.ES.Value16 = bufferSegment;
+                registers16.ES.Value16  = bufferSegment;
                 registers16.EDI.Value16 = bufferOffset;
 
                 RealModeInt(0x10, registers16);
@@ -88,7 +88,7 @@ namespace FunnyOS::Bootloader32 {
             registers16.EBX.Value16 = 0x001;
             registers16.ECX.Value16 = 0;
             registers16.EDX.Value16 = 0;
-            registers16.ES.Value16 = bufferSegment;
+            registers16.ES.Value16  = bufferSegment;
             registers16.EDI.Value16 = bufferOffset;
             RealModeInt(0x10, registers16);
 
@@ -165,8 +165,8 @@ namespace FunnyOS::Bootloader32 {
         const auto& edid = GetEdidInformation();
 
         if (g_ignoreEdid) {
-            uint16_t bestMode = INVALID_MODE;
-            uint32_t bestWidth = 0;
+            uint16_t bestMode   = INVALID_MODE;
+            uint32_t bestWidth  = 0;
             uint32_t bestHeight = 0;
 
             for (const auto& mode : GetVbeModes()) {
@@ -180,9 +180,9 @@ namespace FunnyOS::Bootloader32 {
                     continue;
                 }
 
-                bestWidth = mode.Width;
+                bestWidth  = mode.Width;
                 bestHeight = mode.Height;
-                bestMode = supportedMode.GetValue();
+                bestMode   = supportedMode.GetValue();
             }
 
             if (bestMode != INVALID_MODE) {
@@ -192,12 +192,12 @@ namespace FunnyOS::Bootloader32 {
 
         if (edid) {
             uint16_t edidBestMode = INVALID_MODE;
-            uint32_t edidWidth = 0;
-            uint32_t edidHeight = 0;
+            uint32_t edidWidth    = 0;
+            uint32_t edidHeight   = 0;
 
             // Find best edid resolution
             for (int i = 0; i < 3; i++) {
-                uint32_t currentWidth = 0;
+                uint32_t currentWidth  = 0;
                 uint32_t currentHeight = 0;
                 edid->FetchMaxResolution(i, currentWidth, currentHeight);
 
@@ -211,8 +211,8 @@ namespace FunnyOS::Bootloader32 {
                 }
 
                 if (currentWidth * currentHeight > edidWidth * edidHeight) {
-                    edidWidth = currentWidth;
-                    edidHeight = currentHeight;
+                    edidWidth    = currentWidth;
+                    edidHeight   = currentHeight;
                     edidBestMode = mode.GetValue();
                 }
             }

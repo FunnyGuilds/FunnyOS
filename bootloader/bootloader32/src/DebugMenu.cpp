@@ -13,23 +13,24 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
     namespace {
         constexpr ScanCode MENU_ENTER_KEY = ScanCode::Z_Released;
-        constexpr ScanCode MENU_EXIT_KEY = ScanCode::Escape_Released;
+        constexpr ScanCode MENU_EXIT_KEY  = ScanCode::Escape_Released;
 
         constexpr int MENU_ENTER_KEY_REPEAT = 3;
 
         unsigned int g_menuEnterKeyPressedCount = 0;
-        int g_currentSelection = 0;
-        int g_currentSubmenu = -1;
+        int g_currentSelection                  = 0;
+        int g_currentSubmenu                    = -1;
 
-        bool g_menuEnabled = false;
+        bool g_menuEnabled   = false;
         bool g_exitRequested = false;
 
         void DrawFramePart(char sides, char center) {
-            auto& terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager    = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
             String::StringBuffer buffer = Memory::AllocateBuffer<char>(screenWidth + 1);
-            *buffer[0] = sides;
+
+            *buffer[0]               = sides;
             *buffer[screenWidth - 1] = sides;
 
             for (size_t i = 1; i < screenWidth - 1; i++) {
@@ -48,19 +49,20 @@ namespace FunnyOS::Bootloader32::DebugMenu {
             DrawFramePart('|', ' ');
             DrawFramePart('+', '=');
 
-            const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
+            const size_t screenWidth  = terminalManager->GetInterface()->GetScreenWidth();
             const size_t headerLength = String::Length(header);
-            const auto xPosition = static_cast<uint8_t>(screenWidth / 2 - headerLength / 2);
+            const auto xPosition      = static_cast<uint8_t>(screenWidth / 2 - headerLength / 2);
+
             terminalManager->GetInterface()->SetCursorPosition({xPosition, 1});
             terminalManager->PrintString(header);
             terminalManager->GetInterface()->SetCursorPosition({0, 4});
         }
 
         void PrintOption(const MenuOption* option) {
-            auto& terminalManager = Logging::GetTerminalManager();
+            auto& terminalManager    = Logging::GetTerminalManager();
             const size_t screenWidth = terminalManager->GetInterface()->GetScreenWidth();
 
-            String::StringBuffer buffer = Memory::AllocateBufferInitialized<char>(screenWidth + 1);
+            String::StringBuffer buffer      = Memory::AllocateBufferInitialized<char>(screenWidth + 1);
             String::StringBuffer stateBuffer = Memory::AllocateBufferInitialized<char>(32);
 
             String::Append(buffer, " * ");
@@ -69,7 +71,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
 
             // Padding
             const size_t optionNameLength = String::Length(buffer.Data);
-            const size_t stateLength = String::Length(stateBuffer.Data);
+            const size_t stateLength      = String::Length(stateBuffer.Data);
 
             for (size_t i = optionNameLength; i < screenWidth - stateLength; i++) {
                 *buffer[i] = ' ';
@@ -147,7 +149,7 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         g_menuEnabled = true;
 
         auto& terminalManager = Logging::GetTerminalManager();
-        auto savedScreenData = terminalManager->GetInterface()->SaveScreenData();
+        auto savedScreenData  = terminalManager->GetInterface()->SaveScreenData();
         terminalManager->ClearScreen();
         DrawMenu();
 

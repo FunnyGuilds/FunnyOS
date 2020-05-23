@@ -14,7 +14,7 @@ namespace FunnyOS::HW {
     class FontTerminalInterface : public Misc::TerminalManager::ITerminalInterface {
        public:
         using CursorPosition = Misc::TerminalManager::CursorPosition;
-        using CharacterData = Misc::TerminalManager::CharacterData;
+        using CharacterData  = Misc::TerminalManager::CharacterData;
 
         /**
          * Internal structure used to store character data.

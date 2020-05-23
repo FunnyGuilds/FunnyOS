@@ -26,12 +26,7 @@ namespace FunnyOS::_Platform {
     }
 
     void Terminate(const char* error) noexcept {
-        ReportError(error);
-        for (;;) {
-            asm volatile(
-                "cli\n"
-                "hlt");
-        }
+        FK_PANIC(error);
     }
 
 }  // namespace FunnyOS::_Platform

@@ -10,9 +10,9 @@ namespace FunnyOS::HW {
         /** Base of the VGA video memory */
         auto* VIDEO_MEMORY_BASE = reinterpret_cast<uint8_t*>(0xB8000);
 
-        constexpr const uint16_t VGA_PORT_REGISTER_1 = 0x03D4;
+        constexpr const uint16_t VGA_PORT_REGISTER_1                     = 0x03D4;
         constexpr const uint8_t VGA_PORT_REGISTER_1_CURSOR_POSITION_HIGH = 0x0E;
-        constexpr const uint8_t VGA_PORT_REGISTER_1_CURSOR_POSITION_LOW = 0x0F;
+        constexpr const uint8_t VGA_PORT_REGISTER_1_CURSOR_POSITION_LOW  = 0x0F;
 
         /** Read a value from VGA register [registerAddress] at index [index] */
         uint8_t ReadRegister(uint16_t registerAddress, uint8_t index) {
@@ -39,12 +39,12 @@ namespace FunnyOS::HW {
     }  // namespace
 
     // Screen dimensions
-    constexpr const uint16_t SCREEN_WIDTH = 80;
+    constexpr const uint16_t SCREEN_WIDTH  = 80;
     constexpr const uint16_t SCREEN_HEIGHT = 25;
 
     Memory::SizedBuffer<uint8_t> VGAInterface::SaveScreenData() const noexcept {
         const size_t videoMemorySize = GetScreenWidth() * GetScreenHeight() * 2U;
-        const size_t bufferSize = videoMemorySize + sizeof(CursorPosition);
+        const size_t bufferSize      = videoMemorySize + sizeof(CursorPosition);
 
         const CursorPosition cursorPosition = GetCursorPosition();
 
@@ -99,7 +99,7 @@ namespace FunnyOS::HW {
 
     void VGAInterface::WriteCharacter(const CursorPosition& position, const CharacterData& data) noexcept {
         const uint16_t vgaPosition = ToVGAPosition(position, GetScreenWidth());
-        const uint8_t color = static_cast<uint8_t>(data.Background) << 4 | static_cast<uint8_t>(data.Foreground);
+        const uint8_t color        = static_cast<uint8_t>(data.Background) << 4 | static_cast<uint8_t>(data.Foreground);
 
         *(VIDEO_MEMORY_BASE + vgaPosition * 2 + 0x00) = static_cast<uint8_t>(data.Character);
         *(VIDEO_MEMORY_BASE + vgaPosition * 2 + 0x01) = color;
@@ -109,10 +109,10 @@ namespace FunnyOS::HW {
         const uint16_t vgaPosition = ToVGAPosition(position, GetScreenWidth());
 
         const char character = *(VIDEO_MEMORY_BASE + vgaPosition * 2 + 0x00);
-        const uint8_t color = *(VIDEO_MEMORY_BASE + vgaPosition * 2 + 0x01);
+        const uint8_t color  = *(VIDEO_MEMORY_BASE + vgaPosition * 2 + 0x01);
 
         return CharacterData{
-            .Character = character,
+            .Character  = character,
             .Background = static_cast<Color>(color >> 4),
             .Foreground = static_cast<Color>(color & 0xF),
         };
@@ -120,7 +120,7 @@ namespace FunnyOS::HW {
 
     void VGAInterface::Move(const CursorPosition& from, const CursorPosition& to) noexcept {
         const uint16_t fromPosition = ToVGAPosition(from, GetScreenWidth());
-        const uint16_t toPosition = ToVGAPosition(to, GetScreenWidth());
+        const uint16_t toPosition   = ToVGAPosition(to, GetScreenWidth());
 
         *(VIDEO_MEMORY_BASE + toPosition * 2 + 0x00) = *(VIDEO_MEMORY_BASE + fromPosition * 2 + 0x00);
         *(VIDEO_MEMORY_BASE + toPosition * 2 + 0x01) = *(VIDEO_MEMORY_BASE + fromPosition * 2 + 0x01);

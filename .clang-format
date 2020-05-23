@@ -13,3 +13,7 @@ AllowShortFunctionsOnASingleLine: Empty
 AllowAllArgumentsOnNextLine: false
 DerivePointerAlignment: false
 AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: true
+AlignConsecutiveMacros: true
+AlignTrailingComments: true
+AlignConsecutiveDeclarations: false

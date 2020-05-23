@@ -15,19 +15,19 @@
         logger.PostMessage(FunnyOS::Stdlib::LogLevel::level, message, __VA_ARGS__); \
     } while (0)
 
-#define F_LOG_INFO(logger, message) F_LOG(logger, Info, message)
-#define F_LOG_OK(logger, message) F_LOG(logger, Ok, message)
+#define F_LOG_INFO(logger, message)    F_LOG(logger, Info, message)
+#define F_LOG_OK(logger, message)      F_LOG(logger, Ok, message)
 #define F_LOG_WARNING(logger, message) F_LOG(logger, Warning, message)
-#define F_LOG_ERROR(logger, message) F_LOG(logger, Error, message)
-#define F_LOG_FATAL(logger, message) F_LOG(logger, Fatal, message)
-#define F_LOG_DEBUG(logger, message) F_LOG(logger, Debug, message)
+#define F_LOG_ERROR(logger, message)   F_LOG(logger, Error, message)
+#define F_LOG_FATAL(logger, message)   F_LOG(logger, Fatal, message)
+#define F_LOG_DEBUG(logger, message)   F_LOG(logger, Debug, message)
 
-#define F_LOG_INFO_F(logger, message, ...) F_LOG_F(logger, Info, message, __VA_ARGS__)
-#define F_LOG_OK_F(logger, message, ...) F_LOG_F(logger, Ok, message, __VA_ARGS__)
+#define F_LOG_INFO_F(logger, message, ...)    F_LOG_F(logger, Info, message, __VA_ARGS__)
+#define F_LOG_OK_F(logger, message, ...)      F_LOG_F(logger, Ok, message, __VA_ARGS__)
 #define F_LOG_WARNING_F(logger, message, ...) F_LOG_F(logger, Warning, message, __VA_ARGS__)
-#define F_LOG_ERROR_F(logger, message, ...) F_LOG_F(logger, Error, message, __VA_ARGS__)
-#define F_LOG_FATAL_F(logger, message, ...) F_LOG_F(logger, Fatal, message, __VA_ARGS__)
-#define F_LOG_DEBUG_F(logger, message, ...) F_LOG_F(logger, Debug, message, __VA_ARGS__)
+#define F_LOG_ERROR_F(logger, message, ...)   F_LOG_F(logger, Error, message, __VA_ARGS__)
+#define F_LOG_FATAL_F(logger, message, ...)   F_LOG_F(logger, Fatal, message, __VA_ARGS__)
+#define F_LOG_DEBUG_F(logger, message, ...)   F_LOG_F(logger, Debug, message, __VA_ARGS__)
 
 namespace FunnyOS::Stdlib {
 

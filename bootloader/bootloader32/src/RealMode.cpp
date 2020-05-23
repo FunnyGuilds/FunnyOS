@@ -29,7 +29,7 @@ namespace FunnyOS::Bootloader32 {
         F_ASSERT(address < MAX_REAL_MODE_ADDR, "address >= MAX_REAL_MODE_ADDR");
 
         segment = static_cast<uint16_t>((address & 0xF0000) >> 4);
-        offset = static_cast<uint16_t>(address & 0xFFFF);
+        offset  = static_cast<uint16_t>(address & 0xFFFF);
     }
 
     void GetRealModeBufferAddress(uint16_t& segment, uint16_t& offset) {
@@ -44,25 +44,25 @@ namespace FunnyOS::Bootloader32 {
 #ifdef __GNUC__
         asm(
             // Save state
-            "pushfl\n"
-            "pushal\n"
-            "pushw %%es\n"
-            "pushw %%fs\n"
-            "pushw %%gs\n"
+            "pushfl                        \n"
+            "pushal                        \n"
+            "pushw %%es                    \n"
+            "pushw %%fs                    \n"
+            "pushw %%gs                    \n"
 
-            // Call do_real_mode_interrupt
-            "push %%eax\n"
-            "call do_real_mode_interrupt\n"
-            "add $4, %%esp\n"
+            // Push interrupt number and call do_real_mode_interrupt
+            "pushl %[int_number]           \n"
+            "call do_real_mode_interrupt   \n"
+            "add $4, %%esp                 \n"
 
             // Restore state
-            "popw %%gs\n"
-            "popw %%fs\n"
-            "popw %%es\n"
-            "popal\n"
-            "popfl\n"
+            "popw %%gs                     \n"
+            "popw %%fs                     \n"
+            "popw %%es                     \n"
+            "popal                         \n"
+            "popfl                         \n"
             :
-            : "a"(static_cast<uintmax_t>(interrupt))
+            : [ int_number ] "a"(static_cast<uintmax_t>(interrupt))
             : "memory");
 #endif
 

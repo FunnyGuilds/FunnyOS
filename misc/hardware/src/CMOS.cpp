@@ -8,7 +8,7 @@ namespace FunnyOS::HW::CMOS {
 
     namespace {
         constexpr uint16_t CMOS_PORT_SELECT = 0x70;
-        constexpr uint16_t CMOS_PORT_DATA = CMOS_PORT_SELECT + 1;
+        constexpr uint16_t CMOS_PORT_DATA   = CMOS_PORT_SELECT + 1;
 
         void SelectCMOSRegister(CMOSRegister reg) {
             OutputByte(CMOS_PORT_SELECT, (static_cast<uint8_t>(reg) & 0b0111'1111));
@@ -49,21 +49,21 @@ namespace FunnyOS::HW::CMOS {
             while ((ReadCMOSRegister(CMOSRegister::StatusA) & 0b1000'000) != 0) {
             }
 
-            newTime.Year = ReadCMOSRegister(CMOSRegister::Year);
-            newTime.Month = ReadCMOSRegister(CMOSRegister::Month);
+            newTime.Year       = ReadCMOSRegister(CMOSRegister::Year);
+            newTime.Month      = ReadCMOSRegister(CMOSRegister::Month);
             newTime.DayOfMonth = ReadCMOSRegister(CMOSRegister::DayOfMonth);
-            newTime.Hours = ReadCMOSRegister(CMOSRegister::Hours);
-            newTime.Minutes = ReadCMOSRegister(CMOSRegister::Minutes);
+            newTime.Hours      = ReadCMOSRegister(CMOSRegister::Hours);
+            newTime.Minutes    = ReadCMOSRegister(CMOSRegister::Minutes);
 
         } while ((newTime.Year != oldTime.Year) || (newTime.Month != oldTime.Month) ||
                  (newTime.DayOfMonth != oldTime.DayOfMonth) || (newTime.Hours != oldTime.Hours) ||
                  (newTime.Minutes != oldTime.Minutes));
 
-        newTime.Year = BcdToNumber(newTime.Year) + 2000;
-        newTime.Month = BcdToNumber(newTime.Month);
+        newTime.Year       = BcdToNumber(newTime.Year) + 2000;
+        newTime.Month      = BcdToNumber(newTime.Month);
         newTime.DayOfMonth = BcdToNumber(newTime.DayOfMonth);
-        newTime.Hours = BcdToNumber(newTime.Hours);
-        newTime.Minutes = BcdToNumber(newTime.Minutes);
+        newTime.Hours      = BcdToNumber(newTime.Hours);
+        newTime.Minutes    = BcdToNumber(newTime.Minutes);
 
         return newTime;
     }

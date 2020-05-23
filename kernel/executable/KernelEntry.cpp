@@ -13,12 +13,12 @@ namespace {
 extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
 #ifdef __GNUC__
     asm volatile(
-        "pop %%rdi\n"      // Pop parameters
-        "mov %0, %%rsp\n"  // Setup new stack
-        "mov %%rsp, %%rbp\n"
-        "jmp start_kernel"
+        "pop %%rdi               \n"  // Pop parameters to RDI
+        "mov %[new_stack], %%rsp \n"  // Setup new stack
+        "mov %%rsp, %%rbp        \n"
+        "jmp start_kernel        \n"
         :
-        : "bN"(&KERNEL_STACK_TOP)
+        : [ new_stack ] "bN"(&KERNEL_STACK_TOP)
         : "rbp");
 #endif
 }

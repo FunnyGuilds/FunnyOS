@@ -5,49 +5,39 @@
 using namespace FunnyOS::Stdlib;
 
 namespace FunnyOS::HW {
+
+    constexpr const char* g_interruptMnemonics[] = {
+        [static_cast<unsigned int>(InterruptType::DivideError)]                 = "#DE",
+        [static_cast<unsigned int>(InterruptType::DebugException)]              = "#DB",
+        [static_cast<unsigned int>(InterruptType::NmiInterrupt)]                = nullptr,
+        [static_cast<unsigned int>(InterruptType::Breakpoint)]                  = "#BP",
+        [static_cast<unsigned int>(InterruptType::Overflow)]                    = "#OF",
+        [static_cast<unsigned int>(InterruptType::BoundRangeExceeded)]          = "#BR",
+        [static_cast<unsigned int>(InterruptType::InvalidOpcode)]               = "#UD",
+        [static_cast<unsigned int>(InterruptType::DeviceNotAvailable)]          = "#NM",
+        [static_cast<unsigned int>(InterruptType::DoubleFault)]                 = "#DF",
+        [static_cast<unsigned int>(InterruptType::CoprocessorSegmentOverrun)]   = nullptr,
+        [static_cast<unsigned int>(InterruptType::InvalidTSS)]                  = "#TS",
+        [static_cast<unsigned int>(InterruptType::SegmentNotPresent)]           = "#NP",
+        [static_cast<unsigned int>(InterruptType::StackSegmentFault)]           = "#SS",
+        [static_cast<unsigned int>(InterruptType::GeneralProtection)]           = "#GP",
+        [static_cast<unsigned int>(InterruptType::PageFault)]                   = "#PF",
+        [static_cast<unsigned int>(InterruptType::Reserved15)]                  = nullptr,
+        [static_cast<unsigned int>(InterruptType::x87FPU_FloatingPointError)]   = "#MF",
+        [static_cast<unsigned int>(InterruptType::AlignmentCheck)]              = "#AC",
+        [static_cast<unsigned int>(InterruptType::MachineCheck)]                = "#MC",
+        [static_cast<unsigned int>(InterruptType::SIMD_FloatingPointException)] = "#XM",
+        [static_cast<unsigned int>(InterruptType::VirtualizationException)]     = "#VE",
+    };
+
     Stdlib::Optional<const char*> GetInterruptMnemonic(InterruptType type) {
-        switch (type) {
-            case InterruptType::DivideError:
-                return Stdlib::MakeOptional<const char*>("#DE");
-            case InterruptType::DebugException:
-                return Stdlib::MakeOptional<const char*>("#DB");
-            case InterruptType::Breakpoint:
-                return Stdlib::MakeOptional<const char*>("#BP");
-            case InterruptType::Overflow:
-                return Stdlib::MakeOptional<const char*>("#OF");
-            case InterruptType::BoundRangeExceeded:
-                return Stdlib::MakeOptional<const char*>("#BR");
-            case InterruptType::InvalidOpcode:
-                return Stdlib::MakeOptional<const char*>("#UD");
-            case InterruptType::DeviceNotAvailable:
-                return Stdlib::MakeOptional<const char*>("#NM");
-            case InterruptType::DoubleFault:
-                return Stdlib::MakeOptional<const char*>("#DF");
-            case InterruptType::InvalidTSS:
-                return Stdlib::MakeOptional<const char*>("#TS");
-            case InterruptType::SegmentNotPresent:
-                return Stdlib::MakeOptional<const char*>("#NP");
-            case InterruptType::StackSegmentFault:
-                return Stdlib::MakeOptional<const char*>("#SS");
-            case InterruptType::GeneralProtection:
-                return Stdlib::MakeOptional<const char*>("#GP");
-            case InterruptType::PageFault:
-                return Stdlib::MakeOptional<const char*>("#PF");
-            case InterruptType::x87FPU_FloatingPointError:
-                return Stdlib::MakeOptional<const char*>("#MF");
-            case InterruptType::AlignmentCheck:
-                return Stdlib::MakeOptional<const char*>("#AC");
-            case InterruptType::MachineCheck:
-                return Stdlib::MakeOptional<const char*>("#MC");
-            case InterruptType::SIMD_FloatingPointException:
-                return Stdlib::MakeOptional<const char*>("#XM");
-            case InterruptType::VirtualizationException:
-                return Stdlib::MakeOptional<const char*>("#VE");
-            default:
-                break;
+        const auto index = static_cast<unsigned int>(type);
+        if (index >= F_SIZEOF_BUFFER(g_interruptMnemonics)) {
+            return Stdlib::EmptyOptional<const char*>();
         }
 
-        return Stdlib::EmptyOptional<const char*>();
+        const char* mnemonic = g_interruptMnemonics[index];
+        return mnemonic == nullptr ? Stdlib::EmptyOptional<const char*>() : Stdlib::MakeOptional<const char*>(mnemonic);
     }
 
     NoInterruptsBlock::NoInterruptsBlock()

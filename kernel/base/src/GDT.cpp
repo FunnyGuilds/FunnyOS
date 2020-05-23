@@ -46,19 +46,19 @@ namespace FunnyOS::Kernel {
                            reinterpret_cast<uint64_t>(buffer.Data)};
 
 #ifdef __GNUC__
-        asm("lgdt %0" : : "m"(gdtr) : "memory");
+        asm("lgdt %0" ::"m"(gdtr) : "memory");
 #endif
     }
 
     void LoadKernelGdt() {
-        g_kernelGdt[0] = 0;
-        g_kernelGdt[GDT_SELECTOR_DATA] = CreateGdtDescriptor({.Type = GDTEntryType::Data, .IsPresent = true});
-        g_kernelGdt[GDT_SELECTOR_CODE_RING0] = CreateGdtDescriptor({.Type = GDTEntryType::Code,
-                                                                    .IsPresent = true,
+        g_kernelGdt[0]                       = 0;
+        g_kernelGdt[GDT_SELECTOR_DATA]       = CreateGdtDescriptor({.Type = GDTEntryType::Data, .IsPresent = true});
+        g_kernelGdt[GDT_SELECTOR_CODE_RING0] = CreateGdtDescriptor({.Type                     = GDTEntryType::Code,
+                                                                    .IsPresent                = true,
                                                                     .DescriptorPrivilegeLevel = 0,
-                                                                    .IsConforming = true,
-                                                                    .IsLongMode = true,
-                                                                    .Is32Bit = false});
+                                                                    .IsConforming             = true,
+                                                                    .IsLongMode               = true,
+                                                                    .Is32Bit                  = false});
 
         LoadGdt({g_kernelGdt, F_SIZEOF_BUFFER(g_kernelGdt)});
     }
@@ -66,24 +66,31 @@ namespace FunnyOS::Kernel {
     void LoadNewSegments(uint16_t codeSegment, uint16_t dataSegment) {
 #ifdef __GNUC__
         asm volatile(
-            "mov %%bx, %%ds\n"
-            "mov %%bx, %%es\n"
-            "mov %%bx, %%fs\n"
-            "mov %%bx, %%gs\n"
-            "mov %%bx, %%ss\n"
-            "mov %%rsp, %%rdx\n"
-            "push %%rbx\n"
-            "push %%rdx\n"
-            "pushfq\n"
-            "push %%rax\n"
-            "lea (%%rip), %%rdx\n"
-            "1:\n"
-            "add $(2f - 1b), %%rdx\n"
-            "push %%rdx\n"
-            "iretq\n"
-            "2:"
+            // Setup new segment registers
+            "mov %[data_segment], %%ds       \n"
+            "mov %[data_segment], %%es       \n"
+            "mov %[data_segment], %%fs       \n"
+            "mov %[data_segment], %%gs       \n"
+            "mov %[data_segment], %%ss       \n"
+
+            "mov %%rsp, %%rdx                \n"  // Save RSP
+            "pushq %[data_segment]           \n"  // Push stack segment
+            "push %%rdx                      \n"  // Push saved RSP
+            "pushfq                          \n"  // Push flags
+            "pushq %[code_segment]           \n"  // Push code segment
+
+            // Calculate absolute address of label '2'
+            "lea (%%rip), %%rdx              \n"
+            "1:                              \n"
+            "add $(2f - 1b), %%rdx           \n"
+            "push %%rdx                      \n"  // Push new RIP
+
+            // Use iretq to reload the CS
+            "iretq                           \n"
+            "2:                              \n"
             :
-            : "a"(codeSegment << 3), "b"(dataSegment << 3)
+            : [ code_segment ] "a"(static_cast<uint64_t>(codeSegment << 3)),
+              [ data_segment ] "b"(static_cast<uint64_t>(dataSegment << 3))
             : "memory", "rdx");
 #endif
     }
@@ -91,21 +98,26 @@ namespace FunnyOS::Kernel {
     void LoadNewSegmentsAndJump(uint16_t codeSegment, uint16_t dataSegment, void* location) {
 #ifdef __GNUC__
         asm volatile(
-            "mov %%bx, %%ds\n"
-            "mov %%bx, %%es\n"
-            "mov %%bx, %%fs\n"
-            "mov %%bx, %%gs\n"
-            "mov %%bx, %%ss\n"
-            "mov %%rsp, %%rdx\n"
-            "push %%rbx\n"
-            "push %%rdx\n"
-            "pushfq\n"
-            "push %%rax\n"
-            "push %%rdx\n"
-            "iretq\n"
-            "2:"
+            // Setup new segment registers
+            "mov %[data_segment], %%ds       \n"
+            "mov %[data_segment], %%es       \n"
+            "mov %[data_segment], %%fs       \n"
+            "mov %[data_segment], %%gs       \n"
+            "mov %[data_segment], %%ss       \n"
+
+            "mov %%rsp, %%rdx                \n"  // Save RSP
+            "pushq %[data_segment]           \n"  // Push stack segment
+            "push %%rdx                      \n"  // Push saved RSP
+            "pushfq                          \n"  // Push flags
+            "pushq %[code_segment]           \n"  // Push code segment
+            "push %[jump_location]           \n"  // Push new RIP
+
+            // Use iretq to reload the CS
+            "iretq                           \n"
+            "2:                              \n"
             :
-            : "a"(codeSegment << 3), "b"(dataSegment << 3), "d"(location)
+            : [ code_segment ] "a"(static_cast<uint64_t>(codeSegment << 3)),
+              [ data_segment ] "b"(static_cast<uint64_t>(dataSegment << 3)), [ jump_location ] "D"(location)
             : "memory");
 #endif
         F_NO_RETURN;

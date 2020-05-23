@@ -102,11 +102,11 @@ namespace FunnyOS::Stdlib::String {
         enum class ParsePhase { Flags, Width, Length, Specifier };
 
         namespace FormatFlags {
-            const int LeftJustify = 1 << 0;
-            const int ForceSignCharacter = 1 << 1;
-            const int SpaceIfNoSign = 1 << 2;
+            const int LeftJustify         = 1 << 0;
+            const int ForceSignCharacter  = 1 << 1;
+            const int SpaceIfNoSign       = 1 << 2;
             const int ForcePrefixOrSuffix = 1 << 3;
-            const int PadWithZeroes = 1 << 4;
+            const int PadWithZeroes       = 1 << 4;
         }  // namespace FormatFlags
 
         const char* VALID_FLAGS = "-+ #0";
@@ -115,16 +115,16 @@ namespace FunnyOS::Stdlib::String {
         const char* VALID_LENGTHS = "hljzt";
 
         enum class SpecifierType {
-            SignedDecimalInteger1 = 'd',
-            SignedDecimalInteger2 = 'i',
-            UnsignedDecimalInteger = 'u',
-            UnsignedOctal = 'o',
+            SignedDecimalInteger1               = 'd',
+            SignedDecimalInteger2               = 'i',
+            UnsignedDecimalInteger              = 'u',
+            UnsignedOctal                       = 'o',
             UnsignedHexadecimalIntegerLowercase = 'x',
             UnsignedHexadecimalIntegerUppercase = 'X',
-            BinaryInteger = 'b',
-            Character = 'c',
-            String = 's',
-            Invalid = 0
+            BinaryInteger                       = 'b',
+            Character                           = 'c',
+            String                              = 's',
+            Invalid                             = 0
         };
         const char* VALID_SPECIFIERS = "diuoxXbcs";
 
@@ -147,7 +147,7 @@ namespace FunnyOS::Stdlib::String {
 
         FormatSpecifier ParseFormat(const char* format, size_t& character) {
             FormatSpecifier out{};
-            out.Type = SpecifierType::Invalid;
+            out.Type   = SpecifierType::Invalid;
             out.Length = FormatLength::Int32;
 
             ParsePhase phase = ParsePhase::Flags;
@@ -169,7 +169,7 @@ namespace FunnyOS::Stdlib::String {
                     }
                     case ParsePhase::Width: {
                         out.Width = StringToInt<int>(format, 10, false, character).GetValueOrDefault(0);
-                        phase = ParsePhase::Length;
+                        phase     = ParsePhase::Length;
                         break;
                     }
                     case ParsePhase::Length: {
@@ -218,7 +218,7 @@ namespace FunnyOS::Stdlib::String {
 
             if (integer < 0) {
                 isNegative = true;
-                integer = -integer;
+                integer    = -integer;
             }
 
             return IntegerToString<Integer>(buffer, integer, radix);
@@ -337,7 +337,7 @@ namespace FunnyOS::Stdlib::String {
                 value[1] = 0;
             } else if (specifier.Type == SpecifierType::String) {
                 const char* ptr = va_arg(*args, const char*);
-                const auto len = Min<size_t>(Length(ptr), sizeof(value) / sizeof(char) - 1);
+                const auto len  = Min<size_t>(Length(ptr), sizeof(value) / sizeof(char) - 1);
                 Memory::Copy(value, ptr, len);
                 value[len] = 0;
             } else {
@@ -365,11 +365,11 @@ namespace FunnyOS::Stdlib::String {
                 }
             }
 
-            const size_t totalSize = Length(value);
+            const size_t totalSize  = Length(value);
             const size_t prefixSize = Length(prefix);
-            const auto padSize = static_cast<size_t>(Max<ssize_t>(0, specifier.Width - totalSize - prefixSize));
+            const auto padSize      = static_cast<size_t>(Max<ssize_t>(0, specifier.Width - totalSize - prefixSize));
             const char padCharacter = (specifier.Flags & FormatFlags::PadWithZeroes) != 0 ? '0' : ' ';
-            const bool padLeft = padCharacter == '0' || (specifier.Flags & FormatFlags::LeftJustify) != 0;
+            const bool padLeft      = padCharacter == '0' || (specifier.Flags & FormatFlags::LeftJustify) != 0;
 
             if (padLeft && padCharacter == ' ') {
                 for (size_t i = 0; i < padSize; i++) {

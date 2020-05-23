@@ -23,7 +23,8 @@ namespace FunnyOS::Bootloader32::A20 {
         // Check
         *address1 = 'S';
         *address2 = 'D';
-        bool hasA20 = *address1 != *address2;
+
+        const bool hasA20 = *address1 != *address2;
 
         // Restore values
         *address1 = v1;

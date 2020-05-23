@@ -107,8 +107,8 @@ namespace FunnyOS::Misc::TerminalManager {
         BeginUpdateSession();
 
         CursorPosition& cursor = SessionCursor();
-        cursor.X = 0;
-        cursor.Y = n;
+        cursor.X               = 0;
+        cursor.Y               = n;
 
         while (cursor.X < m_interface->GetScreenWidth()) {
             m_interface->WriteCharacter(cursor, {' ', m_backgroundColor, m_foregroundColor});

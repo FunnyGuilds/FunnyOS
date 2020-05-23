@@ -36,12 +36,15 @@ class TrackableObject {
     TrackableObject(TrackableObject&& other) {
         s_moveConstructionCount++;
         m_testFlag = other.m_testFlag;
+
         other.m_testFlag = 0;
+
         std::cout << "Moved " << static_cast<void*>(this) << "\n";
     }
 
     TrackableObject& operator=(TrackableObject&& other) {
         m_testFlag = other.m_testFlag;
+
         other.m_testFlag = 0;
         std::cout << "Move assigned " << static_cast<void*>(this) << "\n";
         return *this;
@@ -54,9 +57,9 @@ class TrackableObject {
 
     static void ResetAll() {
         s_standardConstructionCount = 0;
-        s_moveConstructionCount = 0;
-        s_copyConstructionCount = 0;
-        s_destructionCount = 0;
+        s_moveConstructionCount     = 0;
+        s_copyConstructionCount     = 0;
+        s_destructionCount          = 0;
     }
 
     static size_t GetStandardConstructionCount() {
@@ -80,11 +83,11 @@ class TrackableObject {
     }
 
    private:
-    static constexpr const ::size_t VALID_OBJECT_FLAG = 0x5634312;
+    static constexpr const ::size_t VALID_OBJECT_FLAG  = 0x5634312;
     static inline ::size_t s_standardConstructionCount = 0;
-    static inline ::size_t s_moveConstructionCount = 0;
-    static inline ::size_t s_copyConstructionCount = 0;
-    static inline ::size_t s_destructionCount = 0;
+    static inline ::size_t s_moveConstructionCount     = 0;
+    static inline ::size_t s_copyConstructionCount     = 0;
+    static inline ::size_t s_destructionCount          = 0;
 
     ::size_t m_testFlag;
 };

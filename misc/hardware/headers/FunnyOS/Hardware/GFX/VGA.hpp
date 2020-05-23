@@ -11,7 +11,7 @@ namespace FunnyOS::HW {
     class VGAInterface : public Misc::TerminalManager::ITerminalInterface {
        public:
         using CursorPosition = Misc::TerminalManager::CursorPosition;
-        using CharacterData = Misc::TerminalManager::CharacterData;
+        using CharacterData  = Misc::TerminalManager::CharacterData;
 
        public:
         [[nodiscard]] Stdlib::Memory::SizedBuffer<uint8_t> SaveScreenData() const noexcept override;

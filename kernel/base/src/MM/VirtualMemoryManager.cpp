@@ -9,8 +9,8 @@
 
 namespace FunnyOS::Kernel::MM {
     namespace {
-        constexpr const size_t PHYSICAL_ADDRESS_MASK_PAGE_TABLE = 0x000FFFFFFFFFF000;
-        constexpr const size_t PHYSICAL_ADDRESS_MASK_PAGE_DIRECTORY = 0x000FFFFFFFF00000;
+        constexpr const size_t PHYSICAL_ADDRESS_MASK_PAGE_TABLE                   = 0x000FFFFFFFFFF000;
+        constexpr const size_t PHYSICAL_ADDRESS_MASK_PAGE_DIRECTORY               = 0x000FFFFFFFF00000;
         constexpr const size_t PHYSICAL_ADDRESS_MASK_PAGE_DIRECTORY_POINTER_TABLE = 0x000FFFFFFFFC0000000;
 
         enum class PageStructureFlags : uint64_t {
@@ -186,8 +186,8 @@ namespace FunnyOS::Kernel::MM {
         F_ASSERT(kernelImage != m_pmm.GetOriginalMemoryMap().End(), "no KernelImage in memory map");
 
         const physicaladdress_t kernelBase = kernelImage->BaseAddress;
-        const size_t kernelLength = kernelImage->Length;
-        const auto kernelPages = Stdlib::Math::DivideRoundUp<physicaladdress_t>(kernelLength, PAGE_SIZE);
+        const size_t kernelLength          = kernelImage->Length;
+        const auto kernelPages             = Stdlib::Math::DivideRoundUp<physicaladdress_t>(kernelLength, PAGE_SIZE);
 
         FK_LOG_DEBUG_F(
             VMM_PREFIX "Kernel physical base: 0x%08llx. Size: 0x%08llx bytes", kernelImage->BaseAddress,
@@ -249,6 +249,7 @@ namespace FunnyOS::Kernel::MM {
 
             // Mark base entry
             auto base = GetPageStructure(virtualAddress, 3, false);
+
             uint64_t* baseEntry = reinterpret_cast<uint64_t*>(base) + ((virtualAddress >> 30) & 0x1FF);
             *baseEntry |= static_cast<uint64_t>(PageStructureFlags::ExEmulatePdpe1Gb);
 
@@ -292,8 +293,8 @@ namespace FunnyOS::Kernel::MM {
         }
 
         physicaladdress_t pageTable = GetPageStructure(virtualAddress, structureLevel, skipChecks);
+        const size_t entryIndex     = (virtualAddress >> (12 + ((structureLevel - 1) * 9))) & 0x1FF;
 
-        const size_t entryIndex = (virtualAddress >> (12 + ((structureLevel - 1) * 9))) & 0x1FF;
         uint64_t* entry = PhysicalAddressToPointer<uint64_t>(pageTable) + entryIndex;
 
         if ((*entry & static_cast<uint64_t>(PageStructureFlags::ExAllocated)) != 0) {
@@ -331,6 +332,7 @@ namespace FunnyOS::Kernel::MM {
         }
 
         const unsigned int currentIndex = (virtualAddress >> (12 + (level - 1) * 9)) & 0x1FF;
+
         auto* entries = PhysicalAddressToPointer<uint64_t>(current);
 
         if (!skipChecks) {

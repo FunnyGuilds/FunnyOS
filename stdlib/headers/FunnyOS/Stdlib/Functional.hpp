@@ -3,7 +3,7 @@
 
 // Iterator support
 #define HAS_STANDARD_ITERATORS               \
-    using iterator = Iterator;               \
+    using iterator       = Iterator;         \
     using const_iterator = ConstIterator;    \
     iterator begin() {                       \
         return this->Begin();                \

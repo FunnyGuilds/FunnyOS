@@ -8,8 +8,8 @@
 namespace FunnyOS::HW {
     using namespace Stdlib;
 
-    using DriveIdentification = uint8_t;
-    using SectorNumber = uint32_t;
+    using drive_indentification_t = uint8_t;
+    using sectornumber_t          = uint32_t;
 
     /**
      * General exception thrown by IDriveInterface.
@@ -26,14 +26,14 @@ namespace FunnyOS::HW {
          *
          * @return unique ID identifying this drive.
          */
-        [[nodiscard]] virtual DriveIdentification GetDriveIdentification() const = 0;
+        [[nodiscard]] virtual drive_indentification_t GetDriveIdentification() const = 0;
 
         /**
          * Gets the total amount of sectors on the drive.
          *
          * @return total amount of sectors on the drive.
          */
-        [[nodiscard]] virtual SectorNumber GetTotalSectorCount() const = 0;
+        [[nodiscard]] virtual sectornumber_t GetTotalSectorCount() const = 0;
 
         /**
          * Gets the size of a single sector in bytes.
@@ -51,7 +51,7 @@ namespace FunnyOS::HW {
          *
          * @throws DriveInterfaceException if the read failed or the specified buffer was too small.
          */
-        virtual void ReadSectors(SectorNumber sector, SectorNumber count, Memory::SizedBuffer<uint8_t>& buffer) = 0;
+        virtual void ReadSectors(sectornumber_t sector, sectornumber_t count, Memory::SizedBuffer<uint8_t>& buffer) = 0;
     };
 
 }  // namespace FunnyOS::HW

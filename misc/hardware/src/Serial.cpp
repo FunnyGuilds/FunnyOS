@@ -6,14 +6,14 @@ namespace FunnyOS::HW::Serial {
     namespace {
         constexpr uint32_t MAX_BAUD = 115200;
 
-        constexpr int DATA_REGISTER = 0;
+        constexpr int DATA_REGISTER              = 0;
         constexpr int INTERRUPT_ENABLED_REGISTER = 1;
-        constexpr int BAUD_LOW_REGISTER = 0;
-        constexpr int BAUD_HIGH_REGISTER = 1;
-        constexpr int PENDING_REGISTER = 2;
-        constexpr int LINE_CONTROL_REGISTER = 3;
-        constexpr int MODEM_CONTROL_REGISTER = 4;
-        constexpr int LINE_STATUS_REGISTER = 5;
+        constexpr int BAUD_LOW_REGISTER          = 0;
+        constexpr int BAUD_HIGH_REGISTER         = 1;
+        constexpr int PENDING_REGISTER           = 2;
+        constexpr int LINE_CONTROL_REGISTER      = 3;
+        constexpr int MODEM_CONTROL_REGISTER     = 4;
+        constexpr int LINE_STATUS_REGISTER       = 5;
 
         constexpr int DLAB_BIT = 0b1000'0000;
 
@@ -34,6 +34,7 @@ namespace FunnyOS::HW::Serial {
 
         void SetDLAB(size_t portNum, bool dlab) {
             uint8_t value = InputByte(portNum + LINE_CONTROL_REGISTER);
+
             value = dlab ? (value | DLAB_BIT) : (value & ~DLAB_BIT);
             OutputByte(portNum + LINE_CONTROL_REGISTER, value);
         }

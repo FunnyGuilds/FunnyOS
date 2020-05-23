@@ -37,7 +37,8 @@ namespace FunnyOS::Kernel::MM {
             F_ASSERT(IsInRegion(address, region), PMM_PREFIX "address not in region for split");
 
             MemoryRegion higherRegion = region;
-            higherRegion.RegionStart = address;
+            higherRegion.RegionStart  = address;
+
             region.RegionEnd = address;
             return higherRegion;
         }
@@ -104,7 +105,8 @@ namespace FunnyOS::Kernel::MM {
         bool SetBitInBitmap(MemoryChunkControlBlock& block, size_t bit, bool status) {
             uint8_t offset;
             uint8_t* byte = _FetchLocationInBitmap(block, bit, offset);
-            uint8_t oldValue = *byte;
+
+            const uint8_t oldValue = *byte;
 
             if (status) {
                 *byte |= (1 << offset);
@@ -211,12 +213,13 @@ namespace FunnyOS::Kernel::MM {
         m_memoryMap.EnsureCapacity(map.Count);
 
         // Reset memory statistics
-        m_memoryStatistics.ControlBlockWaste = 0;
-        m_memoryStatistics.UnusableUnalignedMemory = 0;
-        m_memoryStatistics.UnusableLowMemory = 0x100000;
-        m_memoryStatistics.KernelImageSize = 0;
-        m_memoryStatistics.TotalReclaimableMemory = 0;
-        m_memoryStatistics.TotalAvailableMemory = 0;
+        m_memoryStatistics.ControlBlockWaste        = 0;
+        m_memoryStatistics.UnusableUnalignedMemory  = 0;
+        m_memoryStatistics.UnusableLowMemory        = 0x100000;
+        m_memoryStatistics.UnusableFragmentedMemory = 0;
+        m_memoryStatistics.KernelImageSize          = 0;
+        m_memoryStatistics.TotalReclaimableMemory   = 0;
+        m_memoryStatistics.TotalAvailableMemory     = 0;
 
         // Turn map memory entries into regions, save memory map and find memory top
         m_physicalMemoryTop = 0;
@@ -224,13 +227,13 @@ namespace FunnyOS::Kernel::MM {
         for (size_t i = 0; i < map.Count; i++) {
             const auto& memoryMapEntry = map.First[i];
 
-            auto& region = m_memoryRegions.AppendInPlace();
+            auto& region            = m_memoryRegions.AppendInPlace();
             region.RegionMemoryType = memoryMapEntry.Type;
-            region.RegionStart = memoryMapEntry.BaseAddress;
-            region.RegionEnd = memoryMapEntry.BaseAddress + memoryMapEntry.Length;
-            region.IsUsable = IsMemoryMapEntryUsable(map, i);
-            region.IsInitialized = false;
-            region.IsReady = false;
+            region.RegionStart      = memoryMapEntry.BaseAddress;
+            region.RegionEnd        = memoryMapEntry.BaseAddress + memoryMapEntry.Length;
+            region.IsUsable         = IsMemoryMapEntryUsable(map, i);
+            region.IsInitialized    = false;
+            region.IsReady          = false;
 
             if (region.RegionMemoryType == Bootparams::MemoryMapEntryType::KernelImage) {
                 m_memoryStatistics.KernelImageSize += region.GetLength();
@@ -267,7 +270,7 @@ namespace FunnyOS::Kernel::MM {
                 continue;
             }
 
-            MemoryRegion highRegion = SplitRegion(region, BOUNDARY_4GB);
+            MemoryRegion highRegion     = SplitRegion(region, BOUNDARY_4GB);
             highRegion.RegionMemoryType = Bootparams::MemoryMapEntryType::LongMemReclaimable;
             m_memoryRegions.Append(Stdlib::Move(highRegion));
         }
@@ -300,7 +303,8 @@ namespace FunnyOS::Kernel::MM {
             }
 
             region.RegionMemoryType = Bootparams::MemoryMapEntryType::AvailableMemory;
-            region.IsReady = true;
+            region.IsReady          = true;
+
             anyReclaims = true;
 
             m_memoryStatistics.TotalReclaimableMemory -= region.GetLength();
@@ -332,7 +336,7 @@ namespace FunnyOS::Kernel::MM {
 
             // Search for a [pages] of subsequent free pages
             size_t subsequentFreePages = 0;
-            size_t validOffset = 0;
+            size_t validOffset         = 0;
 
             for (size_t i = 0; i < block.AllocablePagesCount; i++) {
                 if (!GetBitInBitmap(block, i)) {
@@ -406,6 +410,7 @@ namespace FunnyOS::Kernel::MM {
         }
 
         auto& controlBlock = entry->GetControlBlock();
+
         const size_t pageOffset = (base - controlBlock.FirstPageBegin) / PAGE_SIZE;
         if (pageOffset < controlBlock.ControlBlockPageSpan) {
             FK_LOG_WARNING_F(
@@ -511,11 +516,11 @@ namespace FunnyOS::Kernel::MM {
             const size_t controlBlockUsablePageSpan = Stdlib::Math::DivideRoundUp(
                 static_cast<size_t>(controlBlockSize - controlBlockLocationRelative), PAGE_SIZE);
 
-            auto& controlBlock = current.GetControlBlock();
-            controlBlock.BitmapStart = current.RegionStart + sizeof(MemoryChunkControlBlock);
-            controlBlock.AllocablePagesCount = allocablePages;
-            controlBlock.FreePages = allocablePages;
-            controlBlock.FirstPageBegin = firstPage;
+            auto& controlBlock                = current.GetControlBlock();
+            controlBlock.BitmapStart          = current.RegionStart + sizeof(MemoryChunkControlBlock);
+            controlBlock.AllocablePagesCount  = allocablePages;
+            controlBlock.FreePages            = allocablePages;
+            controlBlock.FirstPageBegin       = firstPage;
             controlBlock.ControlBlockPageSpan = controlBlockUsablePageSpan;
 
             // Clear the bitmap
@@ -577,15 +582,16 @@ namespace FunnyOS::Kernel::MM {
                     }
 
                     // Check if the region's [region] start and end positions are contained in [other]
-                    bool startInOther = IsInRegion(region.RegionStart, other);
-                    bool endInOther = IsInRegion(region.RegionEnd - 1, other);
+                    const bool startInOther = IsInRegion(region.RegionStart, other);
+                    const bool endInOther   = IsInRegion(region.RegionEnd - 1, other);
 
                     if (startInOther && endInOther) {
                         // [region] start and end positions are both in [other], it means that [region] is fully in
                         // [other], the entire [region] is invalidated in this case
                         region.RegionStart = 0;
-                        region.RegionEnd = 0;
-                        region.IsUsable = false;
+                        region.RegionEnd   = 0;
+                        region.IsUsable    = false;
+
                         hadChanges = true;
 
                         // [region] is no longed valid, no need to test it against anything anymore.
@@ -602,6 +608,7 @@ namespace FunnyOS::Kernel::MM {
                         MemoryRegion highRegion = SplitRegion(region, other.RegionEnd);
                         // [region] is discarded and replaced by [highRegion]
                         region = highRegion;
+
                         hadChanges = true;
                         continue;
                     }

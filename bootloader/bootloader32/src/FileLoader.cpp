@@ -8,9 +8,9 @@ namespace FunnyOS::Bootloader32 {
           m_driveInterface(driveInterface),
           m_fileName("N/A") {
         QuickFat_initialization_data initData;
-        initData.read_function = &FileLoader::QuickFatRead;
+        initData.read_function      = &FileLoader::QuickFatRead;
         initData.read_function_data = this;
-        initData.partition_entry = partition;
+        initData.partition_entry    = partition;
 
         DieOnError("initializing the QuickFat context", quickfat_init_context(&m_quickFatContext, &initData));
     }

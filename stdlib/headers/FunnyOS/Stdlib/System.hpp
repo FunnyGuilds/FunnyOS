@@ -60,7 +60,7 @@
 #define F_TRIVIAL_EXCEPTION(name, message)                                      \
     class name : public FunnyOS::Stdlib::System::Exception {                    \
        public:                                                                  \
-        name() noexcept = default;                                              \
+        name() noexcept  = default;                                             \
         ~name() override = default;                                             \
         TRIVIALLY_COPYABLE(name);                                               \
         TRIVIALLY_MOVEABLE(name);                                               \
@@ -148,6 +148,7 @@ namespace FunnyOS::Stdlib::System {
 
         Exception(const Exception&) = default;
         Exception& operator=(const Exception&) = default;
+
         Exception(Exception&&) = default;
         Exception& operator=(Exception&&) = default;
 
