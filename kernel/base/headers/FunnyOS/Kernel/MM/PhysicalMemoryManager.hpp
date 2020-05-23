@@ -11,9 +11,19 @@ namespace FunnyOS::Kernel {
 
     namespace MM {
         /**
-         * Size of a single page in memory.
+         * Size of a single 4 KB page in memory.
          */
         constexpr const size_t PAGE_SIZE = 0x1000;
+
+        /**
+         * Size of a single 2 MB page in memory.
+         */
+        constexpr const size_t PAGE_SIZE_2MB = 0x200000;
+
+        /**
+         * Size of a single 1 GB page in memory.
+         */
+        constexpr const size_t PAGE_SIZE_1GB = 0x40000000;
 
         /**
          * Represents an integer type used for storing physical addresses.

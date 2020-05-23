@@ -82,6 +82,9 @@ namespace FunnyOS::Kernel {
 
         // Setup memory management
         m_physicalMemoryManager.Initialize(parameters.MemoryMap);
+        m_virtualMemoryManager.InitializePageTables();
+        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::PageTableReclaimable);
+        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::LongMemReclaimable);
 
         // Test allocation
         MM::physicaladdress_t page1 = m_physicalMemoryManager.AllocatePage();
