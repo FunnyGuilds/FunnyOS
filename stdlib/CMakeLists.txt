@@ -56,7 +56,7 @@ setup_stdlib_variant(FunnyOS_Stdlib_Base64_Static_Test STATIC TESTS 64)
 # 64-bit base for kernel, without some user-space only features
 setup_stdlib_variant(FunnyOS_Stdlib_Base64_Kernel STATIC 64 LL)
 target_compile_definitions(FunnyOS_Stdlib_Base64_Kernel PUBLIC F_KERNEL=1)
-target_compile_options(FunnyOS_Stdlib_Base64_Kernel PUBLIC -O2)
+target_compile_options(FunnyOS_Stdlib_Base64_Kernel PUBLIC -O2 -fno-stack-protector)
 
 if (F_BUILD_TESTS)
     add_subdirectory("test")
