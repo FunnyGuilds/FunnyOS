@@ -1,7 +1,9 @@
 #include <FunnyOS/Kernel/Kernel.hpp>
 
+#include <FunnyOS/Stdlib/Config.hpp>
 #include <FunnyOS/Stdlib/Logging.hpp>
 #include <FunnyOS/Hardware/CPU.hpp>
+#include <FunnyOS/Hardware/Serial.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Kernel/GDT.hpp>
@@ -17,6 +19,26 @@ namespace FunnyOS::Kernel {
         static Kernel64 c_instance;
         return c_instance;
     }
+
+    class TestSink : public Stdlib::ILoggingSink {
+       private:
+        void Write(const char* message) {
+            while (*message) {
+                while (!CanWrite(HW::Serial::COMPort::COM1))
+                    ;
+                HW::Serial::Write(HW::Serial::COMPort::COM1, *message);
+                message++;
+            }
+        }
+
+       public:
+        void SubmitMessage(LogLevel level, const char* message) override {
+            Write(GetLogLevelName(level));
+            Write(": ");
+            Write(message);
+            Write("\r\n");
+        }
+    };
 
     [[noreturn]] void Kernel64::Main(Bootparams::Parameters& parameters) {
         using namespace Misc::TerminalManager;
@@ -69,6 +91,7 @@ namespace FunnyOS::Kernel {
 
         m_screenManager.InitializeWith(*parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid),
                                        framebufferConfig, fonts.Data);
+        m_logManager.GetLogger().AddSink(StaticRefCast<Stdlib::ILoggingSink>(Stdlib::MakeRef<TestSink>()));
 
         // Setup logging
         m_logManager.EnableOnscreenLogging(
@@ -76,9 +99,10 @@ namespace FunnyOS::Kernel {
 
         // Some info
         FK_LOG_DEBUG("We have kernel logger!");
-        FK_LOG_DEBUG_F("screen size in character %dx%d", m_screenManager.GetTextInterface()->GetScreenWidth(),
+        FK_LOG_DEBUG_F("Screen size in character %dx%d", m_screenManager.GetTextInterface()->GetScreenWidth(),
                        m_screenManager.GetTextInterface()->GetScreenHeight());
-        FK_LOG_DEBUG("Hello world from video mode :woah:");
+
+        FK_LOG_INFO("FunnyOS Kernel starting. Version: " FUNNYOS_VERSION);
 
         // Setup memory management
         m_physicalMemoryManager.Initialize(parameters.MemoryMap);
@@ -86,10 +110,7 @@ namespace FunnyOS::Kernel {
         m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::PageTableReclaimable);
         m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::LongMemReclaimable);
 
-        // Test allocation
-        MM::physicaladdress_t page1 = m_physicalMemoryManager.AllocatePage();
-        MM::physicaladdress_t page2 = m_physicalMemoryManager.AllocatePagesRaw(10);
-        MM::physicaladdress_t page3 = m_physicalMemoryManager.AllocatePage();
+        FK_LOG_OK("Kernel initialized.");
 
         FK_PANIC("kekw");
 
@@ -102,11 +123,11 @@ namespace FunnyOS::Kernel {
     void Kernel64::Panic(InterruptFrame* frame, const char* detail) {
         // TODO: If logging is not supported at this point fall back to VGA
 
-        FK_LOG_ERROR("Kernel panic!");
-        FK_LOG_ERROR_F("\t%s", detail);
+        FK_LOG_FATAL("Kernel panic!");
+        FK_LOG_FATAL_F("\t%s", detail);
 
         if (frame == nullptr) {
-            FK_LOG_ERROR("\tNo interrupt frame");
+            FK_LOG_FATAL("\tNo interrupt frame");
         } else {
             // TODO
         }

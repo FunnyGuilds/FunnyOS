@@ -234,7 +234,7 @@ namespace FunnyOS::Kernel {
              * Total amount of memory that is physically available but is not going to be used due to its fragmentation
              * or alignment.
              *
-             * The returned value is equal to [UnusableUnalignedMemory + UnusableLowMemory]
+             * The returned value is equal to [UnusableUnalignedMemory + UnusableFragmentedMemory + UnusableLowMemory]
              *
              * @return total amount of wasted memory.
              */

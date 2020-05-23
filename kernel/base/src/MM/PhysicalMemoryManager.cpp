@@ -30,8 +30,6 @@ namespace FunnyOS::Kernel::MM {
          * @return the higher half of the region
          */
         MemoryRegion SplitRegion(MemoryRegion& region, physicaladdress_t address) {
-            F_ASSERT(IsInRegion(address, region), PMM_PREFIX "address not in region for split");
-
             FK_LOG_DEBUG_F(PMM_PREFIX "Split happening in region 0x%016llx -> 0x%016llx at 0x%016llx",
                            region.RegionStart, region.RegionEnd, address);
 
@@ -180,7 +178,7 @@ namespace FunnyOS::Kernel::MM {
     }
 
     uint64_t MemoryStatistics::GetTotalWastedMemory() const {
-        return UnusableUnalignedMemory + UnusableLowMemory;
+        return UnusableUnalignedMemory + UnusableFragmentedMemory + UnusableLowMemory;
     }
 
     uint64_t MemoryStatistics::GetTotalUnusableMemory() const {
@@ -188,6 +186,8 @@ namespace FunnyOS::Kernel::MM {
     }
 
     void PhysicalMemoryManager::Initialize(const Bootparams::MemoryMapDescription& map) {
+        FK_LOG_INFO(PMM_PREFIX "Initializing...");
+
         // Debug logs
         FK_LOG_DEBUG(PMM_PREFIX "Initial E820 memory map received from the bootloader");
         for (size_t i = 0; i < map.Count; i++) {
@@ -281,6 +281,7 @@ namespace FunnyOS::Kernel::MM {
 
         InitializeMemoryRegions();
         m_memoryRegions.ShrinkToSize();
+        FK_LOG_OK(PMM_PREFIX "Initialized!");
     }
 
     void PhysicalMemoryManager::ReclaimMemory(Bootparams::MemoryMapEntryType type) {
