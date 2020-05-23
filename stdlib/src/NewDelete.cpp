@@ -31,8 +31,8 @@ using namespace FunnyOS::Stdlib;
     return Memory::Allocate(size);
 }
 
-[[nodiscard]] void* operator new(std::size_t size, std::align_val_t alignment,
-                                 const std::nothrow_t& /*unused*/) noexcept {
+[[nodiscard]] void* operator new(
+    std::size_t size, std::align_val_t alignment, const std::nothrow_t& /*unused*/) noexcept {
     return Memory::AllocateAligned(size, static_cast<size_t>(alignment));
 }
 
@@ -64,8 +64,8 @@ using namespace FunnyOS::Stdlib;
     return operator new(size, std::nothrow);
 }
 
-[[nodiscard]] void* operator new[](std::size_t size, std::align_val_t alignment,
-                                   const std::nothrow_t& /*unused*/) noexcept {
+[[nodiscard]] void* operator new[](
+    std::size_t size, std::align_val_t alignment, const std::nothrow_t& /*unused*/) noexcept {
     return operator new(size, alignment, std::nothrow);
 }
 

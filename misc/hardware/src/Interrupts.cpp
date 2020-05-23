@@ -54,7 +54,6 @@ namespace FunnyOS::HW {
         : m_hadInterrupts(HardwareInterruptsEnabled()),
           m_hadNMIs(NonMaskableInterruptsEnabled()),
           m_picMask(PIC::GetEnabledInterrupts()) {
-
         if (m_hadInterrupts) {
             DisableHardwareInterrupts();
         }

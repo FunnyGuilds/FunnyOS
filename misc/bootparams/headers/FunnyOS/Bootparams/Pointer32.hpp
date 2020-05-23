@@ -14,8 +14,9 @@ namespace FunnyOS::Bootparams {
         constexpr inline Pointer32(uint32_t ptr) : m_value(ptr) {}
 
         inline Pointer32(T* ptr) : m_value(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr))) {
-            F_ASSERT(reinterpret_cast<uint64_t>(ptr) <= Stdlib::NumeralTraits::Info<uint32_t>::MaximumValue,
-                     "ptr not accessible");
+            F_ASSERT(
+                reinterpret_cast<uint64_t>(ptr) <= Stdlib::NumeralTraits::Info<uint32_t>::MaximumValue,
+                "ptr not accessible");
         }
 
         constexpr inline operator uint32_t() const {

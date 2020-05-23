@@ -5,7 +5,6 @@
 #ifndef FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_INPUTOUTPUT_GNUC_HPP
 #define FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_INPUTOUTPUT_GNUC_HPP
 
-
 namespace FunnyOS::HW::InputOutput {
     /**
      * Reads and returns a byte from the port at the given address/

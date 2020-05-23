@@ -48,10 +48,11 @@ namespace FunnyOS::Bootloader32 {
             return;
         }
 
-        Stdlib::String::Format(m_bufferInfo,
-                               "\r\n\t\tQuickFat error 0x%08x while %s."
-                               "\r\n\t\t(file: %s)",
-                               code, error, m_fileName);
+        Stdlib::String::Format(
+            m_bufferInfo,
+            "\r\n\t\tQuickFat error 0x%08x while %s."
+            "\r\n\t\t(file: %s)",
+            code, error, m_fileName);
         F_ERROR_WITH_MESSAGE(FileLoadException, m_errorBuffer);
     }
 

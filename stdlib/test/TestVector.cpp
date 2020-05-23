@@ -52,7 +52,7 @@ TEST(TestVector, CheckAllocations) {
     {
         TrackableObject::ResetAll();
 
-        bool flag  = false;
+        bool flag = false;
 
         Vector<TrackableObject> vector = {TrackableObject{flag}, TrackableObject{flag}, TrackableObject{flag}};
         EXPECT_EQ(3, vector.Size());
@@ -239,7 +239,6 @@ TEST(TestVector, CheckInsert) {
         // OK
     }
 }
-
 
 TEST(TestVector, CheckInsertRange) {
     Vector<int> toInsert = {3, 4, 5};

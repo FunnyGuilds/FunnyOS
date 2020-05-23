@@ -39,10 +39,7 @@ namespace FunnyOS::Bootloader32 {
                      reinterpret_cast<uint32_t>(g_idt)};
 
 #ifdef __GNUC__
-            asm volatile(
-                "lidt %0"
-                :
-                : "m"(idt));
+            asm volatile("lidt %0" : : "m"(idt));
 #endif
         }
     }  // namespace

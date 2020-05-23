@@ -67,8 +67,8 @@ namespace FunnyOS::Bootloader32 {
         return page;
     }
 
-    void* SimplePageTableAllocator::GetPageStructure(void* currentBase, uint64_t virtualAddress, unsigned int level,
-                                                     unsigned int target) {
+    void* SimplePageTableAllocator::GetPageStructure(
+        void* currentBase, uint64_t virtualAddress, unsigned int level, unsigned int target) {
         F_ASSERT(((reinterpret_cast<uintptr_t>(currentBase) % PAGE_SIZE) == 0), "virtual address not page aligned");
         if (level == target) {
             return currentBase;

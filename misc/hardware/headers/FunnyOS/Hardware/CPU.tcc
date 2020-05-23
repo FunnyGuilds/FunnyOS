@@ -116,10 +116,10 @@ namespace FunnyOS::HW::CPU {
         return true;
     }
 
-#define DECODE_HELPER(feature)                                                                   \
-    if (!_CPUID::AppendIfTest<uint64_t>(features, static_cast<uint64_t>(CPUIDFeatures::feature), \
-                                        F_TO_STRING(feature) " ", buffer)) {                     \
-        return false;                                                                            \
+#define DECODE_HELPER(feature)                                                                            \
+    if (!_CPUID::AppendIfTest<uint64_t>(                                                                  \
+            features, static_cast<uint64_t>(CPUIDFeatures::feature), F_TO_STRING(feature) " ", buffer)) { \
+        return false;                                                                                     \
     }
 
     inline bool DecodeFeatureBits(uint64_t features, Stdlib::String::StringBuffer& buffer) {
@@ -188,10 +188,10 @@ namespace FunnyOS::HW::CPU {
     }
 #undef DECODE_HELPER
 
-#define DECODE_HELPER(feature)                                                                           \
-    if (!_CPUID::AppendIfTest<uint64_t>(features, static_cast<uint64_t>(CPUIDExtendedFeatures::feature), \
-                                        F_TO_STRING(feature) " ", buffer)) {                             \
-        return false;                                                                                    \
+#define DECODE_HELPER(feature)                                                                                    \
+    if (!_CPUID::AppendIfTest<uint64_t>(                                                                          \
+            features, static_cast<uint64_t>(CPUIDExtendedFeatures::feature), F_TO_STRING(feature) " ", buffer)) { \
+        return false;                                                                                             \
     }
 
     inline bool DecodeExtendedFeatureBits(uint64_t features, Stdlib::String::StringBuffer& buffer) {

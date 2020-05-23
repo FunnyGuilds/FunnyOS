@@ -18,7 +18,6 @@ TEST(TestMemory, TestCopy) {
     EXPECT_EQ(5, destination.Data[4]);
 }
 
-
 TEST(TestMemory, TestSet) {
     Memory::SizedBuffer<uint8_t> destination = Memory::AllocateBuffer<uint8_t>(5);
     Memory::Set<uint8_t>(destination, 7);
@@ -29,7 +28,6 @@ TEST(TestMemory, TestSet) {
     EXPECT_EQ(7, destination.Data[3]);
     EXPECT_EQ(7, destination.Data[4]);
 }
-
 
 TEST(TestMemory, TestFillDivisible) {
     Memory::SizedBuffer<uint8_t> destination = Memory::AllocateBuffer<uint8_t>(8);

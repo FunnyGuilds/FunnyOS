@@ -186,8 +186,8 @@ namespace FunnyOS::Misc::MemoryAllocator {
         return nullptr;
     }
 
-    MemoryMetaBlock* StaticMemoryAllocator::SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor,
-                                                                          size_t size) noexcept {
+    MemoryMetaBlock* StaticMemoryAllocator::SplitBlockAndTakeItIfPossible(
+        MemoryMetaBlock* predecessor, size_t size) noexcept {
         F_ASSERT(predecessor->NextFreeBlock != 0, "predecessor has no actual next value");
 
         auto* currentBlock = predecessor->GetNext();

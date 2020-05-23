@@ -14,10 +14,12 @@ namespace FunnyOS::Kernel {
         void DisableOnscreenLogging();
 
         Stdlib::Logger& GetLogger();
+
        private:
         LogManager();
 
         friend class Kernel64;
+
        private:
         Stdlib::Logger m_logger{};
         Stdlib::Ref<Misc::TerminalManager::TerminalManagerLoggingSink> m_terminalManagerLoggingSink{};

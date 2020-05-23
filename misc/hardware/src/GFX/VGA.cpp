@@ -89,10 +89,11 @@ namespace FunnyOS::HW {
 
         const uint16_t vgaPosition = ToVGAPosition(position, GetScreenWidth());
 
-        WriteRegister(VGA_PORT_REGISTER_1, VGA_PORT_REGISTER_1_CURSOR_POSITION_LOW,
-                      static_cast<uint8_t>(vgaPosition & 0xFFU));
-        WriteRegister(VGA_PORT_REGISTER_1, VGA_PORT_REGISTER_1_CURSOR_POSITION_HIGH,
-                      static_cast<uint8_t>((vgaPosition >> 8) & 0xFF));
+        WriteRegister(
+            VGA_PORT_REGISTER_1, VGA_PORT_REGISTER_1_CURSOR_POSITION_LOW, static_cast<uint8_t>(vgaPosition & 0xFFU));
+        WriteRegister(
+            VGA_PORT_REGISTER_1, VGA_PORT_REGISTER_1_CURSOR_POSITION_HIGH,
+            static_cast<uint8_t>((vgaPosition >> 8) & 0xFF));
         return true;
     }
 

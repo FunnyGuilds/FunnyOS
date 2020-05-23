@@ -1,10 +1,10 @@
 #include <FunnyOS/Kernel/GFX/ScreenManager.hpp>
 
 namespace FunnyOS::Kernel::GFX {
-    void ScreenManager::InitializeWith(Bootparams::VbeInfoBlock vbeInfo,
-                                       Stdlib::Vector<Bootparams::VbeModeInfoBlock>&& videoModes,
-                                       Stdlib::Optional<Bootparams::EdidInformation>&& edid,
-                                       HW::FramebufferConfiguration framebufferConfig, uint8_t* fonts) {
+    void ScreenManager::InitializeWith(
+        Bootparams::VbeInfoBlock vbeInfo, Stdlib::Vector<Bootparams::VbeModeInfoBlock>&& videoModes,
+        Stdlib::Optional<Bootparams::EdidInformation>&& edid, HW::FramebufferConfiguration framebufferConfig,
+        uint8_t* fonts) {
         m_vbeInfo = vbeInfo;
         m_videoModes = videoModes;
         m_edid = edid;

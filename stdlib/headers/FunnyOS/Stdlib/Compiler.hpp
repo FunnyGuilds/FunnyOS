@@ -4,6 +4,7 @@
 #pragma ide diagnostic ignored "modernize-deprecated-headers"
 #pragma ide diagnostic ignored "hicpp-deprecated-headers"
 
+// clang-format off
 #ifdef __GNUC__
 
 // Function-related
@@ -36,4 +37,6 @@
 #endif
 
 #pragma clang diagnostic pop
+// clang-format on
+
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_COMPILER_HPP

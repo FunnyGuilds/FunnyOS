@@ -52,8 +52,8 @@ namespace FunnyOS::Kernel {
 
         // Initialize allocator
         using Misc::MemoryAllocator::memoryaddress_t;
-        m_kernelAllocator.Initialize(reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP),
-                                     reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP_TOP));
+        m_kernelAllocator.Initialize(
+            reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP), reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP_TOP));
 
         // Load kernel GDT
         LoadKernelGdt();
@@ -89,8 +89,8 @@ namespace FunnyOS::Kernel {
                                          .GreenPosition = videoMode.GreenPosition,
                                          .BluePosition = videoMode.BluePosition};
 
-        m_screenManager.InitializeWith(*parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid),
-                                       framebufferConfig, fonts.Data);
+        m_screenManager.InitializeWith(
+            *parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid), framebufferConfig, fonts.Data);
         m_logManager.GetLogger().AddSink(StaticRefCast<Stdlib::ILoggingSink>(Stdlib::MakeRef<TestSink>()));
 
         // Setup logging
@@ -99,8 +99,9 @@ namespace FunnyOS::Kernel {
 
         // Some info
         FK_LOG_DEBUG("We have kernel logger!");
-        FK_LOG_DEBUG_F("Screen size in character %dx%d", m_screenManager.GetTextInterface()->GetScreenWidth(),
-                       m_screenManager.GetTextInterface()->GetScreenHeight());
+        FK_LOG_DEBUG_F(
+            "Screen size in character %dx%d", m_screenManager.GetTextInterface()->GetScreenWidth(),
+            m_screenManager.GetTextInterface()->GetScreenHeight());
 
         FK_LOG_INFO("FunnyOS Kernel starting. Version: " FUNNYOS_VERSION);
 

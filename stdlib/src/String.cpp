@@ -64,7 +64,7 @@ namespace FunnyOS::Stdlib::String {
                 return c1;
             }
 
-            const char diff = c1 - c2; // NOLINT(bugprone-narrowing-conversions)
+            const char diff = c1 - c2;  // NOLINT(bugprone-narrowing-conversions)
 
             if (diff != 0) {
                 return diff;

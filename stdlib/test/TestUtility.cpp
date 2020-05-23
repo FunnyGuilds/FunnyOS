@@ -62,8 +62,8 @@ TEST(TestUtility, TestAssignments) {
         TrackableObject test(unused);  // construction 1
 
         Storage<TrackableObject> inPlace{InPlaceConstructorTag::Value, unused};  // construction 2
-        Storage<TrackableObject> copied{inPlace};                             // copy 1
-        Storage<TrackableObject> moved{Move(inPlace)};                        // move 1
+        Storage<TrackableObject> copied{inPlace};                                // copy 1
+        Storage<TrackableObject> moved{Move(inPlace)};                           // move 1
 
         ASSERT_EQ(TrackableObject::GetStandardConstructionCount(), 2) << "Construction count invalid";
         ASSERT_EQ(TrackableObject::GetMoveConstructionCount(), 1) << "Move count invalid";

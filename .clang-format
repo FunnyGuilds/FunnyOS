@@ -12,3 +12,4 @@ SortIncludes: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowAllArgumentsOnNextLine: false
 DerivePointerAlignment: false
+AlignAfterOpenBracket: AlwaysBreak

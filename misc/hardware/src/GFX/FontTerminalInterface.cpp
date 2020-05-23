@@ -18,8 +18,8 @@ namespace FunnyOS::HW {
     FontTerminalInterface::FontTerminalInterface(uint8_t* fontLocation, Stdlib::Ref<FramebufferInterface> interface)
         : m_fontLocation(fontLocation),
           m_interface(Stdlib::Move(interface)),
-          m_characterData((m_interface->GetScreenWidth() / FONT_WIDTH) *
-                          (m_interface->GetScreenHeight() / FONT_HEIGHT)) {
+          m_characterData(
+              (m_interface->GetScreenWidth() / FONT_WIDTH) * (m_interface->GetScreenHeight() / FONT_HEIGHT)) {
         const CharacterDataCache defaultData = {
             {0, Misc::TerminalManager::Color::Black, Misc::TerminalManager::Color::White},
             false};
@@ -95,8 +95,9 @@ namespace FunnyOS::HW {
         for (size_t x = 0; x < FONT_WIDTH; x++) {
             for (size_t y = 0; y < FONT_HEIGHT; y++) {
                 const bool isForeground = (fontCharacter[y] & (1 << (7 - x))) != 0;
-                const uint8_t* c = g_colorMap[isForeground ? static_cast<size_t>(data.Data.Foreground)
-                                                           : static_cast<size_t>(data.Data.Background)];
+                const uint8_t* c = g_colorMap
+                    [isForeground ? static_cast<size_t>(data.Data.Foreground)
+                                  : static_cast<size_t>(data.Data.Background)];
                 m_interface->PutPixel(position.X * FONT_WIDTH + x, position.Y * FONT_HEIGHT + y, c[0], c[1], c[2]);
             }
         }

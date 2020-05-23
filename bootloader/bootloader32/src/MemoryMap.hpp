@@ -7,6 +7,6 @@ namespace FunnyOS::Bootloader32 {
     int CreateMemoryMap(Bootparams::MemoryMapDescription& map);
 
     Bootparams::MemoryMapEntry FindBiggestUsableMemoryEntry(const Bootparams::MemoryMapDescription& memoryMap);
-}
+}  // namespace FunnyOS::Bootloader32
 
 #endif  // FUNNYOS_BOOTLOADER_BOOTLOADER32_SRC_MEMORYMAP_HPP

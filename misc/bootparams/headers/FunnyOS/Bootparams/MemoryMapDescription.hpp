@@ -71,7 +71,7 @@ namespace FunnyOS::Bootparams {
         PageTableReclaimable = 0xA1,
 
         /**
-         * Location that is available but not usable because the they are outside of mapped physical memory.
+         * Location that is available but not usable because it is outside of mapped physical memory.
          *
          * May be reclaimed by kernel after mapping the entire physical memory.
          */

@@ -63,8 +63,7 @@ namespace FunnyOS::Bootloader32 {
         return m_sectorSize;
     }
 
-    void DriveInterface::ReadSectors(SectorNumber sector, SectorNumber count,
-                                         Memory::SizedBuffer<uint8_t>& buffer) {
+    void DriveInterface::ReadSectors(SectorNumber sector, SectorNumber count, Memory::SizedBuffer<uint8_t>& buffer) {
         if (buffer.Size < count * GetSectorSize()) {
             F_ERROR_WITH_MESSAGE(DriveInterfaceException, "buffer to small to hold all sectors");
         }
@@ -141,8 +140,8 @@ namespace FunnyOS::Bootloader32 {
 
             RealModeInt(0x13, regs);
             CheckErrors("reading via INT13 AH=0x02", regs);
-            Memory::Copy(buffer.Data + currentOffset * m_sectorSize, GetRealModeBuffer().Data,
-                         currentReadSize * m_sectorSize);
+            Memory::Copy(
+                buffer.Data + currentOffset * m_sectorSize, GetRealModeBuffer().Data, currentReadSize * m_sectorSize);
 
             leftToRead -= currentReadSize;
             currentOffset += currentReadSize;
@@ -168,8 +167,8 @@ namespace FunnyOS::Bootloader32 {
         }
 
         if (m_hasExtendedDiskAccess || m_hasEnhancedDiskDriveFunctions) {
-            F_ASSERT(GetRealModeBuffer().Size >= sizeof(EDDParameters),
-                     "real mode buffer to small to hold EDD parameters");
+            F_ASSERT(
+                GetRealModeBuffer().Size >= sizeof(EDDParameters), "real mode buffer to small to hold EDD parameters");
 
             auto* parameters = reinterpret_cast<EDDParameters*>(GetRealModeBuffer().Data);
             parameters->BufferSize = sizeof(EDDParameters);

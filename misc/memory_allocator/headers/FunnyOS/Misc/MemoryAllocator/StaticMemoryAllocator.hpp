@@ -127,8 +127,8 @@ namespace FunnyOS::Misc::MemoryAllocator {
          * @param[in] size minimum size of the returned block
          * @return a memory block marked as Taken of size greater or equal [size]. Never nullptr.
          */
-        [[nodiscard]] MemoryMetaBlock* SplitBlockAndTakeItIfPossible(MemoryMetaBlock* predecessor,
-                                                                     size_t size) noexcept;
+        [[nodiscard]] MemoryMetaBlock* SplitBlockAndTakeItIfPossible(
+            MemoryMetaBlock* predecessor, size_t size) noexcept;
 
         /**
          * Allocates a new block after the end of the last allocated block.

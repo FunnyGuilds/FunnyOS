@@ -14,10 +14,10 @@ namespace FunnyOS::Kernel {
     namespace GFX {
         class ScreenManager {
            public:
-            void InitializeWith(Bootparams::VbeInfoBlock vbeInfo,
-                                Stdlib::Vector<Bootparams::VbeModeInfoBlock>&& videoModes,
-                                Stdlib::Optional<Bootparams::EdidInformation>&& edid,
-                                HW::FramebufferConfiguration framebufferConfig, uint8_t* fonts);
+            void InitializeWith(
+                Bootparams::VbeInfoBlock vbeInfo, Stdlib::Vector<Bootparams::VbeModeInfoBlock>&& videoModes,
+                Stdlib::Optional<Bootparams::EdidInformation>&& edid, HW::FramebufferConfiguration framebufferConfig,
+                uint8_t* fonts);
 
             const Bootparams::VbeInfoBlock& GetVbeInfo() const;
 

@@ -30,8 +30,9 @@ namespace FunnyOS::Kernel::MM {
          * @return the higher half of the region
          */
         MemoryRegion SplitRegion(MemoryRegion& region, physicaladdress_t address) {
-            FK_LOG_DEBUG_F(PMM_PREFIX "Split happening in region 0x%016llx -> 0x%016llx at 0x%016llx",
-                           region.RegionStart, region.RegionEnd, address);
+            FK_LOG_DEBUG_F(
+                PMM_PREFIX "Split happening in region 0x%016llx -> 0x%016llx at 0x%016llx", region.RegionStart,
+                region.RegionEnd, address);
 
             F_ASSERT(IsInRegion(address, region), PMM_PREFIX "address not in region for split");
 
@@ -72,10 +73,11 @@ namespace FunnyOS::Kernel::MM {
         /**
          * Dumps a memory map entry information to a kernel log output.
          */
-        void DumpMemoryMapEntry(Bootparams::MemoryMapEntryType type, const char* acpi, physicaladdress_t start,
-                                physicaladdress_t end) {
-            FK_LOG_DEBUG_F(PMM_PREFIX "\t(0x%016llx -> 0x%016llx) L 0x%016llx T %20s A %03s", start, end, (end - start),
-                           GetMemoryTypeString(type), acpi);
+        void DumpMemoryMapEntry(
+            Bootparams::MemoryMapEntryType type, const char* acpi, physicaladdress_t start, physicaladdress_t end) {
+            FK_LOG_DEBUG_F(
+                PMM_PREFIX "\t(0x%016llx -> 0x%016llx) L 0x%016llx T %20s A %03s", start, end, (end - start),
+                GetMemoryTypeString(type), acpi);
         }
 
         /**
@@ -373,8 +375,8 @@ namespace FunnyOS::Kernel::MM {
 
         const uintptr_t address = reinterpret_cast<uintptr_t>(base);
         if ((address % PAGE_SIZE) != 0) {
-            FK_LOG_WARNING_F(PMM_PREFIX "Trying to free page at address 0x%016llx, but the address is not page aligned",
-                             address);
+            FK_LOG_WARNING_F(
+                PMM_PREFIX "Trying to free page at address 0x%016llx, but the address is not page aligned", address);
             return;
         }
 
@@ -382,8 +384,8 @@ namespace FunnyOS::Kernel::MM {
         auto entry = FindEntryForRegion(address);
 
         if (!entry) {
-            FK_LOG_WARNING_F(PMM_PREFIX "Trying to free page at address 0x%016llx, but it is outside available memory",
-                             address);
+            FK_LOG_WARNING_F(
+                PMM_PREFIX "Trying to free page at address 0x%016llx, but it is outside available memory", address);
             return;
         }
 
@@ -397,18 +399,18 @@ namespace FunnyOS::Kernel::MM {
         }
 
         if (!entry->IsInitialized) {
-            FK_LOG_WARNING_F(PMM_PREFIX
-                             "Trying to free page at address 0x%016llx, but it is in not-initialized memory chunk",
-                             address);
+            FK_LOG_WARNING_F(
+                PMM_PREFIX "Trying to free page at address 0x%016llx, but it is in not-initialized memory chunk",
+                address);
             return;
         }
 
         auto& controlBlock = entry->GetControlBlock();
         const size_t pageOffset = (base - controlBlock.FirstPageBegin) / PAGE_SIZE;
         if (pageOffset < controlBlock.ControlBlockPageSpan) {
-            FK_LOG_WARNING_F(PMM_PREFIX
-                             "Trying to free page at address 0x%016llx, but that page belongs to a control block",
-                             address);
+            FK_LOG_WARNING_F(
+                PMM_PREFIX "Trying to free page at address 0x%016llx, but that page belongs to a control block",
+                address);
             return;
         }
 
@@ -636,8 +638,9 @@ namespace FunnyOS::Kernel::MM {
         } while (hadChanges);
 
         // Remove previously invalidated memory regions
-        Stdlib::RemoveIf(m_memoryRegions,
-                         [](const MemoryRegion& region) { return region.RegionStart == 0 && region.RegionEnd == 0; });
+        Stdlib::RemoveIf(m_memoryRegions, [](const MemoryRegion& region) {
+            return region.RegionStart == 0 && region.RegionEnd == 0;
+        });
     }
 
     void PhysicalMemoryManager::ClearUnusableRegions() {

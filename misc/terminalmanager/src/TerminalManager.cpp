@@ -203,8 +203,8 @@ namespace FunnyOS::Misc::TerminalManager {
             cursor.Y++;
         }
 
-        const auto scrollAmount = static_cast<int16_t>(static_cast<int16_t>(cursor.Y) -
-                                                       static_cast<int16_t>(m_interface->GetScreenHeight()) + 1);
+        const auto scrollAmount = static_cast<int16_t>(
+            static_cast<int16_t>(cursor.Y) - static_cast<int16_t>(m_interface->GetScreenHeight()) + 1);
 
         if (scrollAmount <= 0) {
             return;

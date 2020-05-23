@@ -65,8 +65,9 @@ namespace FunnyOS::Bootloader32 {
         const HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
 
         FB_LOG_INFO("Version: " FUNNYOS_VERSION);
-        FB_LOG_INFO_F("Current date is: %04u/%02u/%02u %02u:%02u", time.Year, time.Month, time.DayOfMonth, time.Hours,
-                      time.Minutes);
+        FB_LOG_INFO_F(
+            "Current date is: %04u/%02u/%02u %02u:%02u", time.Year, time.Month, time.DayOfMonth, time.Hours,
+            time.Minutes);
 
         for (int i = 0; i < 3; i++) {
             if (HW::PS2::InitializeKeyboard()) {
@@ -146,8 +147,9 @@ namespace FunnyOS::Bootloader32 {
         }
 
         // Some debug info
-        FB_LOG_DEBUG_F("Will load kernel at 0x%08llx, size is %llu bytes (%llu MB)", kernelMem.BaseAddress,
-                       kernelMem.Length, kernelMem.Length / 1024ULL / 1024ULL);
+        FB_LOG_DEBUG_F(
+            "Will load kernel at 0x%08llx, size is %llu bytes (%llu MB)", kernelMem.BaseAddress, kernelMem.Length,
+            kernelMem.Length / 1024ULL / 1024ULL);
 
         // Get ourselves an allocator for that memory hole
         Misc::MemoryAllocator::StaticMemoryAllocator highMemoryAllocator{};
@@ -169,12 +171,14 @@ namespace FunnyOS::Bootloader32 {
 
         // Load kernel .elf
         ElfFileInfo kernelElf = highMemoryElfLoader.LoadElfFile(kernelRawElf);
-        FB_LOG_DEBUG_F("Kernel physical memory location: 0x%08llx, size: %llu bytes", kernelElf.PhysicalLocationBase,
-                       kernelElf.TotalMemorySize);
+        FB_LOG_DEBUG_F(
+            "Kernel physical memory location: 0x%08llx, size: %llu bytes", kernelElf.PhysicalLocationBase,
+            kernelElf.TotalMemorySize);
 
         if (kernelElf.VirtualLocationBase != GetKernelVirtualLocation()) {
-            FB_LOG_ERROR_F("Kernel virtual location differs from expected. Expected: %016llx. Actual: %016llx",
-                           GetKernelVirtualLocation(), kernelElf.VirtualLocationBase);
+            FB_LOG_ERROR_F(
+                "Kernel virtual location differs from expected. Expected: %016llx. Actual: %016llx",
+                GetKernelVirtualLocation(), kernelElf.VirtualLocationBase);
             Halt();
         }
 
@@ -189,8 +193,8 @@ namespace FunnyOS::Bootloader32 {
         pageTableAllocator.Map2MbPage(0, 0);
 
         // Map kernel
-        pageTableAllocator.MapLocation(kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize,
-                                       GetKernelVirtualLocation());
+        pageTableAllocator.MapLocation(
+            kernelElf.PhysicalLocationBase, kernelElf.TotalMemorySize, GetKernelVirtualLocation());
 
         // Map physical memory, first 4 GB
         constexpr const uint64_t PHYSICAL_MEMORY_MAP_SIZE = 1024ULL * 1024ULL * 1024ULL * 4ULL;  // 4 GB
@@ -203,8 +207,9 @@ namespace FunnyOS::Bootloader32 {
         // Debug info
         const uintmax_t pageTableMemorySize = pageTableMemoryAllocator.GetCurrentMemoryTop() - pageTableMemoryLocation;
 
-        FB_LOG_DEBUG_F("Temporary page table memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
-                       pageTableMemorySize);
+        FB_LOG_DEBUG_F(
+            "Temporary page table memory location: 0x%08x, size: %u bytes", pageTableMemoryLocation,
+            pageTableMemorySize);
 
         // Add new entries to memory map
         auto& memoryMap = GetBootloaderParameters().MemoryMap;

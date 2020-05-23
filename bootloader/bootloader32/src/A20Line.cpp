@@ -13,8 +13,8 @@ namespace FunnyOS::Bootloader32::A20 {
     constexpr const uint16_t PORT_FAST2A20 = 0x92;
 
     bool IsEnabled() {
-        volatile auto *address1 = reinterpret_cast<uint8_t *>(0x0007FFFF);
-        volatile auto *address2 = reinterpret_cast<uint8_t *>(0x0017FFFF);
+        volatile auto* address1 = reinterpret_cast<uint8_t*>(0x0007FFFF);
+        volatile auto* address2 = reinterpret_cast<uint8_t*>(0x0017FFFF);
 
         // These memory locations should be unused but who knows.
         uint8_t v1 = *address1;

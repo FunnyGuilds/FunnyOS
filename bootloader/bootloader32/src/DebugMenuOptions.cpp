@@ -195,8 +195,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO_F("     - TotalSectorCount = 0x%02x", interface.GetTotalSectorCount());
         FB_LOG_INFO_F("     - SectorSize = 0x%04x", interface.GetSectorSize());
         FB_LOG_INFO_F("     - HasExtendedDiskAccess = %s", interface.HasExtendedDiskAccess() ? "yes" : "no");
-        FB_LOG_INFO_F("     - HasEnhancedDiskDriveFunctions = %s",
-                      interface.HasEnhancedDiskDriveFunctions() ? "yes" : "no");
+        FB_LOG_INFO_F(
+            "     - HasEnhancedDiskDriveFunctions = %s", interface.HasEnhancedDiskDriveFunctions() ? "yes" : "no");
         FB_LOG_INFO_F("     - SupportsFlat64Addresses = %s", interface.SupportsFlat64Addresses() ? "yes" : "no");
         FB_LOG_INFO_F("     - SectorsPerTrack = 0x%02x", interface.GetSectorsPerTrack());
         FB_LOG_INFO_F("     - HeadsPerCylinder = 0x%02x", interface.GetHeadsPerCylinder());
@@ -343,8 +343,8 @@ namespace FunnyOS::Bootloader32::DebugMenu {
         FB_LOG_INFO_F("\t ModeAttributes: 0b%016b", mode.ModeAttributes);
         FB_LOG_INFO_F("\t Window attributes: A = 0b%08b B = 0b%08b", mode.WindowA_Attributes, mode.WindowB_Attributes);
         FB_LOG_INFO_F("\t Window: granularity: %d KB, size = %d KB", mode.GranularityKB);
-        FB_LOG_INFO_F("\t Window Segment Start: A = 0x%08x B = 0x%08x", mode.WindowA_SegmentStart,
-                      mode.WindowB_SegmentStart);
+        FB_LOG_INFO_F(
+            "\t Window Segment Start: A = 0x%08x B = 0x%08x", mode.WindowA_SegmentStart, mode.WindowB_SegmentStart);
         FB_LOG_INFO_F("\t WindowPositioningFunctionPtr: 0x%016x", mode.WindowPositioningFunctionPtr);
         FB_LOG_INFO_F("\t BytesPerScanline: %d", mode.BytesPerScanline);
         FB_LOG_INFO_F("\t Width: %d. Height: %d", mode.Width, mode.Height);

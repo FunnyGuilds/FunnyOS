@@ -72,7 +72,7 @@ namespace {
     void DivideUnsigned(uint64_t dividend, uint64_t divisor, uint64_t& quotient, uint64_t& reminder) {
         if (divisor == 0) {
             // Division by 0
-            quotient = 1 / static_cast<uint32_t>(divisor); // NOLINT(clang-analyzer-core.DivideZero)
+            quotient = 1 / static_cast<uint32_t>(divisor);  // NOLINT(clang-analyzer-core.DivideZero)
             return;
         }
 
@@ -120,8 +120,9 @@ namespace {
         uint64_t quotient64;
         uint64_t reminder64;
 
-        DivideUnsigned(static_cast<uint64_t>(dividend >= 0 ? dividend : -dividend),
-                       static_cast<uint64_t>(divisor >= 0 ? divisor : -divisor), quotient64, reminder64);
+        DivideUnsigned(
+            static_cast<uint64_t>(dividend >= 0 ? dividend : -dividend),
+            static_cast<uint64_t>(divisor >= 0 ? divisor : -divisor), quotient64, reminder64);
 
         // Sign adjustments
         quotient = static_cast<int64_t>(quotientPositive ? quotient64 : -quotient64);

@@ -99,17 +99,18 @@ namespace FunnyOS::Bootloader32 {
         String::StringBuffer decodedEflagsBuffer{decodedEflags, 43};
         DecodeEflags(decodedEflagsBuffer, data->EFLAGS);
 
-        formatOk = String::Format(panicBuffer,
-                                  "An unexpected interrupt has occurred: %s\r\n"
-                                  "    Register dump:\r\n"
-                                  "        EAX = 0x%08x ECX = 0x%08x EDX = 0x%08x EBX = 0x%08x\r\n"
-                                  "        ESP = 0x%08x EBP = 0x%08x ESI = 0x%08x EDI = 0x%08x\r\n"
-                                  "        EIP = 0x%08x \r\n"
-                                  "    EFLAGS:\r\n"
-                                  "        Raw value = 0b%032s\r\n"
-                                  "        Decoded = %s\r\n",
-                                  interrupt, data->EAX, data->ECX, data->EDX, data->EBX, data->ESP, data->EBP,
-                                  data->ESI, data->EDI, data->EIP, eflags, decodedEflags);
+        formatOk = String::Format(
+            panicBuffer,
+            "An unexpected interrupt has occurred: %s\r\n"
+            "    Register dump:\r\n"
+            "        EAX = 0x%08x ECX = 0x%08x EDX = 0x%08x EBX = 0x%08x\r\n"
+            "        ESP = 0x%08x EBP = 0x%08x ESI = 0x%08x EDI = 0x%08x\r\n"
+            "        EIP = 0x%08x \r\n"
+            "    EFLAGS:\r\n"
+            "        Raw value = 0b%032s\r\n"
+            "        Decoded = %s\r\n",
+            interrupt, data->EAX, data->ECX, data->EDX, data->EBX, data->ESP, data->EBP, data->ESI, data->EDI,
+            data->EIP, eflags, decodedEflags);
 
         if (!formatOk) {
             Bootloader::Get().Panic("Interrupt info collection failed");

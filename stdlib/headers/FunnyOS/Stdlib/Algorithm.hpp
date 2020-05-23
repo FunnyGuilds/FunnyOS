@@ -108,8 +108,9 @@ namespace FunnyOS::Stdlib {
      * @param container container to remove the elements from
      * @param matcher matcher to test elements
      */
-    template <typename Container, typename Iterator = typename Container::ConstIterator, typename Matcher,
-              typename ContainerEraser = _Internal::DefaultEraser<Container, Iterator>>
+    template <
+        typename Container, typename Iterator = typename Container::ConstIterator, typename Matcher,
+        typename ContainerEraser = _Internal::DefaultEraser<Container, Iterator>>
     void RemoveIf(Container& container, Matcher matcher);
 
 }  // namespace FunnyOS::Stdlib
