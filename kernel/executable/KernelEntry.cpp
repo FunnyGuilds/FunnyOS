@@ -18,7 +18,6 @@ extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
         "mov %%rsp, %%rbp        \n"
         "jmp start_kernel        \n"
         :
-        : [ new_stack ] "bN"(&KERNEL_STACK_TOP)
-        : "rbp");
+        : [ new_stack ] "bN"(&KERNEL_STACK_TOP));
 #endif
 }

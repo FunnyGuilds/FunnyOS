@@ -5,14 +5,8 @@
 # Usage ./make-image.sh [OUTPUT_IMAGE]
 # Default OUTPUT_IMAGE is FunnyOS.img
 #
-# Environmental variables:
-# - FOS_LOOP_DEVICE: Loop device to use for mounting the drive [Default: /dev/loop]
-#
 
-LOOP=${FOS_LOOP_DEVICE:-/dev/loop0}
 OUTPUT=${1:-./FunnyOS.img}
-
-PARTITION=${LOOP}p1
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 ${DIR}/require-root.sh || exit 1
@@ -46,8 +40,9 @@ dd if=/dev/zero of=${OUTPUT} bs=1 count=0 seek=256M
 sfdisk ${OUTPUT} < ${DIR}/funnyos.sfdisk
 
 # Mount the device
-sudo losetup -d ${LOOP} || true
-sudo losetup -P ${LOOP} ${OUTPUT}
+LOOP=$(sudo losetup -Pf --show ${OUTPUT})
+PARTITION=${LOOP}p1
+
 sudo partprobe ${LOOP}
 
 # Format partition

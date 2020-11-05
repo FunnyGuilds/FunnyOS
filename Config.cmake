@@ -2,7 +2,7 @@
 set(FUNNYOS_VERSION 0.1.0)
 
 # Bootloader consts
-set(F_FATLOADER_SIZE_IN_SECTORS       24)
+set(F_FATLOADER_SIZE_IN_SECTORS       26)
 set(F_FATLOADER_MAGIC                 0x464E5546)
 set(F_FATLOADER_MEMORY_LOCATION       0x500)
 

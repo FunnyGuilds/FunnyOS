@@ -17,7 +17,11 @@ namespace FunnyOS::Bootloader32 {
 
         size_t i;
         for (i = 0;; i++) {
-            GetRealModeBufferAddress(registers.ES.Value16, registers.EDI.Value16);
+            uint16_t segment, offset;
+            GetRealModeBufferAddress(segment, offset);
+            registers.ES.Value16 = segment;
+            registers.EDI.Value16 = offset;
+
             registers.EAX.Value32 = 0x0000E820;
             registers.ECX.Value32 = sizeof(*currentEntry);
             registers.EDX.Value32 = 0x534D4150;

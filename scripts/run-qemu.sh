@@ -20,7 +20,6 @@ if ! command -v ${QEMU} > /dev/null; then
 fi
 
 qemu-system-x86_64 ${DEBUG_PARAMETERS} \
-    -enable-kvm \
     -cpu max \
     -vga std \
     -m 1G,slots=3,maxmem=4G \
