@@ -71,7 +71,9 @@ namespace FunnyOS::Kernel {
 
         // Copy edid
         Stdlib::Optional<Bootparams::EdidInformation> edid =
-            parameters.Vbe.EdidBlock.Map<Bootparams::EdidInformation>([](const auto& ptr) { return *ptr; });
+            parameters.Vbe.EdidBlock == nullptr
+                ? Stdlib::EmptyOptional<Bootparams::EdidInformation>()
+                : Stdlib::MakeOptional<Bootparams::EdidInformation>(*parameters.Vbe.EdidBlock);
 
         // Copy fonts
         auto fonts = Stdlib::Memory::AllocateBuffer<uint8_t>(parameters.BiosFontsSize);
@@ -79,15 +81,15 @@ namespace FunnyOS::Kernel {
 
         const auto& videoMode = parameters.Vbe.ModeInfoStart[parameters.Vbe.ActiveModeIndex];
 
-        auto framebufferConfig =
-            HW::FramebufferConfiguration{.Location = MM::PhysicalAddressToPointer(videoMode.FrameBufferPhysicalAddress),
-                                         .ScreenWidth   = videoMode.Width,
-                                         .ScreenHeight  = videoMode.Height,
-                                         .BPS           = videoMode.BytesPerScanline,
-                                         .BPP           = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
-                                         .RedPosition   = videoMode.RedPosition,
-                                         .GreenPosition = videoMode.GreenPosition,
-                                         .BluePosition  = videoMode.BluePosition};
+        auto framebufferConfig = HW::FramebufferConfiguration{
+            .Location      = MM::PhysicalAddressToPointer(videoMode.FrameBufferPhysicalAddress),
+            .ScreenWidth   = videoMode.Width,
+            .ScreenHeight  = videoMode.Height,
+            .BPS           = videoMode.BytesPerScanline,
+            .BPP           = static_cast<uint32_t>(videoMode.BitsPerPixel / 8),
+            .RedPosition   = videoMode.RedPosition,
+            .GreenPosition = videoMode.GreenPosition,
+            .BluePosition  = videoMode.BluePosition};
 
         m_screenManager.InitializeWith(
             *parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid), framebufferConfig, fonts.Data);

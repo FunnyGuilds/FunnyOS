@@ -3,39 +3,22 @@
 #include "TypeTraits.hpp"
 #include "IntegerTypes.tcc"
 
+#include <stddef.h>
+#include <stdint.h>
+
 namespace FunnyOS::Stdlib {
     // clang-format off
-    using  int8_t       =    signed char;                     // NOLINT(google-runtime-int)
-    using  int16_t      =           short;                    // NOLINT(google-runtime-int)
-    using  int32_t      =           int;                      // NOLINT(google-runtime-int)
-    using uint8_t       =  unsigned char;                     // NOLINT(google-runtime-int)
-    using uint16_t      =  unsigned short;                    // NOLINT(google-runtime-int)
-    using uint32_t      =  unsigned int;                      // NOLINT(google-runtime-int)
+    using  int8_t       = :: int8_t;
+    using  int16_t      = :: int16_t;
+    using  int32_t      = :: int32_t;
+    using  int64_t      = :: int64_t;
+    using uint8_t       = ::uint8_t;
+    using uint16_t      = ::uint16_t;
+    using uint32_t      = ::uint32_t;
+    using uint64_t      = ::uint64_t;
 
-    #ifdef F_64
-        using  int64_t      =           long int;             // NOLINT(google-runtime-int)
-        using uint64_t      =  unsigned long int;             // NOLINT(google-runtime-int)
-    #else
-        using  int64_t      =           long long int;        // NOLINT(google-runtime-int)
-        using uint64_t      =  unsigned long long int;        // NOLINT(google-runtime-int)
-    #endif
-
-    static_assert(sizeof(int8_t  ) == 8  / 8, "Invalid int8_t size"  );
-    static_assert(sizeof(int16_t ) == 16 / 8, "Invalid int16_t size" );
-    static_assert(sizeof(int32_t ) == 32 / 8, "Invalid int32_t size" );
-    static_assert(sizeof(int64_t ) == 64 / 8, "Invalid int64_t size" );
-    static_assert(sizeof(uint8_t ) == 8  / 8, "Invalid uint8_t size" );
-    static_assert(sizeof(uint16_t) == 16 / 8, "Invalid uint16_t size");
-    static_assert(sizeof(uint32_t) == 32 / 8, "Invalid uint32_t size");
-    static_assert(sizeof(uint64_t) == 64 / 8, "Invalid uint64_t size");
-
-    #ifdef F_64
-       using intmax_t   =  int64_t;
-       using uintmax_t  = uint64_t;
-    #else
-        using  intmax_t =  int32_t;
-        using uintmax_t = uint32_t;
-    #endif
+    using intmax_t   =  int64_t;
+    using uintmax_t  = uint64_t;
 
     using  size_t    =  uintmax_t;
     using ssize_t    =   intmax_t;
@@ -43,7 +26,6 @@ namespace FunnyOS::Stdlib {
     using  intptr_t   =  intmax_t;
     using uintptr_t   = uintmax_t;
     using ptrdiff_t  = intptr_t;
-
 
     namespace Detail {
         template <typename T> struct ToUnsigned {};
@@ -135,26 +117,6 @@ namespace FunnyOS::Stdlib {
 
     }  // namespace NumeralTraits
 }  // namespace FunnyOS::Stdlib
-
-#ifndef F_NO_GLOBAL_NUMERALS
-    using    int8_t      = FunnyOS::Stdlib:: int8_t;
-    using    int16_t     = FunnyOS::Stdlib:: int16_t;
-    using    int32_t     = FunnyOS::Stdlib:: int32_t;
-    using   uint8_t      = FunnyOS::Stdlib::uint8_t;
-    using   uint16_t     = FunnyOS::Stdlib::uint16_t;
-    using   uint32_t     = FunnyOS::Stdlib::uint32_t;
-    using   int64_t      = FunnyOS::Stdlib:: int64_t;
-    using   uint64_t     = FunnyOS::Stdlib::uint64_t;
-
-    using  intmax_t    = FunnyOS::Stdlib:: intmax_t;
-    using uintmax_t    = FunnyOS::Stdlib::uintmax_t;
-    using  size_t      = FunnyOS::Stdlib:: size_t;
-    using ssize_t      = FunnyOS::Stdlib::ssize_t;
-    using  intptr_t    = FunnyOS::Stdlib:: intptr_t;
-    using uintptr_t    = FunnyOS::Stdlib::uintptr_t;
-    using ptrdiff_t    = FunnyOS::Stdlib::ptrdiff_t;
-#endif
-// clang-format on
 
 #include "IntegerTypes.tcc"
 #endif  // FUNNYOS_STDLIB_HEADERS_INTEGERTYPES_HPP

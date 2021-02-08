@@ -1,4 +1,4 @@
-OUTPUT_FORMAT(elf32-i386)
+OUTPUT_FORMAT(elf64-x86-64)
 
 SECTIONS
 {
@@ -8,20 +8,6 @@ SECTIONS
     {
         KEEP(*(.intro))
     }
-
-    .real.text :
-    {
-        *(.real.text*)
-    }
-
-    . = ALIGN(0x200);
-
-    .real.data :
-    {
-        *(.real.data*)
-    }
-
-    . = ALIGN(0x200);
 
     .text :
     {
@@ -49,13 +35,11 @@ SECTIONS
         *(.bss*)
     }
 
-    . = @F_BOOTLOADER_MEMORY_LOCATION@ + @F_BOOTLOADER_SIZE_IN_SECTORS@ * 0x200 - 4;
+    . = ALIGN(0x200 - 4);
+    HEAP_START = .;
 
     .magic :
     {
         LONG(@F_BOOTLOADER_MAGIC@);
     }
-
-    HEAP_START = .;
-    . = ADDR(.bss) + SIZEOF(.bss);
 }

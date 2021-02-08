@@ -71,8 +71,7 @@ echo "Mounting at $MOUNT"
 
 # System partition structure
 sudo mkdir ${MOUNT}/boot
-sudo cp ./bootloader/bootloader32/bootloader32.bin ${MOUNT}/boot/bootload32
-sudo cp ./bootloader/env64/env64.bin               ${MOUNT}/boot/env64
+sudo cp ./bootloader/bootloader/bootloader64.bin   ${MOUNT}/boot/bootload64
 
 sudo mkdir ${MOUNT}/system
 sudo cp ./kernel/executable/fkrnl.fxe              ${MOUNT}/system
@@ -80,8 +79,7 @@ sudo cp ./kernel/executable/fkrnl.fxe              ${MOUNT}/system
 # Set attributes if there is fatattr in path
 if command -v fatattr > /dev/null; then
   echo "Setting FAT file attributes"
-  sudo fatattr +rhs ${MOUNT}/boot/bootload32
-  sudo fatattr +rhs ${MOUNT}/boot/env64
+  sudo fatattr +rhs ${MOUNT}/boot/bootload64
 
   sudo fatattr +r   ${MOUNT}/system/fkrnl.fxe
 fi

@@ -13,6 +13,4 @@ add_library(FunnyOS_Bootloader_Commons_ASM OBJECT
 target_compile_options(FunnyOS_Bootloader_Commons_ASM
         PUBLIC
             -I "${CMAKE_CURRENT_BINARY_DIR}/config/"
-        PRIVATE
-            -f elf
 )

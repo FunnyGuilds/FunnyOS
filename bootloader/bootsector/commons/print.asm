@@ -12,57 +12,58 @@ SECTION .text
         pusha
 
         ; Fetch display mode
-        mov ah, 0x0F
-        int 0x10
+        mov     ah, 0x0F
+        int     0x10
 
         ; Setup interrupt
-        mov ah, 0x0E
-        mov bl, 0x00
+        mov     ah, 0x0E
+        mov     bl, 0x00
 
-        .loop:
-           lodsb
-           cmp al, 0
-           je .ret
+    .loop:
+       lodsb
+       cmp      al, 0
+       je       .ret
 
-           int 0x10
-           jmp .loop
+       int      0x10
+       jmp      .loop
 
-        .ret:
-           mov al, 0x0D
-           int 0x10
-           mov al, 0x0A
-           int 0x10
+    .ret:
+       mov      al, 0x0D
+       int      0x10
+       mov      al, 0x0A
+       int      0x10
 
-           popa
-           ret
+       popa
+       ret
 
     ; Prints the error code from AH and halts
     GLOBAL error
     error:
-        movzx si, ah
-        movzx di, ah
-        shr si, 4           ; First digit
-        and di, 0b00001111  ; Second digit
+        movzx   si, ah
+        movzx   di, ah
+        shr     si, 4           ; First digit
+        and     di, 0b00001111  ; Second digit
 
-        mov cl, [print_error__character_array + si]
-        mov [print_error__buf_digit1], cl
+        mov     cl, [hex_character_array + si]
+        mov     [print_error.digit1], cl
 
-        mov cl, [print_error__character_array + di]
-        mov [print_error__buf_digit2], cl
+        mov     cl, [hex_character_array + di]
+        mov     [print_error.digit2], cl
 
-        mov si, print_error__buf_start
-        call print
+        mov     si, print_error
+        call    print
 
-        .hang:
-            cli
-            hlt
-            jmp .hang
+    .hang:
+        cli
+        hlt
+        jmp     .hang
 
 SECTION .rodata
-    print_error__character_array:               db '0123456789ABCDEF'
+    hex_character_array: db '0123456789ABCDEF'
 
 SECTION .data
-    print_error__buf_start:                     db "Error: "
-    print_error__buf_digit1:                    db "?"
-    print_error__buf_digit2:                    db "?"
-    print_error__buf_end:                       db "h", 0
+    print_error:
+                 db "Error: "
+        .digit1: db "?"
+        .digit2: db "?"
+                 db "h", 0

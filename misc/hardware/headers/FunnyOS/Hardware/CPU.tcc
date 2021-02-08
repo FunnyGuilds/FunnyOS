@@ -55,15 +55,6 @@ namespace FunnyOS::HW::CPU {
         }
     }  // namespace _CPUID
 
-    inline bool SupportsCpuid() {
-#ifdef F_64
-        return true;
-#else
-        static bool s_cache = _CPUID::FetchSupportCpuid();
-        return s_cache;
-#endif
-    }
-
     inline uint32_t GetCpuidMaxFeature() {
         static uint32_t s_cache = _CPUID::FetchCpuidMaxFeature();
         return s_cache;

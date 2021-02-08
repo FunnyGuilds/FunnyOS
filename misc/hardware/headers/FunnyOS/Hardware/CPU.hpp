@@ -690,13 +690,6 @@ namespace FunnyOS::HW::CPU {
     inline uintmax_t GetFlagsRegister();
 
     /**
-     * Checks whether or not the CPUID instruction is supported.
-     *
-     * @return whether or not the CPUID instruction is supported.
-     */
-    inline bool SupportsCpuid();
-
-    /**
      * Gets the max non-extended feature number supported by CPUID.
      *
      * @return the max non-extended feature number supported by CPUID.

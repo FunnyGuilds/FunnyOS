@@ -11,23 +11,23 @@ SECTION .intro
         cli
 
         ; Clear segment registers
-        xor ax, ax
-        mov ds, ax
-        mov es, ax
+        xor     ax, ax
+        mov     ds, ax
+        mov     es, ax
 
         ; Setup stack
-        mov ss, ax
-        mov sp, 0x7A00
-        mov bp, sp
+        mov     ss, ax
+        mov     sp, 0x7A00
+        mov     bp, sp
 
         ; Relocate
-        mov cx, 0x200
-        mov si, 0x7C00
-        mov di, 0x7A00
-        rep movsb
+        mov     cx, 0x200
+        mov     si, 0x7C00
+        mov     di, 0x7A00
+        rep     movsb
 
         ; Jump
-        jmp 0x00:relocated
+        jmp     0x00:relocated
 
 SECTION .text
     EXTERN load_lba
@@ -36,75 +36,75 @@ SECTION .text
 
     relocated:
         ; Hello world!
-        mov si, relocated__welcome_message
-        call print
+        mov     si, welcome_message
+        call    print
 
-        mov al, 1         ; Partition number
-        mov bx, pt_entry1 ; Partition entry base
-        mov cx, 4         ; Partition entries count
+        mov     al, 1                      ; Partition number
+        mov     bx, partition_table.entry1 ; Partition entry base
+        mov     cx, 4                      ; Partition entries count
 
-        .loop:
-            call try_boot
-            inc al
-            add bx, 0x10
-            loop .loop
+    .loop:
+        call    try_boot
+        inc     al
+        add     bx, 0x10
+        loop    .loop
 
         ; Booting failed, no bootable partitions
-        mov ah, 0xFF
-        jmp error
+        mov     ah, 0xFF
+        jmp     error
 
     try_boot:
         ; Check if active
-        test byte [bx], 0x80
-        jnz boot
+        test    BYTE [bx], 0x80
+        jnz     boot
         ret
 
     boot:
         ; AL - partition number
         ; BX - partition entry base
-        mov cl, al
-        add cl, '0'
-        mov [boot__booting + 23], cl
-        mov si, boot__booting
-        call print
+        mov     cl, al
+        add     cl, '0'
+        mov     [booting + 23], cl
+        mov     si, booting
+        call    print
 
         ; Read VBR
-        mov eax, [bx + 0x08]
-        mov bx, 0x7C00
-        mov cl, 1
-        call load_lba
-        jc error
+        mov     eax, [bx + 0x08]
+        mov     bx, 0x7C00
+        mov     cl, 1
+        call    load_lba
+        jc      error
 
         ; Check if the sector is actually bootable
-        cmp word [0x7C00 + 0x200 - 2], 0xAA55
-        je .jump_to_vbr
+        cmp     WORD [0x7C00 + 0x200 - 2], 0xAA55
+        je      .jump_to_vbr
 
         ; Check failed
         mov ah, 0xFD
         jmp error
 
-        .jump_to_vbr:
+    .jump_to_vbr:
         jmp 0x00:0x7C00
 
 ;
 ; Data
 ;
 SECTION .rodata
-    relocated__welcome_message:                 db "FunnyOS MBR", 0
+    welcome_message: db "FunnyOS MBR", 0
 
 SECTION .data
-    boot__booting:                              db "Booting from partition ?", 0
+    booting:         db "Booting from partition ?", 0
 
 SECTION .partition_table
     ; This will be overwritten by a partitioning tool, it is used only to have labels for the entries
     partition_table:
-        pt_diskid: dd 0x12345678
+        .diskid: dd 0x12345678
         dw 0x00
 
-        pt_entry1: times 0x10 db 0x00
-        pt_entry2: times 0x10 db 0x00
-        pt_entry3: times 0x10 db 0x00
-        pt_entry4: times 0x10 db 0x00
+        .entry1: times 0x10 db 0x00
+        .entry2: times 0x10 db 0x00
+        .entry3: times 0x10 db 0x00
+        .entry4: times 0x10 db 0x00
 
     boot_signature:
         ; Boot signature

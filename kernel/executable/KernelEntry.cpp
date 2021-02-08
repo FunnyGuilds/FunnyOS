@@ -1,7 +1,5 @@
 #include <FunnyOS/Kernel/Kernel.hpp>
 
-#include <FunnyOS/Stdlib/System.hpp>
-
 extern void* KERNEL_STACK_TOP;
 
 namespace {
@@ -10,7 +8,7 @@ namespace {
     }
 }  // namespace
 
-extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry() {
+extern "C" void F_SECTION(".intro") F_NAKED fkrnl_entry(FunnyOS::Bootparams::Parameters*) {
 #ifdef __GNUC__
     asm volatile(
         "pop %%rdi               \n"  // Pop parameters to RDI

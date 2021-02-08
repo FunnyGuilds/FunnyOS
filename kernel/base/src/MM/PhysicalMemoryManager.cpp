@@ -141,10 +141,8 @@ namespace FunnyOS::Kernel::MM {
                type == Bootparams::MemoryMapEntryType::LongMemReclaimable;
     }
 
-    bool IsMemoryMapEntryUsable(const Bootparams::MemoryMapDescription& map, size_t entryIndex) {
+    bool IsMemoryMapEntryUsable(const Bootparams::MemoryMapDescription& map, const Bootparams::MemoryMapEntry& entry) {
         using namespace Bootparams;
-
-        const auto& entry = map.First[entryIndex];
 
         if (map.HasAcpiExtendedAttribute) {
             if ((entry.ACPIFlags & ACPI30Flags::DONT_IGNORE) != ACPI30Flags::DONT_IGNORE) {
@@ -194,9 +192,7 @@ namespace FunnyOS::Kernel::MM {
 
         // Debug logs
         FK_LOG_DEBUG(PMM_PREFIX "Initial E820 memory map received from the bootloader");
-        for (size_t i = 0; i < map.Count; i++) {
-            const auto& entry = map.First[i];
-
+        for (const auto& entry : map.Entries) {
             char acpi[8] = "N/A";
             if (map.HasAcpiExtendedAttribute) {
                 Stdlib::String::StringBuffer acpiBuffer{acpi, 8};
@@ -209,8 +205,8 @@ namespace FunnyOS::Kernel::MM {
         // Prepare region map
         m_memoryRegions.Clear();
         m_memoryMap.Clear();
-        m_memoryRegions.EnsureCapacity(map.Count);
-        m_memoryMap.EnsureCapacity(map.Count);
+        m_memoryRegions.EnsureCapacity(map.Entries.Size());
+        m_memoryMap.EnsureCapacity(map.Entries.Size());
 
         // Reset memory statistics
         m_memoryStatistics.ControlBlockWaste        = 0;
@@ -224,14 +220,12 @@ namespace FunnyOS::Kernel::MM {
         // Turn map memory entries into regions, save memory map and find memory top
         m_physicalMemoryTop = 0;
 
-        for (size_t i = 0; i < map.Count; i++) {
-            const auto& memoryMapEntry = map.First[i];
-
+        for (const auto& memoryMapEntry : map.Entries) {
             auto& region            = m_memoryRegions.AppendInPlace();
             region.RegionMemoryType = memoryMapEntry.Type;
             region.RegionStart      = memoryMapEntry.BaseAddress;
             region.RegionEnd        = memoryMapEntry.BaseAddress + memoryMapEntry.Length;
-            region.IsUsable         = IsMemoryMapEntryUsable(map, i);
+            region.IsUsable         = IsMemoryMapEntryUsable(map, memoryMapEntry);
             region.IsInitialized    = false;
             region.IsReady          = false;
 

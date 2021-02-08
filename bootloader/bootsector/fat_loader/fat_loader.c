@@ -11,16 +11,13 @@
 /**
  * Name of the file to boot
  */
-#define FILE_NAME "/boot/bootload32"
+#define FILE_NAME "/boot/bootload64"
 
-#define VIDEO_MEMORY ((uint8_t(*))0xB8000)
+#define VIDEO_MEMORY ((uint8_t*)0xB8000)
 #define SCREEN_WIDTH 80
 
-// Boot parameters
-extern uint8_t g_boot_partition;
-
 // Read buffer
-uint8_t g_read_buffer[SECTOR_SIZE];
+extern uint8_t g_read_buffer[SECTOR_SIZE];
 
 /**
  * Loads one sector from the boot drive starting from logical sector address [lba].
@@ -28,17 +25,7 @@ uint8_t g_read_buffer[SECTOR_SIZE];
  *
  * @return 0 if success, a non-zero error code if fail
  */
-__attribute__((cdecl)) extern int fl_load_from_disk(uint32_t lb);
-
-/**
- * Jumps back to real mode, loads boot parameters and jumps to address at [bootloader_location]
- */
-noreturn extern void fl_jump_to_bootloader(void* bootloader_location);
-
-/**
- * Hangs the CPU indefinitely.
- */
-noreturn extern void fl_hang(void);
+extern int fl_load_from_disk(uint8_t disk, uint32_t lba);
 
 void* memcpy(void* dest, const void* src, size_t count) {
     for (size_t i = 0; i < count; i++) {
@@ -100,11 +87,23 @@ void fl_print_int(unsigned int number) {
 
     for (int i = 0; i < count; i++) {
         const unsigned char part = (char)(number >> ((count - i - 1) * 4)) & 0x0F;
+
         buffer[i] = "0123456789ABCDEF"[part];
     }
     buffer[count] = 0;
 
     fl_print(buffer);
+}
+
+/**
+ * Hangs the CPU indefinitely.
+ */
+noreturn void fl_hang(void) {
+    asm volatile("cli");
+
+    for (;;) {
+        asm volatile("hlt");
+    }
 }
 
 /**
@@ -114,15 +113,15 @@ void fl_print_int(unsigned int number) {
     if ((error_code & (code)) == (code)) fl_print((error))
 
 noreturn void fl_error(int error_code) {
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR, " ** Failed to load the MBR into memory");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH, " ** The MBR signature is invalid");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB, " ** Failed to load the BPB into memory");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH, " ** The BPB signature is invalid");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP, " ** Failed to load cluster info from FAT");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER, " ** Failed to load cluster from disk");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_FIND_FILE, " ** " FILE_NAME " not found.");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR, " ** Failed to load the MBR into memory.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_MBR_SIGNATURE_MISMATCH, " ** The MBR signature is invalid.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB, " ** Failed to load the BPB into memory.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH, " ** The BPB signature is invalid.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP, " ** Failed to load cluster info from FAT.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER, " ** Failed to load cluster from disk.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_FIND_FILE, " ** " FILE_NAME " not found.\r\n");
 
-    fl_print("\r\n ** Loading error: 0x");
+    fl_print("** Loading error: 0x");
     fl_print_int(error_code);
     fl_print("\r\n");
     fl_hang();
@@ -132,13 +131,11 @@ noreturn void fl_error(int error_code) {
 /**
  * Wrapper for fl_load_from_disk for QuickFat
  */
-extern int fl_load_from_disk_wrapper(void* unused, uint32_t lba, uint32_t count, uint8_t* out) {
-    (void)unused;
-
+extern int fl_load_from_disk_wrapper(void* disk_number, uint32_t lba, uint32_t count, uint8_t* out) {
     int error;
 
     for (uint32_t i = 0; i < count; i++) {
-        if ((error = fl_load_from_disk(lba + i)) != 0) {
+        if ((error = fl_load_from_disk((uint32_t)(uintptr_t)disk_number, lba + i)) != 0) {
             return error;
         }
 
@@ -151,15 +148,17 @@ extern int fl_load_from_disk_wrapper(void* unused, uint32_t lba, uint32_t count,
 /**
  * Main function
  */
-noreturn void fat_loader(void) {
-    fl_print("FunnyOS FAT32 Loader\r\n");
+noreturn void fat_loader(uint8_t boot_drive, uint8_t boot_partition, uintptr_t memory_top) {
+    fl_print("FunnyOS FAT64 Loader\r\n");
 
     // Init context
     fl_print(" * Initializing the QuickFat library\r\n");
     QuickFat_Context context;
     QuickFat_initialization_data init;
-    init.partition_entry = g_boot_partition;
-    init.read_function = fl_load_from_disk_wrapper;
+
+    init.partition_entry    = boot_partition;
+    init.read_function      = fl_load_from_disk_wrapper;
+    init.read_function_data = (void*)(uintptr_t)boot_drive;
 
     int error;
 
@@ -177,12 +176,14 @@ noreturn void fat_loader(void) {
 
     // Read file
     fl_print(" * File found. Loading... \n\r");
+
     if ((error = quickfat_read_file(&context, &file, (void*)F_BOOTLOADER_MEMORY_LOCATION)) != 0) {
         fl_error(error);
     }
 
     // Verify
     fl_print(" * File loaded. Verifying... \n\r");
+
     uint32_t* magic_location = (uint32_t*)(((uint8_t*)F_BOOTLOADER_MEMORY_LOCATION) + file.size - 4);
 
     // Die, horribly
@@ -191,5 +192,9 @@ noreturn void fat_loader(void) {
         fl_error(1);
     }
 
-    fl_jump_to_bootloader((void*)F_BOOTLOADER_MEMORY_LOCATION);
+    // Jump to bootloader
+    void (*bootloader_entry)(uint8_t, uint8_t, uintptr_t) = F_BOOTLOADER_MEMORY_LOCATION;
+
+    bootloader_entry(boot_drive, boot_partition, memory_top);
+    __builtin_unreachable();
 }

@@ -23,4 +23,7 @@ qemu-system-x86_64 ${DEBUG_PARAMETERS} \
     -cpu max \
     -vga std \
     -m 1G,slots=3,maxmem=4G \
+    -no-shutdown \
+    -serial stdio \
+    -d int \
     -hda ${OUTPUT}

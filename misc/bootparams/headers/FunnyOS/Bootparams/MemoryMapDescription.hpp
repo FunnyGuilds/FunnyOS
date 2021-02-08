@@ -1,9 +1,9 @@
 #ifndef FUNNYOS_MISC_BOOTPARAMS_HEADERS_FUNNYOS_BOOTPARAMS_MEMORYMAPDESCRIPTION_HPP
 #define FUNNYOS_MISC_BOOTPARAMS_HEADERS_FUNNYOS_BOOTPARAMS_MEMORYMAPDESCRIPTION_HPP
 
+#include <FunnyOS/Stdlib/Vector.hpp>
 #include <FunnyOS/Stdlib/Compiler.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
-#include "Pointer32.hpp"
 
 namespace FunnyOS::Bootparams {
 
@@ -104,7 +104,7 @@ namespace FunnyOS::Bootparams {
          * Otherwise it can be ignored.
          */
         uint32_t ACPIFlags;
-    } F_DONT_ALIGN;
+    };
 
     struct MemoryMapDescription {
         /**
@@ -112,17 +112,9 @@ namespace FunnyOS::Bootparams {
          */
         bool HasAcpiExtendedAttribute;
 
-        /**
-         * Address of first element of the memory map.
-         */
-        Pointer32<MemoryMapEntry> First;
+        Stdlib::Vector<MemoryMapEntry> Entries;
 
-        /**
-         * Number of entries in the memory map.
-         */
-        uint16_t Count;
-
-    } F_DONT_ALIGN;
+    };
 
 }  // namespace FunnyOS::Bootparams
 

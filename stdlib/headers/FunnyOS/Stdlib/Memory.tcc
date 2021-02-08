@@ -1,3 +1,6 @@
+
+#include "Memory.hpp"
+
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MEMORY_HPP
 #error "Include Memory.hpp instead"
 #endif
@@ -19,6 +22,11 @@ namespace FunnyOS::Stdlib::Memory {
     template <typename T>
     inline T const* SizedBuffer<T>::operator[](size_t index) const noexcept {
         return Data + index;
+    }
+
+    template <typename T>
+    SizedBuffer<uint8_t> SizedBuffer<T>::AsByteBuffer() noexcept {
+        return SizedBuffer<uint8_t>{reinterpret_cast<uint8_t*>(Data), sizeof(T) * Size};
     }
 
     template <typename T>

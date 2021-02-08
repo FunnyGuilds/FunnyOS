@@ -1,4 +1,4 @@
-add_executable(FunnyOS_Stdlib_Base64_Tests
+add_executable(FunnyOS_Stdlib_Base_Tests
         StdlibPlatform.cpp
         TestAlgorithm.cpp
         TestFunctional.cpp
@@ -9,9 +9,9 @@ add_executable(FunnyOS_Stdlib_Base64_Tests
         TestVector.cpp
 )
 
-target_link_libraries(FunnyOS_Stdlib_Base64_Tests
+target_link_libraries(FunnyOS_Stdlib_Base_Tests
         PUBLIC
-            FunnyOS_Stdlib_Base64_Static_Test
+            FunnyOS_Stdlib_Base_Static_Test
             GTest::GTest
             GTest::Main
 )

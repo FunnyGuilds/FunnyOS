@@ -14,7 +14,7 @@ namespace FunnyOS::HW {
     /**
      * Represents type of an interrupt.
      */
-    enum class InterruptType : uintmax_t {
+    enum class InterruptType : uint64_t {
         DivideError                        = 0,
         DebugException                     = 1,
         NmiInterrupt                       = 2,

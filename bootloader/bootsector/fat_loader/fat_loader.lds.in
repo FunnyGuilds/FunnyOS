@@ -1,12 +1,25 @@
-OUTPUT_FORMAT(elf32-i386)
+OUTPUT_FORMAT(elf64-x86-64)
 
 SECTIONS
 {
     . = @F_FATLOADER_MEMORY_LOCATION@;
 
-    .text :
+    .intro :
     {
         *(.intro)
+    }
+
+    .rm_data :
+    {
+        *(.rm_data)
+    }
+
+    __rm_data_top = .;
+
+    ASSERT ((__rm_data_top < 0xFFFF), "Error: rm_data section too big")
+
+    .text :
+    {
         *(.text*)
     }
 

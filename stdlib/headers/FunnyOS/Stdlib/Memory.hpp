@@ -58,6 +58,8 @@ namespace FunnyOS::Stdlib::Memory {
          */
         [[nodiscard]] inline T const* operator[](size_t index) const noexcept;
 
+        [[nodiscard]] inline SizedBuffer<uint8_t> AsByteBuffer() noexcept;
+
         /**
          * Returns an iterator pointing at the beginning of the buffer.
          *

@@ -3,7 +3,6 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
-#include "Pointer32.hpp"
 
 namespace FunnyOS::Bootparams {
 
@@ -92,7 +91,7 @@ namespace FunnyOS::Bootparams {
         uint32_t FrameBufferPhysicalAddress;
         uint32_t OffscreenMemoryOffset;
         uint16_t OffscreenMemorySize;
-        uint8_t Reserved2[206];
+        uint8_t Reserved2[203];
         bool IsValid;
         uint16_t VESAVideoMode;
     } F_DONT_ALIGN;
@@ -130,9 +129,9 @@ namespace FunnyOS::Bootparams {
     } F_DONT_ALIGN;
 
     struct VbeInformation {
-        Pointer32<VbeInfoBlock> InfoBlock;
-        Stdlib::Optional<Pointer32<EdidInformation>> EdidBlock;
-        Pointer32<VbeModeInfoBlock> ModeInfoStart;
+        VbeInfoBlock* InfoBlock;
+        EdidInformation* EdidBlock;
+        VbeModeInfoBlock* ModeInfoStart;
         uint16_t ModeInfoEntries;
         uint16_t ActiveModeIndex;
     };

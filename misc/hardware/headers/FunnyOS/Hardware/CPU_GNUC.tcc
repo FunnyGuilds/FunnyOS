@@ -32,17 +32,10 @@ namespace FunnyOS::HW::CPU {
 
     inline uintmax_t GetFlagsRegister() {
         uintmax_t flags;
-#ifdef F_64
         asm volatile(
             "pushfq\n"
             "pop %%rax"
             : "=a"(flags));
-#else
-        asm volatile(
-            "pushfl\n"
-            "pop %%eax"
-            : "=a"(flags));
-#endif
         return flags;
     }
 

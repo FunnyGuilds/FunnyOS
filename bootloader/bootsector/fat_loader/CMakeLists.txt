@@ -13,15 +13,14 @@ configure_file(
 
 # .asm files
 add_library(FunnyOS_Bootloader_FatLoader_ASM OBJECT
-        fat_loader.asm
+        intro.asm
+        bios_disk_interface.asm
 )
 
 target_link_libraries(FunnyOS_Bootloader_FatLoader_ASM
         PUBLIC
             FunnyOS_Bootloader_Commons_ASM
 )
-
-target_compile_options(FunnyOS_Bootloader_FatLoader_ASM PRIVATE -f elf)
 
 # Executable
 add_executable(FunnyOS_Bootloader_FatLoader
@@ -39,17 +38,17 @@ target_output_filename(FunnyOS_Bootloader_FatLoader fat_loader.elf)
 
 target_link_options(FunnyOS_Bootloader_FatLoader
         PRIVATE
-            -nostdlib -m32
+            -nostdlib
 )
 
 target_compile_options(FunnyOS_Bootloader_FatLoader
         PRIVATE
-            -m32 -Os -fno-pie -ffreestanding -fno-stack-protector -mno-sse -mno-sse2 -mno-mmx -mno-80387
+            -Os -fno-pie -ffreestanding -fno-stack-protector -mno-sse -mno-sse2 -mno-mmx -mno-80387
 )
 
 target_link_libraries(FunnyOS_Bootloader_FatLoader
         PUBLIC
-            FunnyOS_Misc_QuickFat32
+            FunnyOS_Misc_QuickFat
             FunnyOS_Bootloader_Commons_ASM
 )
 

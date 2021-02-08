@@ -23,9 +23,9 @@ target_include_directories(FunnyOS_Kernel_Base
 
 target_link_libraries(FunnyOS_Kernel_Base
         PUBLIC
-            FunnyOS_Stdlib_Base64_Kernel
+            FunnyOS_Stdlib_Base_Static_LL
             FunnyOS_Misc_Bootparams
-            FunnyOS_Misc_Hardware64
-            FunnyOS_Misc_MemoryAllocator64
-            FunnyOS_Misc_TerminalManager64
+            FunnyOS_Misc_Hardware
+            FunnyOS_Misc_MemoryAllocator
+            FunnyOS_Misc_TerminalManager
 )
