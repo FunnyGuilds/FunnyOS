@@ -5,7 +5,7 @@ namespace FunnyOS::Kernel {
     void LogManager::EnableOnscreenLogging(Stdlib::Ref<Misc::TerminalManager::TerminalManager> manager) {
         m_terminalManagerLoggingSink =
             Stdlib::MakeRef<Misc::TerminalManager::TerminalManagerLoggingSink>(Move(manager));
-        m_logger.AddSink(Stdlib::StaticRefCast<Stdlib::ILoggingSink>(m_terminalManagerLoggingSink));
+        m_logger.AddSink(m_terminalManagerLoggingSink);
     }
 
     void LogManager::DisableOnscreenLogging() {

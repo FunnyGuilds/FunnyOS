@@ -151,6 +151,15 @@ namespace FunnyOS::Stdlib {
         void AddSink(const Ref<ILoggingSink>& sink);
 
         /**
+         * Adds a new sink to this logger.
+         *
+         * @tparam type of the sink to be added
+         * @param sink sink to be added.
+         */
+        template <class T, typename = EnableIf<!IsSame<T, ILoggingSink>>>
+        inline void AddSink(const Ref<T>& sink);
+
+        /**
          * Removes a sink from this logger.
          *
          * @param[in] sink sink to be removed.
@@ -163,4 +172,5 @@ namespace FunnyOS::Stdlib {
 
 }  // namespace FunnyOS::Stdlib
 
+#include "Logging.tcc"
 #endif  // FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_LOGGING_HPP

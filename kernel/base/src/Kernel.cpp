@@ -110,7 +110,7 @@ namespace FunnyOS::Kernel {
 
         m_screenManager.InitializeWith(
             *parameters.Vbe.InfoBlock, Stdlib::Move(videoModes), Stdlib::Move(edid), framebufferConfig, fonts.Data);
-        m_logManager.GetLogger().AddSink(StaticRefCast<Stdlib::ILoggingSink>(Stdlib::MakeRef<TestSink>()));
+        m_logManager.GetLogger().AddSink(Stdlib::MakeRef<TestSink>());
 
         // Setup logging
         m_logManager.EnableOnscreenLogging(
