@@ -1,29 +1,35 @@
-#include <FunnyOS/Kernel/GDT.hpp>
+#include <FunnyOS/Hardware/GDT.hpp>
 
-namespace FunnyOS::Kernel {
+namespace FunnyOS::HW {
 
     namespace {
         struct GDTR {
             uint16_t Limit;
             uint64_t BaseAddress;
         } F_DONT_ALIGN;
-
-        uint64_t g_kernelGdt[3];
     }  // namespace
 
-    uint64_t CreateGdtDescriptor(const GDTEntry& entry) {
-        uint64_t descriptor = 0;
+    gdt_descriptor_t CreateGdtDescriptor(const GDTEntry& entry) {
+        gdt_descriptor_t descriptor =
+            (((entry.BaseAddress >> 24ULL) & 0x00FFULL) << 56ULL) | (((entry.Limit >> 16ULL) & 0x000FULL) << 48ULL) |
+            (((entry.BaseAddress >> 16ULL) & 0x00FFULL) << 32ULL) |
+            (((entry.BaseAddress >> 0ULL) & 0xFFFFULL) << 16ULL) | (((entry.Limit >> 0ULL) & 0xFFFFULL) << 0ULL);
+
         descriptor |= 1ULL << 44;  // Descriptor type, code or data
 
         if (entry.IsPresent) {
             descriptor |= 1ULL << 47;
         }
 
+        if (entry.GranularityBit) {
+            descriptor |= 1ULL << 55;
+        }
+
         if (entry.Type == GDTEntryType::Data) {
             descriptor |= 1ULL << 41;  // Writable attribute
         } else if (entry.Type == GDTEntryType::Code) {
-            descriptor |= 1ULL << 43;                                                          // Code descriptor
-            descriptor |= static_cast<uint64_t>(entry.DescriptorPrivilegeLevel & 0b11) << 45;  // DPL
+            descriptor |= 1ULL << 43;  // Code descriptor
+            descriptor |= static_cast<gdt_descriptor_t>(entry.DescriptorPrivilegeLevel & 0b11) << 45;  // DPL
 
             if (entry.IsConforming) {
                 descriptor |= 1ULL << 42;
@@ -41,26 +47,14 @@ namespace FunnyOS::Kernel {
         return descriptor;
     }
 
-    void LoadGdt(const Memory::SizedBuffer<uint64_t>& buffer) {
-        const GDTR gdtr = {static_cast<uint16_t>(buffer.Size * sizeof(uint64_t) - 1),
-                           reinterpret_cast<uint64_t>(buffer.Data)};
+    void LoadGdt(const Memory::SizedBuffer<gdt_descriptor_t>& buffer) {
+        const GDTR gdtr = {
+            static_cast<uint16_t>(buffer.Size * sizeof(gdt_descriptor_t) - 1),
+            reinterpret_cast<gdt_descriptor_t>(buffer.Data)};
 
 #ifdef __GNUC__
         asm("lgdt %0" ::"m"(gdtr) : "memory");
 #endif
-    }
-
-    void LoadKernelGdt() {
-        g_kernelGdt[0]                       = 0;
-        g_kernelGdt[GDT_SELECTOR_DATA]       = CreateGdtDescriptor({.Type = GDTEntryType::Data, .IsPresent = true});
-        g_kernelGdt[GDT_SELECTOR_CODE_RING0] = CreateGdtDescriptor({.Type                     = GDTEntryType::Code,
-                                                                    .IsPresent                = true,
-                                                                    .DescriptorPrivilegeLevel = 0,
-                                                                    .IsConforming             = true,
-                                                                    .IsLongMode               = true,
-                                                                    .Is32Bit                  = false});
-
-        LoadGdt({g_kernelGdt, F_SIZEOF_BUFFER(g_kernelGdt)});
     }
 
     void LoadNewSegments(uint16_t codeSegment, uint16_t dataSegment) {
@@ -89,8 +83,8 @@ namespace FunnyOS::Kernel {
             "iretq                           \n"
             "2:                              \n"
             :
-            : [ code_segment ] "a"(static_cast<uint64_t>(codeSegment << 3)),
-              [ data_segment ] "b"(static_cast<uint64_t>(dataSegment << 3))
+            : [code_segment] "a"(static_cast<uint64_t>(codeSegment << 3)), [data_segment] "b"(
+                                                                               static_cast<uint64_t>(dataSegment << 3))
             : "memory", "rdx");
 #endif
     }
@@ -116,11 +110,11 @@ namespace FunnyOS::Kernel {
             "iretq                           \n"
             "2:                              \n"
             :
-            : [ code_segment ] "a"(static_cast<uint64_t>(codeSegment << 3)),
-              [ data_segment ] "b"(static_cast<uint64_t>(dataSegment << 3)), [ jump_location ] "D"(location)
+            : [code_segment] "a"(static_cast<uint64_t>(codeSegment << 3)),
+              [data_segment] "b"(static_cast<uint64_t>(dataSegment << 3)), [jump_location] "D"(location)
             : "memory");
 #endif
         F_NO_RETURN;
     }
 
-}  // namespace FunnyOS::Kernel
+}  // namespace FunnyOS::HW

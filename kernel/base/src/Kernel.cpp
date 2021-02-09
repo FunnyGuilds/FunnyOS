@@ -6,7 +6,6 @@
 #include <FunnyOS/Hardware/Serial.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManager.hpp>
 #include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
-#include <FunnyOS/Kernel/GDT.hpp>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
@@ -32,7 +31,7 @@ namespace FunnyOS::Kernel {
         }
 
        public:
-        void SubmitMessage(LogLevel level, const char* message) override {
+        void SubmitMessage(Stdlib::LogLevel level, const char* message) override {
             Write(GetLogLevelName(level));
             Write(": ");
             Write(message);
@@ -56,8 +55,26 @@ namespace FunnyOS::Kernel {
             reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP), reinterpret_cast<memoryaddress_t>(&KERNEL_HEAP_TOP));
 
         // Load kernel GDT
-        LoadKernelGdt();
-        LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
+        // Null selector
+        m_kernelGdt[0] = 0;
+
+        // Kernel data
+        m_kernelGdt[GDT_SELECTOR_DATA] =
+            HW::CreateGdtDescriptor({.BaseAddress = 0, .Limit = 0, .Type = HW::GDTEntryType::Data, .IsPresent = true});
+
+        // Kernel code
+        m_kernelGdt[GDT_SELECTOR_CODE_RING0] = HW::CreateGdtDescriptor(
+            {.BaseAddress              = 0,
+             .Limit                    = 0,
+             .Type                     = HW::GDTEntryType::Code,
+             .IsPresent                = true,
+             .DescriptorPrivilegeLevel = 0,
+             .IsConforming             = true,
+             .IsLongMode               = true,
+             .Is32Bit                  = false});
+
+        HW::LoadGdt({m_kernelGdt, F_SIZEOF_BUFFER(m_kernelGdt)});
+        HW::LoadNewSegments(GDT_SELECTOR_CODE_RING0, GDT_SELECTOR_DATA);
 
         // Setup basic screen manager
 

@@ -1,8 +1,9 @@
 add_library(FunnyOS_Misc_Hardware STATIC
         src/CMOS.cpp
-        src/PS2.cpp
+        src/GDT.cpp
         src/Interrupts.cpp
         src/PIC.cpp
+        src/PS2.cpp
         src/Serial.cpp
         src/GFX/FramebufferInterface.cpp
         src/GFX/FontTerminalInterface.cpp

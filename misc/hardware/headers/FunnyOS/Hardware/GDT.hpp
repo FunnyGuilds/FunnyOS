@@ -1,10 +1,10 @@
-#ifndef FUNNYOS_KERNEL_BASE_SRC_HW_GDT_HPP
-#define FUNNYOS_KERNEL_BASE_SRC_HW_GDT_HPP
+#ifndef FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_GDT_HPP
+#define FUNNYOS_MISC_HARDWARE_HEADERS_FUNNYOS_HARDWARE_GDT_HPP
 
-#include <FunnyOS/Stdlib/IntegerTypes.hpp>
-#include <FunnyOS/Stdlib/Memory.hpp>
+#include<FunnyOS/Stdlib/IntegerTypes.hpp>
+#include<FunnyOS/Stdlib/Memory.hpp>
 
-namespace FunnyOS::Kernel {
+namespace FunnyOS::HW {
     using namespace Stdlib;
 
     /**
@@ -26,10 +26,26 @@ namespace FunnyOS::Kernel {
      * GDT descriptor info.
      */
     struct GDTEntry {
+
+        /**
+         * Entry's base address.
+         */
+        uint64_t BaseAddress;
+
+        /**
+         * Entry's limit.
+         */
+        uint64_t Limit;
+
         /**
          * Type of the entry. Code or Data.
          */
         GDTEntryType Type = GDTEntryType::Data;
+
+        /**
+         * Granularity bit, if set entry's limit is scaled by 4 Kbytes
+         */
+        bool GranularityBit = false;
 
         /**
          * Whether or not the entry is present.
@@ -66,30 +82,17 @@ namespace FunnyOS::Kernel {
         bool Is32Bit = false;
     };
 
-    /**
-     * GDT selector for data.
-     */
-    constexpr const uint16_t GDT_SELECTOR_DATA = 1;
-
-    /**
-     * GDT selector for kernel-mode ring 0 code.
-     */
-    constexpr const uint16_t GDT_SELECTOR_CODE_RING0 = 2;
+    using gdt_descriptor_t = uint64_t;
 
     /**
      * Creates a GDT descriptor from the given [entry]
      */
-    uint64_t CreateGdtDescriptor(const GDTEntry& entry);
+    gdt_descriptor_t CreateGdtDescriptor(const GDTEntry& entry);
 
     /**
      * Loads the given [gdt].
      */
-    void LoadGdt(const Memory::SizedBuffer<uint64_t>& gdt);
-
-    /**
-     * Loads the kernel gdt and setups kernel ring 0 descriptors.
-     */
-    void LoadKernelGdt();
+    void LoadGdt(const Memory::SizedBuffer<gdt_descriptor_t>& gdt);
 
     /**
      * Loads the segment values with the given segments.
@@ -108,6 +111,6 @@ namespace FunnyOS::Kernel {
      */
     [[noreturn]] void LoadNewSegmentsAndJump(uint16_t codeSegment, uint16_t dataSegment, void* location);
 
-}  // namespace FunnyOS::Kernel
+}  // namespace FunnyOS::HW
 
 #endif  // FUNNYOS_KERNEL_BASE_SRC_HW_GDT_HPP

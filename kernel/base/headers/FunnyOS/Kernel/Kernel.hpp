@@ -2,6 +2,7 @@
 #define FUNNYOS_KERNEL_BASE_HEADERS_FUNNYOS_KERNEL_KERNEL_HPP
 
 #include <FunnyOS/Bootparams/Parameters.hpp>
+#include <FunnyOS/Hardware/GDT.hpp>
 #include <FunnyOS/Misc/MemoryAllocator/StaticMemoryAllocator.hpp>
 #include "GFX/ScreenManager.hpp"
 #include "MM/PhysicalMemoryManager.hpp"
@@ -38,6 +39,16 @@
     } while (0)
 
 namespace FunnyOS::Kernel {
+
+    /**
+     * GDT selector for data.
+     */
+    constexpr const uint16_t GDT_SELECTOR_DATA = 1;
+
+    /**
+     * GDT selector for kernel-mode ring 0 code.
+     */
+    constexpr const uint16_t GDT_SELECTOR_CODE_RING0 = 2;
 
     class Kernel64 {
        public:
@@ -104,6 +115,7 @@ namespace FunnyOS::Kernel {
 
        private:
         bool m_initialized = false;
+        HW::gdt_descriptor_t m_kernelGdt[3];
         Bootparams::BootDriveInfo m_bootDriveInfo{};
         MM::PhysicalMemoryManager m_physicalMemoryManager{};
         MM::VirtualMemoryManager m_virtualMemoryManager{m_physicalMemoryManager};
