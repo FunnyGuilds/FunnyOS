@@ -25,6 +25,7 @@
 #include <stdarg.h>
 
 // Misc
+#   define F_MEMORY_FENCE                       asm volatile ("" ::: "memory")
 #   define F_FETCH_CALLER_ADDRESS()             (static_cast<void*>(__builtin_return_address(0)))
 
 #   define _F_TO_STRING_HELPER(x) #x

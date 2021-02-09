@@ -9,6 +9,16 @@ SECTIONS
         KEEP(*(.intro))
     }
 
+    .bios_data :
+    {
+        *(.bios_data*)
+    }
+
+    .bios_text :
+    {
+        *(.bios_text*)
+    }
+
     .text :
     {
         *(.text*)

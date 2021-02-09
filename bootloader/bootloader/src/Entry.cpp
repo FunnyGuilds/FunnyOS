@@ -1,5 +1,4 @@
-#include <FunnyOS/Stdlib/Compiler.hpp>
-#include <FunnyOS/Stdlib/IntegerTypes.hpp>
+#include "Bootloader.hpp"
 
 extern "C" {
 
@@ -9,9 +8,8 @@ static void bootloader64_call_real_main() {
 }
 
 // Entry-point
-[[noreturn]] F_SECTION(".intro") F_NAKED void bootloader64_main(uint8_t, uint8_t, uintptr_t) {
-    asm("mov %rsp, %rdx                     \n\t"
-        "xor %rbp, %rbp                     \n\t"
-        "jmp bootloader64_call_real_main    \n\t");
+[[noreturn]] F_SECTION(".intro") void bootloader64_main(uint8_t bootDrive, uint8_t bootPartition, uintptr_t memoryTop) {
+    FunnyOS::Bootloader64::Bootloader::Get().Main(bootPartition, bootPartition, memoryTop);
 }
+
 }
