@@ -4,6 +4,23 @@
 
 namespace FunnyOS::Stdlib::String {
 
+    StringBuffer AllocateBuffer(size_t size) {
+        StringBuffer buffer = Memory::AllocateBuffer<char>(size);
+
+        if (buffer.Size > 0) {
+            // Initialize string with null byte
+            buffer.Data[0] = 0;
+        }
+
+        return buffer;
+    }
+
+    StringBuffer AllocateCopy(const char* string) {
+        StringBuffer buffer = AllocateBuffer(Length(string) + 1);
+        Append(buffer, string);
+        return buffer;
+    }
+
     size_t Length(const char* string) noexcept {
         size_t length = 0;
         while (*(string + length) != 0) {
@@ -44,7 +61,11 @@ namespace FunnyOS::Stdlib::String {
         return true;
     }
 
-    int Compare(const char* string1, const char* string2, size_t length) noexcept {
+    int Compare(const char* string1, const char* string2) noexcept {
+        return CompareWithMax(string1, string2, NumeralTraits::Info<size_t>::MaximumValue);
+    }
+
+    int CompareWithMax(const char* string1, const char* string2, size_t length) noexcept {
         for (size_t i = 0; i < length; i++) {
             const char c1 = *(string1 + i);
             const char c2 = *(string2 + i);
@@ -87,6 +108,96 @@ namespace FunnyOS::Stdlib::String {
         }
 
         return -1;
+    }
+
+    char* NextToken(char** currentString, const char* tokenSeparatorList) {
+        char* base    = *currentString;
+        char* current = base;
+
+        // advanced until null byte or tokenizer is found
+        while (*current && !Matches(*current, tokenSeparatorList)) {
+            current++;
+        }
+
+        if (!*current) {
+            // null byte, no tokens, return whole string
+            *currentString = nullptr;
+            return base;
+        }
+
+        // replace token to null byte, set [currentString] right after [current]
+        *current       = 0;
+        *currentString = current + 1;
+
+        return base;
+    }
+
+    void Trim(char** string) {
+        Trim(string, "\n\t ");
+    }
+
+    bool Matches(char character, const char* characters) {
+        while (*characters) {
+            if (*(characters)++ == character) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void Trim(char** string, const char* characters) {
+        const size_t len = Length(*string);
+
+        if (len == 0) {
+            return;
+        }
+
+        // skip trailing characters
+        char* current = *string;
+        while (Matches(*current, characters)) {
+            current++;
+        }
+
+        // replace last characters with null bytes
+        char* lastCharacter = *string + len - 1;
+
+        while (Matches(*lastCharacter, characters) && lastCharacter >= *string) {
+            *lastCharacter = 0;
+            lastCharacter--;
+        }
+
+        *string = current;
+    }
+
+    char ToLowercase(char character) {
+        if (character >= 'A' && character <= 'Z') {
+            return 'a' + (character - 'A');
+        }
+
+        return character;
+    }
+
+    char ToUppercase(char character) {
+        if (character >= 'a' && character <= 'z') {
+            return 'A' + (character - 'a');
+        }
+
+        return character;
+    }
+
+    void ToLowercase(char* str) {
+        while (*str) {
+            *str = ToLowercase(*str);
+            str++;
+        }
+    }
+
+    void ToUppercase(char* str) {
+        while (*str) {
+            *str = ToUppercase(*str);
+            str++;
+        }
     }
 
     // NOLINTNEXTLINE(cert-dcl50-cpp)

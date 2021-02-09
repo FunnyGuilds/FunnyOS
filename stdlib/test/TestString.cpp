@@ -44,12 +44,56 @@ TEST(TestString, TestConcat) {
 }
 
 TEST(TestString, TestCompare) {
-    EXPECT_GT(Compare("Hello", "Hallo", 10), 0);
-    EXPECT_LT(Compare("Abc", "Adb", 10), 0);
-    EXPECT_EQ(Compare("ABc", "ABc", 10), 0);
+    EXPECT_GT(CompareWithMax("Hello", "Hallo", 10), 0);
+    EXPECT_LT(CompareWithMax("Abc", "Adb", 10), 0);
+    EXPECT_EQ(CompareWithMax("ABc", "ABc", 10), 0);
 
-    EXPECT_EQ(Compare("This is a string", "This is a completely different string", 10), 0);
-    EXPECT_GT(Compare("This is a string", "This is a completely different string", 11), 0);
+    EXPECT_EQ(CompareWithMax("This is a string", "This is a completely different string", 10), 0);
+    EXPECT_GT(CompareWithMax("This is a string", "This is a completely different string", 11), 0);
+}
+
+TEST(TestString, TextNextToken) {
+    auto buf = AllocateCopy("Hello, this is, a test string");
+
+    char* data = buf.Data;
+
+    EXPECT_STREQ("Hello", NextToken(&data, ","));
+    EXPECT_STREQ(" this is", NextToken(&data, ","));
+    EXPECT_STREQ(" a test string", NextToken(&data, ","));
+
+    EXPECT_EQ(data, nullptr) << "Data not set to nullptr after all tokens depleted";
+}
+
+TEST(TestString, TestTrim) {
+    auto buf1 = AllocateCopy("string");
+    auto buf2 = AllocateCopy(" very test  ");
+    auto buf3 = AllocateCopy("string   h \n ");
+
+    char* data1 = buf1.Data;
+    char* data2 = buf2.Data;
+    char* data3 = buf3.Data;
+
+    Trim(&data1);
+    Trim(&data2);
+    Trim(&data3);
+
+    EXPECT_STREQ("string", data1);
+    EXPECT_STREQ("very test", data2);
+    EXPECT_STREQ("string   h", data3);
+}
+
+TEST(TestString, TestToLowercase) {
+    auto buffer = AllocateCopy("Hello, this is a tEst STRING to be converted to LOWER CASE");
+    ToLowercase(buffer.Data);
+
+    EXPECT_STREQ("hello, this is a test string to be converted to lower case", buffer.Data);
+}
+
+TEST(TestString, TestToUppercase) {
+    auto buffer = AllocateCopy("Hello, this is a tEst STRING to be converted to uPpER CASE");
+    ToUppercase(buffer.Data);
+
+    EXPECT_STREQ("HELLO, THIS IS A TEST STRING TO BE CONVERTED TO UPPER CASE", buffer.Data);
 }
 
 TEST(TestString, TestIntToString) {

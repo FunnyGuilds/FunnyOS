@@ -14,6 +14,23 @@ namespace FunnyOS::Stdlib::String {
     using StringBuffer = Memory::SizedBuffer<char>;
 
     /**
+     * Allocates a StringBuffer of a given size.
+     *
+     * @param size size of the buffer to allocate
+     * @return the allocated buffer
+     */
+    StringBuffer AllocateBuffer(size_t size);
+
+    /**
+     * Allocates a new StringBuffer with the size equal to the size of the input string and copies the input string into
+     * the newly allocated buffer.
+     *
+     * @param string string to be copied to a new buffer
+     * @return new buffer
+     */
+    StringBuffer AllocateCopy(const char* string);
+
+    /**
      * Calculates a length of a string.
      *
      * @param[in] string string to calculate the length of
@@ -43,6 +60,22 @@ namespace FunnyOS::Stdlib::String {
     bool Append(StringBuffer& buffer, const char* string) noexcept;
 
     /**
+     * Compares  characters of the string1 to the string2
+     * This function starts comparing the first character of each string. If they are equal to each other, it continues
+     * with the following pairs until the characters differ or until a terminating null-character is reached whichever
+     * happens first.
+     *
+     * @param[in] string1 string to be compared
+     * @param[in] string2 string to be compared
+     *
+     * @return value based on the comparison result
+     *         <0 - the first character that does not match has a lower value in string1 than in string 2
+     *         0 - strings are identical
+     *         >0 - the first character that does not match has a greater value in string1 than in string2
+     */
+    [[nodiscard]] int Compare(const char* string1, const char* string2) noexcept;
+
+    /**
      * Compares up to [length] characters of the string1 to the string2
      * This function starts comparing the first character of each string. If they are equal to each other, it continues
      * with the following pairs until the characters differ, until a terminating null-character is reached, or until num
@@ -57,7 +90,7 @@ namespace FunnyOS::Stdlib::String {
      *         0 - strings are identical
      *         >0 - the first character that does not match has a greater value in string1 than in string2
      */
-    [[nodiscard]] int Compare(const char* string1, const char* string2, size_t length) noexcept;
+    [[nodiscard]] int CompareWithMax(const char* string1, const char* string2, size_t length) noexcept;
 
     /**
      * Gets the index of the first occurrence of [character] in [string].
@@ -67,6 +100,54 @@ namespace FunnyOS::Stdlib::String {
      * @return index of character, or -1 if not found
      */
     [[nodiscard]] int IndexOf(const char* string, char character);
+
+    char* NextToken(char** currentString, const char* tokenSeparatorList);
+
+    /**
+     * Checks whether the given [character] matches ANY of the character in the string [characters]
+     *
+     * @return true if character matches any of the characters
+     */
+    bool Matches(char character, const char* characters);
+
+    /**
+     * Removes any trailing whitespace from a string
+     *
+     * @param[in,out] string pointer to the string to be modified
+     */
+    void Trim(char** string);
+
+    /**
+     * Removes any number of consecutive characters that match any character in [characters].
+     *
+     * @param[in,out] string pointer to the string to be modified
+     * @param[in] characters characters to be removed
+     */
+    void Trim(char** string, const char* characters);
+
+    /**
+     * Converts a character to its lowercase equivalent if there is one.
+     */
+    char ToLowercase(char character);
+
+    /**
+     * Converts a character to its uppercase equivalent if there is one.
+     */
+    char ToUppercase(char character);
+
+    /**
+     * Converts all characters in a string to their lowercase equivalents.
+     *
+     * \see ToLowercase(char)
+     */
+    void ToLowercase(char* str);
+
+    /**
+     * Converts all characters in a string to their uppercase equivalents.
+     *
+     * \see ToUppercase(char)
+     */
+    void ToUppercase(char* str);
 
     /**
      * Equivalent of calling IntegerToString(buffer, integer, 10)
@@ -81,8 +162,8 @@ namespace FunnyOS::Stdlib::String {
      * @param[out] buffer output buffer
      * @param[in] integer integer to convert
      * @param[in] radix radix to use
-     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold the
-     * result
+     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold
+     * the result
      */
     template <typename Integer>
     bool IntegerToString(StringBuffer& buffer, Integer integer, uint8_t radix) noexcept;
@@ -94,8 +175,8 @@ namespace FunnyOS::Stdlib::String {
      * @tparam Integer type of the int to convert
      * @param[out] buffer output buffer
      * @param[in] integer integer to convert
-     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold the
-     * result
+     * @return true if the operation succeeded, false if the radix was invalid or the buffer was to small to hold
+     * the result
      */
     template <typename Integer>
     bool IntegerToHex(StringBuffer& buffer, Integer integer) noexcept;
@@ -140,8 +221,8 @@ namespace FunnyOS::Stdlib::String {
      * @tparam Integer type of the integer
      * @param buffer string to parse
      * @param radix radix to use
-     * @param strict if true the string must contain only the number, if false only the beginning of the string must be
-     * a number
+     * @param strict if true the string must contain only the number, if false only the beginning of the string must
+     * be a number
      * @param i the current index in the string to use, will be updated to point after the number
      * @return parsed number or empty optional if fail.
      */
