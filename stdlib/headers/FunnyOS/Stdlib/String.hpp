@@ -1,6 +1,7 @@
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_STRING_HPP
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_STRING_HPP
 
+#include "Dynamic.hpp"
 #include "IntegerTypes.hpp"
 #include "Memory.hpp"
 #include "Compiler.hpp"
@@ -14,12 +15,25 @@ namespace FunnyOS::Stdlib::String {
     using StringBuffer = Memory::SizedBuffer<char>;
 
     /**
+     * A SmartStringBuffer that can hold a string.
+     */
+    using SmartStringBuffer = SmartSizedBuffer<char>;
+
+    /**
      * Allocates a StringBuffer of a given size.
      *
      * @param size size of the buffer to allocate
      * @return the allocated buffer
      */
     StringBuffer AllocateBuffer(size_t size);
+
+    /**
+     * Allocates a SmartStringBuffer of a given size.
+     *
+     * @param size size of the buffer to allocate
+     * @return the allocated buffer
+     */
+    SmartStringBuffer AllocateSmartBuffer(size_t size);
 
     /**
      * Allocates a new StringBuffer with the size equal to the size of the input string and copies the input string into
@@ -29,6 +43,15 @@ namespace FunnyOS::Stdlib::String {
      * @return new buffer
      */
     StringBuffer AllocateCopy(const char* string);
+
+    /**
+     * Allocates a new SmartStringBuffer with the size equal to the size of the input string and copies the input string
+     * into the newly allocated buffer.
+     *
+     * @param string string to be copied to a new buffer
+     * @return new buffer
+     */
+    SmartStringBuffer AllocateSmartCopy(const char* string);
 
     /**
      * Calculates a length of a string.
@@ -100,6 +123,24 @@ namespace FunnyOS::Stdlib::String {
      * @return index of character, or -1 if not found
      */
     [[nodiscard]] int IndexOf(const char* string, char character);
+
+    /**
+     * Gets the index of the last occurrence of [character] in [string].
+     *
+     * @param string string to search in
+     * @param character character to search for
+     * @return index of character, or -1 if not found
+     */
+    [[nodiscard]] int LastIndexOf(const char* string, char character);
+
+    /**
+     * Counts every occurrence of characters in [string] that match any character in [pattern]
+     *
+     * @param string string to search in
+     * @param pattern list of characters that should be counted
+     * @return amount of characters matching the pattern
+     */
+    [[nodiscard]] int Count(const char* string, const char* pattern);
 
     char* NextToken(char** currentString, const char* tokenSeparatorList);
 

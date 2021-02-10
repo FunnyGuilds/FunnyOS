@@ -15,8 +15,25 @@ namespace FunnyOS::Stdlib::String {
         return buffer;
     }
 
+    SmartStringBuffer AllocateSmartBuffer(size_t size) {
+        SmartStringBuffer buffer = {size};
+
+        if (buffer.Size > 0) {
+            // Initialize string with null byte
+            buffer.Data[0] = 0;
+        }
+
+        return buffer;
+    }
+
     StringBuffer AllocateCopy(const char* string) {
         StringBuffer buffer = AllocateBuffer(Length(string) + 1);
+        Append(buffer, string);
+        return buffer;
+    }
+
+    SmartStringBuffer AllocateSmartCopy(const char* string) {
+        SmartStringBuffer buffer = AllocateSmartBuffer(Length(string) + 1);
         Append(buffer, string);
         return buffer;
     }
@@ -108,6 +125,32 @@ namespace FunnyOS::Stdlib::String {
         }
 
         return -1;
+    }
+
+    int LastIndexOf(const char* string, char character) {
+        int i = Length(string) - 1;
+
+        while (i >= 0) {
+            if (string[i] == character) {
+                return i;
+            }
+
+            i--;
+        }
+
+        return -1;
+    }
+
+    int Count(const char* string, const char* pattern) {
+        int count = 0;
+
+        while (*string) {
+            if (Matches(*(string++), pattern)) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     char* NextToken(char** currentString, const char* tokenSeparatorList) {
