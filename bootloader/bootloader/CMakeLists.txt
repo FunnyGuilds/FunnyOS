@@ -18,11 +18,11 @@ add_library(FunnyOS_Bootloader_Bootloader_ASM OBJECT
 # Create .elf executable
 add_executable(FunnyOS_Bootloader_Bootloader
         $<TARGET_OBJECTS:FunnyOS_Bootloader_Bootloader_ASM>
-        src/BIOS.cpp
         src/Bootloader.cpp
         src/BootloaderABI.cpp
         src/BootloaderPlatformImpl.cpp
         src/Entry.cpp
+        src/HighMemory.cpp
 )
 
 target_include_directories(FunnyOS_Bootloader_Bootloader

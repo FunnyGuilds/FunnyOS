@@ -1,4 +1,5 @@
 add_library(FunnyOS_Misc_Hardware STATIC
+        src/BIOS.cpp
         src/CMOS.cpp
         src/GDT.cpp
         src/Interrupts.cpp

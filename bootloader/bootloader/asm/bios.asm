@@ -69,9 +69,6 @@ SECTION .bios_text
         push    DWORD [g_biosState.EFLAGS]
         popf
 
-        jmp 0x00:.test
-        .test:
-
         ; Self-modifying code: interrupt call 0xCD ib (ib - interrupt vector)
         db      0xCD
         .interrupt_number:

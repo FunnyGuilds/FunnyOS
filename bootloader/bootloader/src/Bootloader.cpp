@@ -58,38 +58,23 @@ namespace FunnyOS::Bootloader64 {
         m_allocator.Initialize(reinterpret_cast<MemoryAllocator::memoryaddress_t>(&HEAP_START), memoryTop);
 
         // Init logging
-        BIOS::CallBios(0x10, "ah, al", 0x00, 0x03);  // 80x25 video mode
+        HW::BIOS::CallBios(0x10, "ah, al", 0x00, 0x03);  // 80x25 video mode
 
         auto vgaInterface = StaticRefCast<TerminalManager::ITerminalInterface>(MakeRef<HW::VGAInterface>());
         m_terminalManager = MakeRef<TerminalManager::TerminalManager>(vgaInterface);
         m_terminalManager->ClearScreen();
 
         m_logger.AddSink(MakeRef<TerminalManager::TerminalManagerLoggingSink>(m_terminalManager));
-        FB_LOG_OK("Hello");
+        FB_LOG_INFO("FunnyOS Bootloader");
 
-        // Test BIOS calls
-        uint32_t continuation = 0;
-        uint32_t confirmation;
+        // Get RTC clock
+        HW::CMOS::RTCTime time = HW::CMOS::FetchRTCTime();
+        FB_LOG_INFO_F(
+            "Date: %04d/%02d/%02d %02d:%02d", time.Year, time.Month, time.DayOfMonth, time.Hours, time.Minutes);
 
-        struct {
-            uint64_t base;
-            uint64_t length;
-            uint32_t type;
-        } buffer;
-
-        do {
-            BIOS::CallBios(
-                0x15, "eax, edx, ebx, ecx, es, di, =ebx, =eax", static_cast<uint32_t>(0x0000E820),
-                static_cast<uint32_t>(0x534D4150), continuation, (uint32_t)sizeof(buffer),
-                BIOS::GetRealModeSegment(&buffer), BIOS::GetRealModeOffset(&buffer), &continuation, &confirmation);
-
-            if (confirmation != 0x534D4150) {
-                FB_LOG_ERROR_F("Invalid confirmation %08llx", confirmation);
-                break;
-            }
-
-            FB_LOG_DEBUG_F("B %016llx L %016llx T %d", buffer.base, buffer.length, buffer.type);
-        } while (continuation != 0);
+        // Initialize high memory
+        InitializeHighMemory();
+        DumpMemoryMap();
 
         for (;;) {
         }
