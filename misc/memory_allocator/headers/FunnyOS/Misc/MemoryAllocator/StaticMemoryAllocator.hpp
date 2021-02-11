@@ -3,12 +3,9 @@
 
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 
-namespace FunnyOS::Misc::MemoryAllocator {
+#include "MemoryAllocator.hpp"
 
-    /**
-     * Memory address integer representation.
-     */
-    using memoryaddress_t = uintmax_t;
+namespace FunnyOS::Misc::MemoryAllocator {
 
     /**
      * Type of a memory.
@@ -47,7 +44,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
     /**
      * Simple and efficient memory allocator, tracking all free blocks and merging them if possible.
      */
-    class StaticMemoryAllocator {
+    class StaticMemoryAllocator : public IMemoryAllocator {
        public:
         /**
          * Initializes the memory allocator.
@@ -57,34 +54,11 @@ namespace FunnyOS::Misc::MemoryAllocator {
          */
         void Initialize(memoryaddress_t memoryStart, memoryaddress_t memoryEnd) noexcept;
 
-        /**
-         * Allocates a chunk of memory.
-         *
-         * @param[in] size size of the memory
-         * @param[in] alignment memory alignment
-         * @return the newly allocated chunk or nullptr if not enough memory.
-         */
-        [[nodiscard]] void* Allocate(size_t size, size_t alignment) noexcept;
+        void* Allocate(size_t size, size_t alignment) noexcept override;
 
-        /**
-         * Frees a chunk of memory previously allocated via Allocate or Reallocate.
-         * Any other parameter will cause an undefined behaviour.
-         *
-         * @param[in,out] ptr memory to free
-         */
-        void Free(void* ptr) noexcept;
+        void Free(void* ptr) noexcept override;
 
-        /**
-         * Reallocates the given memory previously allocated via Allocate or Reallocate.
-         * The contents of the newly allocated memory will be copied from the old memory.
-         * The old memory will be freed.
-         *
-         * @param[in,out] ptr memory, is is freed when return value of this function is not nullptr
-         * @param[in] size size of the memory block.
-         * @param[in] alignment memory alignment
-         * @return the newly allocated chunk or nullptr if not enough memory.
-         */
-        [[nodiscard]] void* Reallocate(void* ptr, size_t size, size_t alignment) noexcept;
+        void* Reallocate(void* ptr, size_t size, size_t alignment) noexcept override;
 
         /**
          * Gets the highest memory address that this allocator ever allocated.

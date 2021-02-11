@@ -61,7 +61,7 @@ namespace FunnyOS::Bootloader64 {
          *
          * @return the bootloader's low memory allocator
          */
-        Misc::MemoryAllocator::StaticMemoryAllocator& GetAllocator();
+        Misc::MemoryAllocator::IMemoryAllocator& GetAllocator();
 
         /**
          * Returns the main bootloader's logger

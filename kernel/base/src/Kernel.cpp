@@ -127,8 +127,8 @@ namespace FunnyOS::Kernel {
         // Setup memory management
         m_physicalMemoryManager.Initialize(parameters.MemoryMap);
         m_virtualMemoryManager.InitializePageTables();
-        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::PageTableReclaimable);
-        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryMapEntryType::LongMemReclaimable);
+        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryRegionType::PageTableReclaimable);
+        m_physicalMemoryManager.ReclaimMemory(Bootparams::MemoryRegionType::LongMemReclaimable);
 
         FK_LOG_OK("Kernel initialized.");
 

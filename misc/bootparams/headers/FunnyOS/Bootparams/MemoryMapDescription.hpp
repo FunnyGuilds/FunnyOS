@@ -8,26 +8,9 @@
 namespace FunnyOS::Bootparams {
 
     /**
-     * ACPI 3.0 Extended attributes flags for memory map entries.
-     */
-    namespace ACPI30Flags {
-        /**
-         * If it is not set the memory block should be ignored, as it it was reserved
-         */
-        constexpr static uint32_t DONT_IGNORE = 1 << 0;
-
-        /**
-         * According to the standard "Memory reported as non-volatile may require characterization to determine its
-         * suitability for use as conventional RAM.". Whatever that means.
-         */
-        constexpr static uint32_t MEMORY_VOLATILE = 1 << 1;
-
-    }  // namespace ACPI30Flags
-
-    /**
      * Type of a memory entry.
      */
-    enum class MemoryMapEntryType : uint32_t {
+    enum class MemoryRegionType : uint32_t {
         /**
          * Any other type that is not defined.
          */
@@ -79,41 +62,34 @@ namespace FunnyOS::Bootparams {
     };
 
     /**
+     * Represents an integer type used for storing physical addresses.
+     *
+     * Physical addresses can be accessed via PhysicalAddressToPointer.
+     */
+    using physicaladdress_t = uint64_t;
+
+    /**
      * An entry in the memory map.
      */
-    struct MemoryMapEntry {
+    struct MemoryRegion {
         /**
-         * Where the memory described by this entry starts.
+         * Start of the region (inclusive)
          */
-        uint64_t BaseAddress;
+        uint64_t RegionStart;
 
         /**
-         * Length of the memory.
+         * End of the region (exclusive)
          */
-        uint64_t Length;
+        uint64_t RegionEnd;
 
         /**
          * Type of the memory.
          */
-        MemoryMapEntryType Type;
+        MemoryRegionType Type;
 
-        /**
-         * ACPI extended flags of this memory region.
-         *
-         * This value should be read only when MemoryMapHasAcpiExtendedAttribute is true.
-         * Otherwise it can be ignored.
-         */
-        uint32_t ACPIFlags;
-    };
-
-    struct MemoryMapDescription {
-        /**
-         * Whether or not the MemoryMapEntries will have valid ACPIFlags
-         */
-        bool HasAcpiExtendedAttribute;
-
-        Stdlib::Vector<MemoryMapEntry> Entries;
-
+        bool IsInRegion(uint64_t address) {
+            return address >= RegionStart && address < RegionEnd;
+        }
     };
 
 }  // namespace FunnyOS::Bootparams

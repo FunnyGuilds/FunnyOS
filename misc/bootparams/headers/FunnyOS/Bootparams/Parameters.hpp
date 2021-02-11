@@ -17,7 +17,7 @@ namespace FunnyOS::Bootparams {
         /**
          * Map of the system memory.
          */
-        MemoryMapDescription MemoryMap;
+        Stdlib::Vector<MemoryRegion> MemoryMap;
 
         /**
          * VESA informations.

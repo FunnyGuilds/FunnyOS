@@ -92,7 +92,7 @@ namespace FunnyOS::Bootloader64 {
         return c_bootloader;
     }
 
-    Misc::MemoryAllocator::StaticMemoryAllocator& Bootloader::GetAllocator() {
+    Misc::MemoryAllocator::IMemoryAllocator& Bootloader::GetAllocator() {
         return m_allocator;
     }
 

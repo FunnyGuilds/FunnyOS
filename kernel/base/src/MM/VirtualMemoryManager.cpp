@@ -180,18 +180,18 @@ namespace FunnyOS::Kernel::MM {
         }
 
         // Map kernel image
-        auto kernelImage = Stdlib::Find(m_pmm.GetOriginalMemoryMap(), [](const Bootparams::MemoryMapEntry& entry) {
-            return entry.Type == Bootparams::MemoryMapEntryType::KernelImage;
+        auto kernelImage = Stdlib::Find(m_pmm.GetMemoryRegions(), [](const InitializedMemoryRegion& entry) {
+            return entry.MemoryRegion.Type == Bootparams::MemoryRegionType::KernelImage;
         });
-        F_ASSERT(kernelImage != m_pmm.GetOriginalMemoryMap().End(), "no KernelImage in memory map");
+        F_ASSERT(kernelImage != m_pmm.GetMemoryRegions().End(), "no KernelImage in memory map");
 
-        const physicaladdress_t kernelBase = kernelImage->BaseAddress;
-        const size_t kernelLength          = kernelImage->Length;
+        const physicaladdress_t kernelBase = kernelImage->MemoryRegion.RegionStart;
+        const size_t kernelLength          = kernelImage->MemoryRegion.RegionEnd - kernelBase;
         const auto kernelPages             = Stdlib::Math::DivideRoundUp<physicaladdress_t>(kernelLength, PAGE_SIZE);
 
         FK_LOG_DEBUG_F(
-            VMM_PREFIX "Kernel physical base: 0x%08llx. Size: 0x%08llx bytes", kernelImage->BaseAddress,
-            kernelImage->Length);
+            VMM_PREFIX "Kernel physical base: 0x%08llx. Size: 0x%08llx bytes", kernelImage->MemoryRegion.RegionStart,
+            kernelLength);
 
         FK_LOG_DEBUG_F(
             VMM_PREFIX "Mapping %llu bytes of kernel data at virtual address 0x%016llx", physicalPages * PAGE_SIZE,

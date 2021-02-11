@@ -27,6 +27,7 @@ fi
 
 cat <<EOT >> ${SCRIPT}
 clock: sync=realtime
+memory: guest=1024, host=1024
 ata0-master: type=disk, path=${OUTPUT}, mode=flat, cylinders=1024, heads=16, spt=32, translation=none
 boot: disk
 EOT

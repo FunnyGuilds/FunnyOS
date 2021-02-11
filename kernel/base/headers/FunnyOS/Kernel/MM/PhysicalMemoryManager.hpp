@@ -30,7 +30,7 @@ namespace FunnyOS::Kernel {
          *
          * Physical addresses can be accessed via PhysicalAddressToPointer.
          */
-        using physicaladdress_t = uint64_t;
+        using physicaladdress_t = Bootparams::physicaladdress_t;
 
         /**
          * Value representing a null physical address. (equivalent of a [nullptr] for pointers)
@@ -86,9 +86,9 @@ namespace FunnyOS::Kernel {
         };
 
         /**
-         * Memory chunk control block is a structure that is put at the beginning of every initialized MemoryRegion.
+         * Memory chunk control block is a structure that is put at the beginning of every initialized InitializedMemoryRegion.
          *
-         * It holds basic information about that MemoryRegion.
+         * It holds basic information about that InitializedMemoryRegion.
          */
         struct MemoryChunkControlBlock {
             /**
@@ -122,22 +122,12 @@ namespace FunnyOS::Kernel {
         /**
          * Describes a region in the physical memory.
          */
-        struct MemoryRegion {
+        struct InitializedMemoryRegion {
            public:
             /**
              * Type of the memory in this region.
              */
-            Bootparams::MemoryMapEntryType RegionMemoryType;
-
-            /**
-             * Start of the region (inclusive)
-             */
-            physicaladdress_t RegionStart;
-
-            /**
-             * End of the region (exclusive)
-             */
-            physicaladdress_t RegionEnd;
+            Bootparams::MemoryRegion MemoryRegion;
 
             /**
              * Whether or not this region has any usability for the PhysicalMemoryManager.
@@ -254,22 +244,22 @@ namespace FunnyOS::Kernel {
         /**
          * Checks whether or not this memory type is available to use as is.
          */
-        bool IsMemoryTypeAvailable(Bootparams::MemoryMapEntryType type);
+        bool IsMemoryTypeAvailable(Bootparams::MemoryRegionType type);
 
         /**
          * Checks whether or not this memory type may be reclaimed and turned into available memory in the future.
          */
-        bool IsMemoryTypeReclaimable(Bootparams::MemoryMapEntryType type);
+        bool IsMemoryTypeReclaimable(Bootparams::MemoryRegionType type);
 
         /**
-         * Checks whether the memory map entry and index [entryIndex] is usable and is either available or reclaimable.
+         * Checks whether or not this memory type is usable and is either available or reclaimable.
          */
-        bool IsMemoryMapEntryUsable(const Bootparams::MemoryMapDescription& map, size_t entryIndex);
+        bool IsMemoryMapEntryUsable(Bootparams::MemoryRegionType type);
 
         /**
          * Checks whether physical address [address] is contained in region [region]
          */
-        bool IsInRegion(physicaladdress_t address, const MemoryRegion& region);
+        bool IsInRegion(physicaladdress_t address, const InitializedMemoryRegion& region);
 
         /**
          * Gets a wiegh of a memory type.
@@ -280,7 +270,7 @@ namespace FunnyOS::Kernel {
          * with the highest weight will be the one that will get the sole ownership of that area. (In case of two
          * regions with the same weight containing the same the owner is choosen arbitrarily).
          */
-        unsigned int GetMemoryTypeWeight(Bootparams::MemoryMapEntryType type);
+        unsigned int GetMemoryTypeWeight(Bootparams::MemoryRegionType type);
 
         /**
          * Manager for physical memory. Responsible for keeping track of usable memory and allocating and freeing
@@ -290,13 +280,13 @@ namespace FunnyOS::Kernel {
            public:
             /**
              * Initializes this PhysicalMemoryManager with the given memory map.
-             * The PhysicalMemoryManager will build a MemoryRegion map based on the given memory map and initialize
+             * The PhysicalMemoryManager will build a InitializedMemoryRegion map based on the given memory map and initialize
              * every entry below the 4GB memory boundary. To initialize entries above 4GB boundary ReclaimMemory must
              * be called with parameter [LongMemReclaimable].
              *
              * @param map initial memory map passed by the bootloader from E820 call.
              */
-            void Initialize(const Bootparams::MemoryMapDescription& map);
+            void Initialize(const Stdlib::Vector<Bootparams::MemoryRegion>& map);
 
             /**
              * Makes reclaimable memory of the given type [type] reclaimed, it is marked as ready to be used and
@@ -304,7 +294,14 @@ namespace FunnyOS::Kernel {
              *
              * @param type type of memory to be reclaimed
              */
-            void ReclaimMemory(Bootparams::MemoryMapEntryType type);
+            void ReclaimMemory(Bootparams::MemoryRegionType type);
+
+            /**
+             * Returns all initialized memory regions in the system's physical memory.
+             *
+             * @return all initialized memory regions in the system's physical memory.
+             */
+            const Stdlib::Vector<InitializedMemoryRegion>& GetMemoryRegions() const;
 
             /**
              * Allocates [pages] of subsequent memory pages.
@@ -368,65 +365,27 @@ namespace FunnyOS::Kernel {
              */
             physicaladdress_t GetPhysicalMemoryTop() const;
 
-            /**
-             * Gets the original memory map passed by the bootloader.
-             * This memory map may contain overlapping areas.
-             *
-             * @return the original memory map
-             */
-            const Stdlib::Vector<Bootparams::MemoryMapEntry>& GetOriginalMemoryMap() const;
-
            private:
             PhysicalMemoryManager();
 
             /**
-             * Find a MemoryRegion that contains the address [address]
+             * Find a InitializedMemoryRegion that contains the address [address]
              *
              * @param address address to search for
              *
-             * @return MemoryRegion containing this address or empty optional if no region contains this address.
+             * @return InitializedMemoryRegion containing this address or empty optional if no region contains this address.
              */
-            Stdlib::Optional<MemoryRegion> FindEntryForRegion(physicaladdress_t address);
+            Stdlib::Optional<InitializedMemoryRegion> FindEntryForRegion(physicaladdress_t address);
 
             /**
-             * Initializes every MemoryRegion marked as ready.
+             * Initializes every InitializedMemoryRegion marked as ready.
              *
              * It marks every region as initialized and sets up a control block and allocation bitmap for that region.
              */
             void InitializeMemoryRegions();
 
             /**
-             * Removes any overlapping areas in memory regions using a weight system (every memory region has its own
-             * weight based on its type (see GetMemoryTypeWeight)).
-             *
-             * If there is a conflicting and a part of memory is described by two or more memory regions, the region
-             * with the highest chosen as the sole owner of a memory area.
-             *`
-             * Example:
-             *  Memory before removing overlapping regions:
-             *      +-----------------------------+                                +-----------------------------+
-             *      + 0x1000 -> 0x2000. Weight: 3 +                                + 0x3000 -> 0x4000. Weight: 1 +
-             *      +-----------------------------+                                +-----------------------------+
-             *                            +---------------------------------------------+
-             *                            +         0x1500 -> 0x3500. Weight: 2         +
-             *                            +---------------------------------------------+
-             *                            ^^^^^^^^^^                               ^^^^^^
-             *                            ^ Overlapping area 1                     ^ Overlapping area 2
-             *                            ^ Will be taken by block                 ^ Will be taken by block
-             *                            ^ with weight 3                          ^ with weight 2
-             *                            ^                                        ^
-             *
-             *  After:
-             *   +-----------------------------+ +-----------------------------------+ +-----------------------------+
-             *   + 0x1000 -> 0x2000. Weight: 3 + +    0x2000 -> 0x3500. Weight: 2    + + 0x3500 -> 0x4000. Weight: 1 +
-             *   +-----------------------------+ +-----------------------------------+ +-----------------------------+
-             *
-             *  Resulting memory is guaranteed to have no overlapping memory regions.
-             */
-            void RemoveOverlappingRegions();
-
-            /**
-             * Removes all regions from the MemoryRegion list that are not marked as usable.
+             * Removes all regions from the InitializedMemoryRegion list that are not marked as usable.
              */
             void ClearUnusableRegions();
 
@@ -440,8 +399,7 @@ namespace FunnyOS::Kernel {
             friend class ::FunnyOS::Kernel::Kernel64;
 
            private:
-            Stdlib::Vector<Bootparams::MemoryMapEntry> m_memoryMap;
-            Stdlib::Vector<MemoryRegion> m_memoryRegions;
+            Stdlib::Vector<InitializedMemoryRegion> m_memoryRegions;
             MemoryStatistics m_memoryStatistics;
             physicaladdress_t m_physicalMemoryTop;
         };
