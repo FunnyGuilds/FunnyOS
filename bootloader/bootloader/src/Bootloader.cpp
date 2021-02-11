@@ -2,8 +2,10 @@
 
 #include <FunnyOS/Misc/TerminalManager/TerminalManagerLoggingSink.hpp>
 #include <FunnyOS/Hardware/GFX/VGA.hpp>
+#include <FunnyOS/Hardware/BIOS.hpp>
+#include <FunnyOS/Hardware/CMOS.hpp>
 
-#include "BIOS.hpp"
+#include "HighMemory.hpp"
 
 extern void* HEAP_START;
 
@@ -56,6 +58,10 @@ namespace FunnyOS::Bootloader64 {
 
         // Init allocator
         m_allocator.Initialize(reinterpret_cast<MemoryAllocator::memoryaddress_t>(&HEAP_START), memoryTop);
+
+        // Setup BIOS calls
+        HW::BIOS::SetupCallBiosInterface(
+            GDT_SELECTOR_CODE64, GDT_SELECTOR_DATA64, GDT_SELECTOR_CODE16, GDT_SELECTOR_DATA16);
 
         // Init logging
         HW::BIOS::CallBios(0x10, "ah, al", 0x00, 0x03);  // 80x25 video mode
