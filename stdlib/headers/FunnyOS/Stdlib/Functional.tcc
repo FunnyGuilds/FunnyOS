@@ -112,7 +112,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T, typename... Args>
     inline Optional<T> MakeOptional(Args&&... args) {
-        return Optional<T>(InPlaceConstructorTag::Value, Forward(args)...);
+        return Optional<T>(InPlaceConstructorTag::Value, Forward<Args>(args)...);
     }
 
     template <typename Container>
