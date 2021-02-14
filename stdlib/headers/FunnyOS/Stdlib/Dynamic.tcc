@@ -72,7 +72,15 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     SmartSizedBuffer<T>::~SmartSizedBuffer() {
+        Free();
+    }
+
+    template <typename T>
+    void SmartSizedBuffer<T>::Free() {
         Memory::FreeBuffer(*this);
+
+        this->Data = nullptr;
+        this->Size = 0;
     }
 
     template <typename T, typename Deleter>

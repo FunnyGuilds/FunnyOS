@@ -24,7 +24,7 @@ namespace FunnyOS::Stdlib {
         MOVEABLE(SmartSizedBuffer);
 
         /**
-         * Consrtucts the buffer and allocates [size] * sizeof(T) bytes of data.
+         * Constructs the buffer and allocates [size] * sizeof(T) bytes of data.
          *
          * @param size size of the buffer
          */
@@ -34,6 +34,11 @@ namespace FunnyOS::Stdlib {
          * Destructs the buffer and frees its data.
          */
         virtual ~SmartSizedBuffer();
+
+        /**
+         * Frees the buffer.
+         */
+        void Free();
     };
 
     /**

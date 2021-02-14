@@ -276,6 +276,13 @@ namespace FunnyOS::Stdlib {
         void Clear();
 
         /**
+         * Converts this vector to a SizedBuffer that points to the vector's data.
+         *
+         * @return sized buffer based on this vector
+         */
+        Memory::SizedBuffer<T> AsSizedBuffer();
+
+        /**
          * Returns an iterator pointing at the beginning of the vector.
          *
          * @return iterator pointing at the beginning of the vector.

@@ -268,6 +268,11 @@ namespace FunnyOS::Stdlib {
         m_size = 0;
     }
 
+    template<typename T>
+    Memory::SizedBuffer<T> Vector<T>::AsSizedBuffer() {
+        return m_data;
+    }
+
     template <typename T>
     typename Vector<T>::Iterator Vector<T>::Begin() noexcept {
         return m_data.Data;
@@ -304,9 +309,7 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     void Vector<T>::CheckBounds(size_t index) const {
         if (index >= m_size) {
-            String::StringBuffer errorBuffer = Memory::AllocateBuffer<char>(32);
-            String::Format(errorBuffer, "%zu >= %zu", index, m_size);
-            F_ERROR_WITH_MESSAGE(VectorIndexOutOfBounds, errorBuffer.Data);
+            F_ERROR_WITH_MESSAGE(VectorIndexOutOfBounds, "vector index out of bounds");
         }
     }
 
