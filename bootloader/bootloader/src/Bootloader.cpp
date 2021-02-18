@@ -5,6 +5,8 @@
 #include <FunnyOS/Hardware/BIOS.hpp>
 #include <FunnyOS/Hardware/CMOS.hpp>
 
+#include "BiosFile.hpp"
+#include "BootloaderConfig.hpp"
 #include "HighMemory.hpp"
 
 extern void* HEAP_START;
@@ -86,6 +88,28 @@ namespace FunnyOS::Bootloader64 {
         FB_LOG_DEBUG_F("High memory available total:   %llu MB", GetTotalHighMemoryAvailable() / 1024 / 1024);
         FB_LOG_DEBUG_F(
             "High memory available current: %llu MB", GetHighMemoryAllocator().GetTotalAvailableMemory() / 1024 / 1024);
+
+        // Init file system
+        Bootparams::BootDriveInfo bootDriveInfo{bootDrive, bootPartition};
+        InitializeFileSystem(bootDriveInfo);
+
+        // Test file read
+        Stdlib::Optional<Stdlib::File> file = OpenFile(F_BOOTLOADER_INI_FILE_PATH);
+
+        if (!file) {
+            FB_LOG_ERROR("no file :(");
+        } else {
+            // allocate string
+            DynamicString string{file->GetReadInterface()->GetEstimatedSize(), ""};
+            Memory::SizedBuffer<uint8_t> buf{reinterpret_cast<uint8_t*>(string.Begin()), string.Size()};
+
+            // read data
+            file->GetReadInterface()->ReadData(buf);
+
+            // print
+            string.Replace("\n", "\r\n");
+            FB_LOG_DEBUG_F("File: %s: \r\n%s", file->GetFileName().AsCString(), string.AsCString());
+        }
 
         for (;;) {
         }

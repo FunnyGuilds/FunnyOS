@@ -12,6 +12,7 @@ configure_file(
 
 # Create .elf executable
 add_executable(FunnyOS_Bootloader_Bootloader
+        src/BiosFile.cpp
         src/Bootloader.cpp
         src/BootloaderABI.cpp
         src/BootloaderPlatformImpl.cpp
