@@ -33,6 +33,20 @@ namespace FunnyOS::Stdlib {
         TRIVIALLY_MOVEABLE(BasicDynamicString);
 
         /**
+         * Constructs a new, empty string, this does not allocate anything on the heap.
+         */
+        BasicDynamicString();
+
+        /**
+         * Constructs a string, filled with copies of the given pattern, if [count] is larger than the size of the
+         * pattern, the pattern will be repeated.
+         *
+         * @param count how many characters to fill with the pattern
+         * @param pattern pattern
+         */
+        BasicDynamicString(size_t count, const char* pattern);
+
+        /**
          * Constructs a new string that copies all characters from the given string.
          *
          * @param[in] data string to copy characters from, must be terminated by a null byte
@@ -103,6 +117,59 @@ namespace FunnyOS::Stdlib {
         void Append(const BasicDynamicString<T>& value);
 
         /**
+         * Replaces every occurrence of a string [from] to a string [to].
+         *
+         * @param from string to be replaced
+         * @param to replacement
+         */
+        void Replace(const BasicDynamicString<T>& from, const BasicDynamicString<T>& to);
+
+        /**
+         * Replaces every occurrence of a character [from] to a character [to].
+         *
+         * @param from character to be replaced
+         * @param to replacement
+         */
+        void Replace(T from, T to);
+
+        /**
+         * Removes any leading and trailing whitespace from a string
+         */
+        void Trim();
+
+        /**
+         * Removes any number of leading and trailing consecutive characters that match any character in [characters].
+         *
+         * @param[in] characterSet characters to be removed
+         */
+        void Trim(const char* characterSet);
+
+        /**
+         * Converts all characters in a string to their lowercase equivalents.
+         */
+        void ToLowercase();
+
+        /**
+         * Converts all characters in a string to their uppercase equivalents.
+         */
+        void ToUppercase();
+
+        /**
+         * Returns a reference to a vector that can be used to view or modify the string's allocated heap data.
+         */
+        Vector<T>& AsVectorView();
+
+        /**
+         * Returns a reference to a const vector that can be used to view the string's allocated heap data.
+         */
+        const Vector<T>& AsVectorView() const;
+
+        /**
+         * Returns a const reference to the string's characters.
+         */
+        const T* AsCString() const;
+
+        /**
          * Returns an iterator pointing at the beginning of the string.
          *
          * @return iterator pointing at the beginning of the string.
@@ -133,7 +200,7 @@ namespace FunnyOS::Stdlib {
         HAS_STANDARD_ITERATORS;
 
        private:
-        Stdlib::Vector<T> m_data;
+        Vector<T> m_data;
     };
 
     using DynamicString = BasicDynamicString<char>;
