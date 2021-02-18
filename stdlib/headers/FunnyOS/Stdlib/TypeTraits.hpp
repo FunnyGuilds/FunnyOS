@@ -4,17 +4,6 @@
 // clang-format off
 namespace FunnyOS::Stdlib {
 
-    namespace Detail {
-        template <bool Expression, typename T = void> struct EnableIf {};
-
-        template <typename T> struct EnableIf<true, T> { using type = T; };
-    }  // namespace Detail
-
-    /**
-     * An expression that is only valid valid whe [Expression] type parameter is true.
-     */
-    template <bool Expression, typename T = void> using EnableIf = typename Detail::EnableIf<Expression, T>::type;
-
     /**
      * Represents a type that has a value.
      *
@@ -40,6 +29,39 @@ namespace FunnyOS::Stdlib {
      */
     struct False : HasBooleanValue<false> {};
 
+    /**
+     * Represents a type that has a 'type' value.
+     *
+     * @tparam T the type
+     */
+    template <typename T> struct HasType { using Type = T; };
+
+    namespace Detail {
+        template <bool C, typename T, typename F> struct Conditional              : HasType<T> {};
+        template <        typename T, typename F> struct Conditional<false, T, F> : HasType<F> {};
+    }  // namespace Detail
+
+    /**
+     * Conditional type, equal to [T] if [C] evaluates to true, or to [F] if [C] evaluates to false.
+     *
+     * @tparam C condition to evaluate
+     * @tparam T type if C is equal true
+     * @tparam F type if F is equal false
+     */
+    template <bool C, typename T, typename F>
+    using Conditional = typename Detail::Conditional<C, T, F>::Type;
+
+    namespace Detail {
+        template <bool Expression, typename T = void> struct EnableIf {};
+
+        template <typename T> struct EnableIf<true, T> { using type = T; };
+    }  // namespace Detail
+
+    /**
+     * An expression that is only valid valid whe [Expression] type parameter is true.
+     */
+    template <bool Expression, typename T = void> using EnableIf = typename Detail::EnableIf<Expression, T>::type;
+
     namespace Detail {
         template <typename A, typename B>  struct IsSame         : False {};
         template <typename A>              struct IsSame<A, A>   : True {};
@@ -51,13 +73,6 @@ namespace FunnyOS::Stdlib {
      * @tparam B value to check
      */
     template <typename A, typename B> constexpr bool IsSame = Detail::IsSame<A, B>::Value;
-
-    /**
-     * Represents a type that has a 'type' value.
-     *
-     * @tparam T the type
-     */
-    template <typename T> struct HasType { using Type = T; };
 
     namespace Detail {
         template <typename T> struct RemoveVolatile             : HasType<T> {};
@@ -88,6 +103,30 @@ namespace FunnyOS::Stdlib {
     template<typename T> using RemoveCV = typename Detail::RemoveCV<T>::Type;
 
     namespace Detail {
+        template <typename T> struct IsConst          : False {};
+        template <typename T> struct IsConst<const T> : True {};
+
+        template <typename T> struct IsVolatile             : False {};
+        template <typename T> struct IsVolatile<volatile T> : True {};
+    }
+
+    /**
+     * Checks if the given type [T] is 'const' qualified
+     *
+     * @param T type to check
+     */
+    template<typename T>
+    constexpr bool IsConst = Detail::IsConst<T>::Value;
+
+    /**
+     * Checks if the given type [T] is 'volatile' qualified
+     *
+     * @param T type to check
+     */
+    template<typename T>
+    constexpr bool IsVolatile = Detail::IsVolatile<T>::Value;
+
+    namespace Detail {
         template <typename T> struct RemoveReference      : HasType<T> {};
         template <typename T> struct RemoveReference<T&>  : HasType<T> {};
         template <typename T> struct RemoveReference<T&&> : HasType<T> {};
@@ -104,10 +143,10 @@ namespace FunnyOS::Stdlib {
     /**
      * Check if T is void, possibly CV-qualified
      *
-     * @param T to to check
+     * @param T type to check
      */
      template <typename T>
-     bool IsVoid = IsSame<RemoveCV<T>, void>;
+    constexpr bool IsVoid = IsSame<RemoveCV<T>, void>;
 
 }  // namespace FunnyOS::Stdlib
 // clang-format on
