@@ -270,7 +270,7 @@ namespace FunnyOS::Stdlib {
 
     template<typename T>
     Memory::SizedBuffer<T> Vector<T>::AsSizedBuffer() {
-        return m_data;
+        return Memory::SizedBuffer<T> { m_data.Data, m_size };
     }
 
     template <typename T>
