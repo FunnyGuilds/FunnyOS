@@ -322,6 +322,10 @@ namespace FunnyOS::Stdlib {
         void EnsureCapacityExact(size_t num);
 
        private:
+        template <typename>
+        friend class BasicDynamicString;
+
+       private:
         growth_factor_t m_growthFactor{DEFAULT_GROWTH_FACTOR};
         size_t m_size{0};
         Memory::SizedBuffer<T> m_data;

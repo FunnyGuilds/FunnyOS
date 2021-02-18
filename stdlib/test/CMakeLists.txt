@@ -1,6 +1,7 @@
 add_executable(FunnyOS_Stdlib_Base_Tests
         StdlibPlatform.cpp
         TestAlgorithm.cpp
+        TestDynamicString.cpp
         TestFunctional.cpp
         TestLinkedList.cpp
         TestMemory.cpp

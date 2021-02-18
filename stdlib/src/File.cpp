@@ -26,12 +26,12 @@ namespace FunnyOS::Stdlib {
         m_currentOffset = currentOffset;
     }
 
-    File::File(String::DynamicString name, Owner<IWriteInterface> writeInterface, Owner<IReadInterface> readInterface)
+    File::File(DynamicString name, Owner<IWriteInterface> writeInterface, Owner<IReadInterface> readInterface)
         : m_name { Move(name) }, m_writeInterface(Move(writeInterface)), m_readInterface(Move(readInterface)) {
 
     }
 
-    const String::DynamicString& File::GetFileName() const {
+    const DynamicString& File::GetFileName() const {
         return m_name;
     }
 
@@ -39,11 +39,11 @@ namespace FunnyOS::Stdlib {
         return m_writeInterface.Get() != nullptr;
     }
 
-    const Owner<IWriteInterface>& File::GetWriteInterface() const {
+    Owner<IWriteInterface>& File::GetWriteInterface() {
         return m_writeInterface;
     }
 
-    const Owner<IReadInterface>& File::GetReadInterface() const {
+    Owner<IReadInterface>& File::GetReadInterface() {
         return m_readInterface;
     }
 
