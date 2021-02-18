@@ -68,7 +68,10 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
     void StaticMemoryAllocator::Initialize(memoryaddress_t memoryStart, memoryaddress_t memoryEnd) noexcept {
         m_currentMemory = memoryStart;
+        m_memoryStart   = memoryStart;
         m_memoryEnd     = memoryEnd;
+        m_totalMemory   = memoryEnd - memoryStart;
+        m_usedMemory    = 0;
 
         m_firstFreeBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
         m_lastFreeBlock  = m_firstFreeBlock;
@@ -78,6 +81,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
         m_firstFreeBlock->NextFreeBlock = 0;
 
         m_currentMemory += sizeof(MemoryMetaBlock);
+        m_usedMemory += sizeof(MemoryMetaBlock);
     }
 
     void* StaticMemoryAllocator::Allocate(size_t size, size_t alignment) noexcept {
@@ -102,6 +106,10 @@ namespace FunnyOS::Misc::MemoryAllocator {
     void StaticMemoryAllocator::Free(void* ptr) noexcept {
         auto* block = GetMemoryBlock(ptr);
 
+        if (reinterpret_cast<uint64_t>(&block->Status) == 0x141b0) {
+            asm ("nop");
+        }
+
         if (block->Status == MemoryMetaStatus::Freed) {
             // whatever, maybe this should be reported?
             return;
@@ -124,6 +132,9 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
         // Mark it as free
         block->Status = MemoryMetaStatus::Freed;
+
+        // Update used memory
+        m_usedMemory -= block->BlockSize;
 
         // If the free has created any Freed memory clumps we should try to merge them.
         MergeMemory();
@@ -152,8 +163,28 @@ namespace FunnyOS::Misc::MemoryAllocator {
         return newMemory;
     }
 
+    size_t StaticMemoryAllocator::GetTotalFreeMemory() const noexcept {
+        return m_totalMemory - m_usedMemory;
+    }
+
+    size_t StaticMemoryAllocator::GetAllocatedMemory() const noexcept {
+        return m_usedMemory;
+    }
+
+    size_t StaticMemoryAllocator::GetTotalAvailableMemory() const noexcept {
+        return m_totalMemory;
+    }
+
+    size_t StaticMemoryAllocator::GetMemoryBlockSize(void* ptr) {
+        return static_cast<size_t>(GetMemoryBlock(ptr)->BlockSize);
+    }
+
     memoryaddress_t StaticMemoryAllocator::GetCurrentMemoryTop() const noexcept {
         return m_currentMemory;
+    }
+
+    memoryaddress_t StaticMemoryAllocator::GetMemoryStart() const noexcept {
+        return m_memoryStart;
     }
 
     memoryaddress_t StaticMemoryAllocator::GetMemoryEnd() const noexcept {
@@ -197,6 +228,8 @@ namespace FunnyOS::Misc::MemoryAllocator {
             predecessor->NextFreeBlock  = currentBlock->NextFreeBlock;
             currentBlock->Status        = MemoryMetaStatus::Taken;
             currentBlock->NextFreeBlock = 0;
+
+            m_usedMemory += currentBlock->BlockSize;
             return currentBlock;
         }
 
@@ -214,6 +247,8 @@ namespace FunnyOS::Misc::MemoryAllocator {
         currentBlock->BlockSize     = size;
         currentBlock->NextFreeBlock = 0;
 
+        m_usedMemory += currentBlock->BlockSize + sizeof(MemoryMetaBlock);
+
         // Update list
         predecessor->NextFreeBlock = PtrToAddress(newFreeBlock);
 
@@ -228,6 +263,11 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
         if (!IsAlignedTo(GetBlockMemory(newMetaBlock), alignment)) {
             memoryaddress_t newAlignedAddress = AlignAddress(GetBlockMemory(newMetaBlock), alignment);
+
+            if (newAlignedAddress + size > m_memoryEnd) {
+                // out of memory
+                return nullptr;
+            }
 
             // As long as the aligning block is smaller than its meta block there is no point in creating in there
             while (newAlignedAddress - PtrToAddress(GetBlockMemory(newMetaBlock)) <= sizeof(MemoryMetaBlock)) {
@@ -246,6 +286,8 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
             // Update meta block
             newMetaBlock = AddressToPtr<MemoryMetaBlock>(m_currentMemory);
+
+            m_usedMemory += sizeof(MemoryMetaBlock);
         }
 
         const memoryaddress_t lastByte = m_currentMemory + sizeof(MemoryMetaBlock) + size;
@@ -258,6 +300,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
         // Increment current memory to be pointing just after the newMetaBlock
         m_currentMemory = lastByte;
+        m_usedMemory += sizeof(MemoryMetaBlock) + size;
 
         // Setup the block and return.
         newMetaBlock->Status        = MemoryMetaStatus::Taken;
@@ -301,6 +344,9 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
             // Remove the second block from the list as it is no longer valid
             currentBlock->NextFreeBlock = nextBlock->NextFreeBlock;
+
+            // One of the blocks is now gone, update used space
+            m_usedMemory -= sizeof(MemoryMetaBlock);
 
             // Don't update currentBlock, process it one more time as more merges may possible for it
             didMerge = true;

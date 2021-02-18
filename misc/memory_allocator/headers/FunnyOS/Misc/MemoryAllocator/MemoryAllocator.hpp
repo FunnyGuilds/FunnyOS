@@ -42,6 +42,28 @@ namespace FunnyOS::Misc::MemoryAllocator {
          * @return the newly allocated chunk or nullptr if not enough memory.
          */
         [[nodiscard]] virtual void* Reallocate(void* ptr, size_t size, size_t alignment) noexcept = 0;
+
+        /**
+         * Returns the total amount of free memory, ready to be allocated.
+         *
+         * @return  the total amount of free memory
+         */
+        [[nodiscard]] virtual size_t GetTotalFreeMemory() const noexcept = 0;
+
+        /**
+         * Returns the total amount of allocated memory.
+         *
+         * @return  the total amount of allocated memory
+         */
+        [[nodiscard]] virtual size_t GetAllocatedMemory() const noexcept = 0;
+
+        /**
+         * Returns the total amount of available memory. This includes both allocated and free memory.
+         *
+         * @return  the total amount of available memory
+         */
+        [[nodiscard]] virtual size_t GetTotalAvailableMemory() const noexcept = 0;
+
     };
 
 }  // namespace FunnyOS::Misc::MemoryAllocator

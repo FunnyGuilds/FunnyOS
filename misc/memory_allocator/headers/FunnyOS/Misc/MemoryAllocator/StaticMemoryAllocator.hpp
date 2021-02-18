@@ -60,6 +60,19 @@ namespace FunnyOS::Misc::MemoryAllocator {
 
         void* Reallocate(void* ptr, size_t size, size_t alignment) noexcept override;
 
+        size_t GetTotalFreeMemory() const noexcept override;
+
+        size_t GetAllocatedMemory() const noexcept override;
+
+        size_t GetTotalAvailableMemory() const noexcept override;
+
+        /**
+         * Gets a size of a memory block that was allocated using Allocate before.
+         *
+         * @param ptr ptr returned by Allocate
+         */
+        size_t GetMemoryBlockSize(void *ptr);
+
         /**
          * Gets the highest memory address that this allocator ever allocated.
          * That is the (highest address + 1) of the top-most block.
@@ -67,6 +80,14 @@ namespace FunnyOS::Misc::MemoryAllocator {
          * @return highest memory address used by the allocator.
          */
         [[nodiscard]] memoryaddress_t GetCurrentMemoryTop() const noexcept;
+
+        /**
+         * Returns the lowest address this allocator will use when allocating new data (the bottom memory boundary).
+         * This value is inclusive.
+         *
+         * @return lowest address this allocator will use, inclusive
+         */
+        [[nodiscard]] memoryaddress_t GetMemoryStart() const noexcept;
 
         /**
          * Returns the highest address this allocator will use when allocating new data (the top memory boundary).
@@ -123,7 +144,10 @@ namespace FunnyOS::Misc::MemoryAllocator {
         MemoryMetaBlock* m_firstFreeBlock;
         MemoryMetaBlock* m_lastFreeBlock;
         memoryaddress_t m_currentMemory;
+        memoryaddress_t m_memoryStart;
         memoryaddress_t m_memoryEnd;
+        size_t m_totalMemory;
+        size_t m_usedMemory;
     };
 
 }  // namespace FunnyOS::Misc::MemoryAllocator

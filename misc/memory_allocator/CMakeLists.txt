@@ -1,4 +1,5 @@
 add_library(FunnyOS_Misc_MemoryAllocator STATIC
+        src/StaticFragmentedMemoryAllocator.cpp
         src/StaticMemoryAllocator.cpp
 )
 
