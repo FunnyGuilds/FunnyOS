@@ -23,9 +23,12 @@ namespace FunnyOS::Bootloader64 {
         }
 
         size_t ReadData(Stdlib::Memory::SizedBuffer<uint8_t>& buffer) override {
-            Stdlib::Memory::Copy(buffer, m_buffer.Data + GetCurrentOffset());
+            const size_t readSize = Stdlib::Min(buffer.Size, m_buffer.Size - GetCurrentOffset());
 
-            return buffer.Size;
+            Stdlib::Memory::Copy(buffer.Data, m_buffer.Data + GetCurrentOffset(), readSize);
+
+            SetCurrentOffset(GetCurrentOffset() + readSize);
+            return readSize;
         }
 
         size_t GetEstimatedSize() override {

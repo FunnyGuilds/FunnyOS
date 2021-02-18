@@ -94,22 +94,23 @@ namespace FunnyOS::Bootloader64 {
         InitializeFileSystem(bootDriveInfo);
 
         // Test file read
-        Stdlib::Optional<Stdlib::File> file = OpenFile(F_BOOTLOADER_INI_FILE_PATH);
+        Stdlib::Optional<Stdlib::File> file = Stdlib::OpenFile(F_BOOTLOADER_INI_FILE_PATH, Stdlib::FILE_OPEN_MODE_READ);
 
         if (!file) {
             FB_LOG_ERROR("no file :(");
         } else {
             // allocate string
-            DynamicString string{file->GetReadInterface()->GetEstimatedSize(), ""};
-            Memory::SizedBuffer<uint8_t> buf{reinterpret_cast<uint8_t*>(string.Begin()), string.Size()};
-
             // read data
-            file->GetReadInterface()->ReadData(buf);
+            Stdlib::Reader reader{Stdlib::Move(file->GetReadInterface())};
+            Stdlib::Vector<uint8_t> vector = reader.ReadWhole();
+            Stdlib::DynamicString string { reinterpret_cast<char*>(vector.Begin()), 0, vector.Size() };
 
             // print
             string.Replace("\n", "\r\n");
             FB_LOG_DEBUG_F("File: %s: \r\n%s", file->GetFileName().AsCString(), string.AsCString());
         }
+
+        FB_LOG_OK("OK");
 
         for (;;) {
         }
