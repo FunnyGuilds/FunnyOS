@@ -2,6 +2,7 @@
 #define FUNNYOS_BOOTLOADER_BOOTLOADER_SRC_HIGHMEMORY_HPP
 
 #include <FunnyOS/Bootparams/MemoryMapDescription.hpp>
+#include <FunnyOS/Misc/MemoryAllocator/StaticFragmentedMemoryAllocator.hpp>
 
 namespace FunnyOS::Bootloader64 {
 
@@ -48,6 +49,10 @@ namespace FunnyOS::Bootloader64 {
     void MergeAdjacentMemoryRegions();
 
     void InitializeHighMemory();
+
+    Misc::MemoryAllocator::StaticFragmentedMemoryAllocator& GetHighMemoryAllocator();
+
+    size_t GetTotalHighMemoryAvailable();
 
     /**
      * Dumps the memory map to the standard output. Works only in debug mode.

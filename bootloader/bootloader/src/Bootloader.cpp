@@ -82,6 +82,11 @@ namespace FunnyOS::Bootloader64 {
         InitializeHighMemory();
         DumpMemoryMap();
 
+        // Memory stats
+        FB_LOG_DEBUG_F("High memory available total:   %llu MB", GetTotalHighMemoryAvailable() / 1024 / 1024);
+        FB_LOG_DEBUG_F(
+            "High memory available current: %llu MB", GetHighMemoryAllocator().GetTotalAvailableMemory() / 1024 / 1024);
+
         for (;;) {
         }
     }

@@ -244,6 +244,25 @@ namespace FunnyOS::Bootloader64 {
 
     }  // namespace
 
+    Misc::MemoryAllocator::StaticFragmentedMemoryAllocator& GetHighMemoryAllocator() {
+        static Misc::MemoryAllocator::StaticFragmentedMemoryAllocator c_allocator;
+
+        return c_allocator;
+    }
+
+    size_t GetTotalHighMemoryAvailable() {
+        size_t total = 0;
+
+        for (auto& region : GetMemoryMap()) {
+            if (region.Type == Bootparams::MemoryRegionType::AvailableMemory ||
+                region.Type == Bootparams::MemoryRegionType::LongMemReclaimable) {
+                total += region.RegionEnd - region.RegionStart;
+            }
+        }
+
+        return total;
+    }
+
     void InitializeHighMemory() {
         // Reset map to default state
         GetMemoryMap().Clear();
@@ -262,6 +281,12 @@ namespace FunnyOS::Bootloader64 {
             region.RegionEnd   = e820Response.BaseAddress + e820Response.Length;
             region.Type        = MapE820Type(e820Response.E820Type);
         } while (continuation != 0);
+
+        // reserve low memory
+        Bootparams::MemoryRegion& lowMemoryRegion = GetMemoryMap().AppendInPlace();
+        lowMemoryRegion.RegionStart               = 0;
+        lowMemoryRegion.RegionEnd                 = 0x00100000;
+        lowMemoryRegion.Type                      = Bootparams::MemoryRegionType::ReservedMemory;
 
         RemoveOverlappingRegions();
         MergeAdjacentMemoryRegions();
@@ -292,7 +317,17 @@ namespace FunnyOS::Bootloader64 {
             GetMemoryMap().Append(Stdlib::Move(highRegion));
         }
 
-        // TODO: setup high memory allocators
+        Stdlib::Vector<Misc::MemoryAllocator::MemoryFragment> memoryFragments{4};
+
+        for (auto& region : GetMemoryMap()) {
+            if (region.Type != Bootparams::MemoryRegionType::AvailableMemory) {
+                continue;
+            }
+
+            memoryFragments.Append({region.RegionStart, region.RegionEnd});
+        }
+
+        GetHighMemoryAllocator().Initialize(memoryFragments.AsSizedBuffer());
     }
 
     void DumpMemoryMap() {
