@@ -8,11 +8,6 @@
  */
 #define SECTOR_SIZE 0x200
 
-/**
- * Name of the file to boot
- */
-#define FILE_NAME "/boot/bootload64"
-
 #define VIDEO_MEMORY ((uint8_t*)0xB8000)
 #define SCREEN_WIDTH 80
 
@@ -119,7 +114,7 @@ noreturn void fl_error(int error_code) {
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_LOAD_BPB_SIGNATURE_MISMATCH, " ** The BPB signature is invalid.\r\n");
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_CLUSTER_FROM_MAP, " ** Failed to load cluster info from FAT.\r\n");
     CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_LOAD_FAT_CLUSTER, " ** Failed to load cluster from disk.\r\n");
-    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_FIND_FILE, " ** " FILE_NAME " not found.\r\n");
+    CHECK_ERROR(QUICKFAT_ERROR_FAILED_TO_FIND_FILE, " ** " F_BOOTLOADER_EXE_FILE_PATH " not found.\r\n");
 
     fl_print("** Loading error: 0x");
     fl_print_int(error_code);
@@ -167,10 +162,10 @@ noreturn void fat_loader(uint8_t boot_drive, uint8_t boot_partition, uintptr_t m
     }
 
     // Open file
-    fl_print(" * Searching for " FILE_NAME "\r\n");
+    fl_print(" * Searching for " F_BOOTLOADER_EXE_FILE_PATH "\r\n");
 
     QuickFat_File file;
-    if ((error = quickfat_open_file(&context, &file, FILE_NAME)) != 0) {
+    if ((error = quickfat_open_file(&context, &file, F_BOOTLOADER_EXE_FILE_PATH)) != 0) {
         fl_error(error);
     }
 

@@ -71,10 +71,11 @@ echo "Mounting at $MOUNT"
 
 # System partition structure
 sudo mkdir ${MOUNT}/boot
-sudo cp ./bootloader/bootloader/bootloader64.bin   ${MOUNT}/boot/bootload64
+sudo cp ./bootloader/bootloader/bootloader64.bin   ${MOUNT}/${F_BOOTLOADER_EXE_FILE_PATH}
+sudo cp ${F_BOOTLOADER_INI_SOURCE}                 ${MOUNT}/${F_BOOTLOADER_INI_FILE_PATH}
 
 sudo mkdir ${MOUNT}/system
-sudo cp ./kernel/executable/fkrnl.fxe              ${MOUNT}/system
+sudo cp ./kernel/executable/fkrnl.fxe              ${MOUNT}/${F_KERNEL_FILE_PATH}
 
 # Set attributes if there is fatattr in path
 if command -v fatattr > /dev/null; then

@@ -1,4 +1,19 @@
-set(F_OUTPUT_IMAGE "${CMAKE_BINARY_DIR}/FunnyOS.img")
+set(F_OUTPUT_IMAGE              "${CMAKE_BINARY_DIR}/FunnyOS.img")
+set(F_BOOTLOADER_INI_SOURCE     "${CMAKE_BINARY_DIR}/bootload64.ini")
+
+# bootload.ini file config
+configure_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/files/bootload64.ini"
+        "${F_BOOTLOADER_INI_SOURCE}"
+        @ONLY
+)
+
+# build-info.sh config
+configure_file(
+        "${CMAKE_SOURCE_DIR}/targets/build-info.sh.in"
+        "${CMAKE_BINARY_DIR}/build-info.sh"
+        @ONLY
+)
 
 add_custom_command(
         OUTPUT ${F_OUTPUT_IMAGE}
