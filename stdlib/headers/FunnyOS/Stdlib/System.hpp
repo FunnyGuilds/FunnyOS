@@ -3,7 +3,6 @@
 
 #include <FunnyOS/Stdlib/Config.hpp>
 #include "Compiler.hpp"
-#include "Platform.hpp"
 
 // Copy and move constructor macros
 #define NON_COPYABLE(name)      \

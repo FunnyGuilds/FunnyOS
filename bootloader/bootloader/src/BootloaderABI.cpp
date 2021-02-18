@@ -1,3 +1,4 @@
+#include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include <FunnyOS/Stdlib/System.hpp>
 
 using namespace FunnyOS::Stdlib;

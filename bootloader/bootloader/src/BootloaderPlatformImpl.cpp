@@ -1,3 +1,4 @@
+#include <FunnyOS/Stdlib/Platform.hpp>
 #include <FunnyOS/Stdlib/IntegerTypes.hpp>
 #include "Bootloader.hpp"
 

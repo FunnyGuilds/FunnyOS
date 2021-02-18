@@ -1,4 +1,6 @@
 #include <FunnyOS/Stdlib/System.hpp>
+
+#include <FunnyOS/Stdlib/Platform.hpp>
 #include <FunnyOS/Stdlib/Memory.hpp>
 #include <FunnyOS/Stdlib/String.hpp>
 

@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstring>
 #include <malloc.h>
+#include <FunnyOS/Stdlib/Platform.hpp>
 
 namespace FunnyOS::_Platform {
     using namespace FunnyOS::Stdlib;
