@@ -31,7 +31,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
         const auto address = reinterpret_cast<memoryaddress_t>(ptr);
 
         for (auto& allocator : m_allocators) {
-            if (address <= allocator.GetMemoryStart() && address < allocator.GetMemoryEnd()) {
+            if (address >= allocator.GetMemoryStart() && address < allocator.GetMemoryEnd()) {
                 allocator.Free(ptr);
                 return;
             }
@@ -44,7 +44,7 @@ namespace FunnyOS::Misc::MemoryAllocator {
         const auto address = reinterpret_cast<memoryaddress_t>(ptr);
 
         for (auto& allocator : m_allocators) {
-            if (address <= allocator.GetMemoryStart() && address < allocator.GetMemoryEnd()) {
+            if (address >= allocator.GetMemoryStart() && address < allocator.GetMemoryEnd()) {
                 return this->DoReallocate(allocator, ptr, size, alignment);
             }
         }
