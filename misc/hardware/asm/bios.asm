@@ -69,10 +69,17 @@ SECTION .bios_text
         push    DWORD [g_biosState.EFLAGS]
         popf
 
+        ; Prepare ds value
+        push    ds
+        mov     ds, [g_biosState.DS]
+
         ; Self-modifying code: interrupt call 0xCD ib (ib - interrupt vector)
         db      0xCD
         .interrupt_number:
         db      0x00
+
+        ; Restore ds
+        pop     ds
 
         ; Save register values
         pushfd
@@ -145,6 +152,7 @@ SECTION .bios_data
         .ESI:     dd 0
         .EBP:     dd 0
         .EFLAGS:  dd 0
+        .DS:      dd 0
         .ES:      dd 0
         .FS:      dd 0
         .GS:      dd 0

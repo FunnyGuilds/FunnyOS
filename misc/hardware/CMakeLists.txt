@@ -1,4 +1,10 @@
+# Build ASM objects
+add_library(FunnyOS_Misc_Hardware_ASM OBJECT
+        asm/bios.asm
+)
+
 add_library(FunnyOS_Misc_Hardware STATIC
+        $<TARGET_OBJECTS:FunnyOS_Misc_Hardware_ASM>
         src/BIOS.cpp
         src/CMOS.cpp
         src/GDT.cpp

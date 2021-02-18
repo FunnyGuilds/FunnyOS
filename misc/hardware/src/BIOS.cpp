@@ -4,9 +4,13 @@
 #include <FunnyOS/Stdlib/Vector.hpp>
 #include <FunnyOS/Hardware/Interrupts.hpp>
 
+struct BiosRegisters {
+    uint32_t EAX, ECX, EDX, EBX, EDI, ESI, EBP, EFLAGS, DS, ES, FS, GS;
+};
+
 struct BiosState {
-    // Registers
-    uint32_t EAX, ECX, EDX, EBX, EDI, ESI, EBP, EFLAGS, ES, FS, GS;
+    // BiosRegisters
+    BiosRegisters Registers;
 
     // Selectors
     uint16_t Selector64BitCode, Selector64BitData, Selector16BitCode, Selector16BitData;
@@ -15,7 +19,7 @@ struct BiosState {
     uint8_t InterruptNumber;
 };
 
-extern BiosState g_biosState;  // bios.asm
+extern volatile BiosState g_biosState;  // bios.asm
 extern "C" void do_call_bios();
 
 namespace FunnyOS::HW::BIOS {
@@ -44,7 +48,7 @@ namespace FunnyOS::HW::BIOS {
          */
         struct RegisterAlias {
             const char* Name;
-            uint32_t& Ref;
+            volatile uint32_t& Ref;
             uint32_t RegisterMask;
             uint32_t ValueMask;
             size_t Shift;
@@ -52,112 +56,124 @@ namespace FunnyOS::HW::BIOS {
 
         RegisterAlias g_registerAliases[] = {
             // EAX
-            {"eax", g_biosState.EAX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"ax", g_biosState.EAX, 0x0000FFFF, 0x0000FFFF, 0},
-            {"ah", g_biosState.EAX, 0x0000FF00, 0x000000FF, 8},
-            {"al", g_biosState.EAX, 0x000000FF, 0x000000FF, 0},
+            {"eax", g_biosState.Registers.EAX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"ax", g_biosState.Registers.EAX, 0x0000FFFF, 0x0000FFFF, 0},
+            {"ah", g_biosState.Registers.EAX, 0x0000FF00, 0x000000FF, 8},
+            {"al", g_biosState.Registers.EAX, 0x000000FF, 0x000000FF, 0},
 
             // ECX
-            {"ecx", g_biosState.ECX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"cx", g_biosState.ECX, 0x0000FFFF, 0x0000FFFF, 0},
-            {"ch", g_biosState.ECX, 0x0000FF00, 0x000000FF, 8},
-            {"cl", g_biosState.ECX, 0x000000FF, 0x000000FF, 0},
+            {"ecx", g_biosState.Registers.ECX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"cx", g_biosState.Registers.ECX, 0x0000FFFF, 0x0000FFFF, 0},
+            {"ch", g_biosState.Registers.ECX, 0x0000FF00, 0x000000FF, 8},
+            {"cl", g_biosState.Registers.ECX, 0x000000FF, 0x000000FF, 0},
 
             // EDX
-            {"edx", g_biosState.EDX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"dx", g_biosState.EDX, 0x0000FFFF, 0x0000FFFF, 0},
-            {"dh", g_biosState.EDX, 0x0000FF00, 0x000000FF, 8},
-            {"dl", g_biosState.EDX, 0x000000FF, 0x000000FF, 0},
+            {"edx", g_biosState.Registers.EDX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"dx", g_biosState.Registers.EDX, 0x0000FFFF, 0x0000FFFF, 0},
+            {"dh", g_biosState.Registers.EDX, 0x0000FF00, 0x000000FF, 8},
+            {"dl", g_biosState.Registers.EDX, 0x000000FF, 0x000000FF, 0},
 
             // EBX
-            {"ebx", g_biosState.EBX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"bx", g_biosState.EBX, 0x0000FFFF, 0x0000FFFF, 0},
-            {"bh", g_biosState.EBX, 0x0000FF00, 0x000000FF, 8},
-            {"bl", g_biosState.EBX, 0x000000FF, 0x000000FF, 0},
+            {"ebx", g_biosState.Registers.EBX, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"bx", g_biosState.Registers.EBX, 0x0000FFFF, 0x0000FFFF, 0},
+            {"bh", g_biosState.Registers.EBX, 0x0000FF00, 0x000000FF, 8},
+            {"bl", g_biosState.Registers.EBX, 0x000000FF, 0x000000FF, 0},
 
             // EDI
-            {"edi", g_biosState.EDI, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"di", g_biosState.EDI, 0x0000FFFF, 0x0000FFFF, 0},
-            {"doh", g_biosState.EDI, 0x0000FF00, 0x000000FF, 8},
-            {"dol", g_biosState.EDI, 0x000000FF, 0x000000FF, 0},
+            {"edi", g_biosState.Registers.EDI, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"di", g_biosState.Registers.EDI, 0x0000FFFF, 0x0000FFFF, 0},
+            {"doh", g_biosState.Registers.EDI, 0x0000FF00, 0x000000FF, 8},
+            {"dol", g_biosState.Registers.EDI, 0x000000FF, 0x000000FF, 0},
 
             // ESI
-            {"esi", g_biosState.ESI, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"si", g_biosState.ESI, 0x0000FFFF, 0x0000FFFF, 0},
-            {"soh", g_biosState.ESI, 0x0000FF00, 0x000000FF, 8},
-            {"sol", g_biosState.ESI, 0x000000FF, 0x000000FF, 0},
+            {"esi", g_biosState.Registers.ESI, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"si", g_biosState.Registers.ESI, 0x0000FFFF, 0x0000FFFF, 0},
+            {"soh", g_biosState.Registers.ESI, 0x0000FF00, 0x000000FF, 8},
+            {"sol", g_biosState.Registers.ESI, 0x000000FF, 0x000000FF, 0},
 
             // EBP
-            {"ebp", g_biosState.EBP, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"bp", g_biosState.EBP, 0x0000FFFF, 0x0000FFFF, 0},
+            {"ebp", g_biosState.Registers.EBP, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"bp", g_biosState.Registers.EBP, 0x0000FFFF, 0x0000FFFF, 0},
 
             // EFLAGS
-            {"eflags", g_biosState.EFLAGS, 0xFFFFFFFF, 0xFFFFFFFF, 0},
-            {"flags", g_biosState.EFLAGS, 0x0000FFFF, 0x0000FFFF, 0},
+            {"eflags", g_biosState.Registers.EFLAGS, 0xFFFFFFFF, 0xFFFFFFFF, 0},
+            {"flags", g_biosState.Registers.EFLAGS, 0x0000FFFF, 0x0000FFFF, 0},
 
-            // ES, FS, GS
-            {"es", g_biosState.ES, 0x0000FFFF, 0x0000FFFF, 0},
-            {"fs", g_biosState.FS, 0x0000FFFF, 0x0000FFFF, 0},
-            {"gs", g_biosState.GS, 0x0000FFFF, 0x0000FFFF, 0},
+            // DS, ES, FS, GS
+            {"ds", g_biosState.Registers.DS, 0x0000FFFF, 0x0000FFFF, 0},
+            {"es", g_biosState.Registers.ES, 0x0000FFFF, 0x0000FFFF, 0},
+            {"fs", g_biosState.Registers.FS, 0x0000FFFF, 0x0000FFFF, 0},
+            {"gs", g_biosState.Registers.GS, 0x0000FFFF, 0x0000FFFF, 0},
         };
 
-        class RegisterAccessor {
+        class IRegisterAccessor {
+            INTERFACE(IRegisterAccessor);
+
+            virtual void SetValue(uint32_t value) = 0;
+
+            virtual uint32_t GetValue() const = 0;
+
+            virtual bool IsInputLong() const = 0;
+
+            virtual bool IsOutput() const = 0;
+        };
+
+        class StandardRegisterAccessor : public IRegisterAccessor {
            public:
-            RegisterAccessor(RegisterAlias& description, bool output)
+            StandardRegisterAccessor(RegisterAlias& description, bool output)
                 : m_description{description}, m_output{output} {}
 
-            virtual ~RegisterAccessor() = default;
-
-            inline virtual void SetValue(uint32_t value) {
-                m_description.Ref &= ~m_description.RegisterMask;
-                m_description.Ref |= (value & m_description.ValueMask) << m_description.Shift;
+            void SetValue(uint32_t value) override {
+                m_description.Ref = m_description.Ref & ~m_description.RegisterMask;
+                m_description.Ref = m_description.Ref | ((value & m_description.ValueMask) << m_description.Shift);
             }
 
-            inline virtual uint32_t GetValue() {
+            virtual uint32_t GetValue() const override {
                 return ((m_description.Ref & m_description.RegisterMask) >> m_description.Shift) &
                        m_description.ValueMask;
             }
 
-            inline virtual bool IsInputLong() const {
+            bool IsInputLong() const override {
                 return false;
             }
 
-            inline bool IsOutput() const {
+            bool IsOutput() const override {
                 return m_output;
-            }
-
-            RegisterAlias& GetDescription() const {
-                return m_description;
             }
 
            private:
             RegisterAlias& m_description;
-            bool m_output;
+            const bool m_output;
         };
 
-        class SegmentOffsetRegisterPairAccessor : public RegisterAccessor {
+        class SegmentOffsetRegisterPairAccessor : public IRegisterAccessor {
            public:
-            SegmentOffsetRegisterPairAccessor(RegisterAlias& segment, RegisterAlias& offset, bool output)
-                : RegisterAccessor(offset, output), m_segment{segment} {
-                F_ASSERT(segment.RegisterMask == 0x0000FFFF && segment.Shift == 0, "not a valid segment register");
+            SegmentOffsetRegisterPairAccessor(
+                Stdlib::Owner<IRegisterAccessor> segment, Stdlib::Owner<IRegisterAccessor> offset)
+                : m_segment{Stdlib::Move(segment)}, m_offset{Stdlib::Move(offset)} {
+                F_ASSERT(m_segment->IsOutput() == m_offset->IsOutput(), "segment/offset accessor mismatch");
             }
 
             void SetValue(uint32_t value) override {
-                m_segment.Ref = GetRealModeSegment(reinterpret_cast<void*>(value));
-
-                RegisterAccessor::SetValue(GetRealModeOffset(reinterpret_cast<void*>(value)));
+                m_segment->SetValue(GetRealModeSegment(reinterpret_cast<void*>(value)));
+                m_offset->SetValue(GetRealModeOffset(reinterpret_cast<void*>(value)));
             }
 
-            uint32_t GetValue() override {
-                return (m_segment.Ref & m_segment.RegisterMask) << 4 | RegisterAccessor::GetValue();
+            uint32_t GetValue() const override {
+                return (m_segment->GetValue()) << 4 | m_offset->GetValue();
             }
 
             bool IsInputLong() const override {
                 return true;
             }
 
+            bool IsOutput() const override {
+                return m_segment->IsOutput();
+            }
+
            private:
-            RegisterAlias& m_segment;
+            Stdlib::Owner<IRegisterAccessor> m_segment;
+            Stdlib::Owner<IRegisterAccessor> m_offset;
         };
 
         RegisterAlias* ParseRegisterAlias(const char* string) {
@@ -172,7 +188,7 @@ namespace FunnyOS::HW::BIOS {
             return nullptr;
         }
 
-        Stdlib::Owner<RegisterAccessor> ParseRegisterAccessor(const char* string) {
+        Stdlib::Owner<IRegisterAccessor> ParseRegisterAccessor(const char* string) {
             bool isOutput = *string == '=';
 
             if (isOutput) {
@@ -192,7 +208,7 @@ namespace FunnyOS::HW::BIOS {
                     return {};
                 }
 
-                return Stdlib::MakeOwner<RegisterAccessor>(*description, isOutput);
+                return Stdlib::MakeOwnerBase<IRegisterAccessor, StandardRegisterAccessor>(*description, isOutput);
             }
 
             // segment:offset register pair
@@ -205,8 +221,9 @@ namespace FunnyOS::HW::BIOS {
                 return {};
             }
 
-            auto* accessor = new SegmentOffsetRegisterPairAccessor(*segment, *offset, isOutput);
-            return Stdlib::Owner<RegisterAccessor>(accessor);
+            return Stdlib::MakeOwnerBase<IRegisterAccessor, SegmentOffsetRegisterPairAccessor>(
+                Stdlib::MakeOwnerBase<IRegisterAccessor, StandardRegisterAccessor>(*segment, isOutput),
+                Stdlib::MakeOwnerBase<IRegisterAccessor, StandardRegisterAccessor>(*offset, isOutput));
         }
 
     }  // namespace
@@ -219,7 +236,7 @@ namespace FunnyOS::HW::BIOS {
         va_copy(outputArguments, inputArguments);
 
         // Parse format
-        Stdlib::Vector<Stdlib::Owner<RegisterAccessor>> accessors;
+        Stdlib::Vector<Stdlib::Owner<IRegisterAccessor>> accessors;
         accessors.EnsureCapacity(Count(format, ",") + 1);
 
         SmartStringBuffer formatCopy = AllocateSmartCopy(format);
@@ -230,11 +247,14 @@ namespace FunnyOS::HW::BIOS {
             Trim(&token);
             ToLowercase(token);
 
-            Stdlib::Owner<RegisterAccessor> alias = ParseRegisterAccessor(token);
+            Stdlib::Owner<IRegisterAccessor> alias = ParseRegisterAccessor(token);
             F_ASSERT(alias.Get() != nullptr, "invalid alias");
 
             accessors.AppendInPlace(Stdlib::Move(alias));
         }
+
+        // Clear default register values
+        Stdlib::Memory::ZeroMemory(g_biosState.Registers);
 
         // Set input values
         for (auto& accessor : accessors) {
@@ -261,7 +281,7 @@ namespace FunnyOS::HW::BIOS {
 
         // non-register parameters
         g_biosState.InterruptNumber = interrupt;
-
+        F_MEMORY_FENCE;
         do_call_bios();
         F_MEMORY_FENCE;
 
@@ -282,7 +302,7 @@ namespace FunnyOS::HW::BIOS {
 
         va_end(outputArguments);
 
-        return (g_biosState.EFLAGS & static_cast<uint32_t>(HW::CPU::Flags::CarryFlag)) == 0;
+        return (g_biosState.Registers.EFLAGS & static_cast<uint32_t>(HW::CPU::Flags::CarryFlag)) == 0;
     }
 
 }  // namespace FunnyOS::HW::BIOS

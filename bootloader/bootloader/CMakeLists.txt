@@ -10,14 +10,8 @@ configure_file(
         @ONLY
 )
 
-# Build ASM objects
-add_library(FunnyOS_Bootloader_Bootloader_ASM OBJECT
-        asm/bios.asm
-)
-
 # Create .elf executable
 add_executable(FunnyOS_Bootloader_Bootloader
-        $<TARGET_OBJECTS:FunnyOS_Bootloader_Bootloader_ASM>
         src/Bootloader.cpp
         src/BootloaderABI.cpp
         src/BootloaderPlatformImpl.cpp
