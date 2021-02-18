@@ -112,6 +112,10 @@ namespace FunnyOS::Stdlib {
         const T* operator->() const;
 
        private:
+        template <typename T2, typename U2, typename Deleter2>
+        friend Owner<T2, Deleter2> StaticOwnerCast(Owner<U2>&& ref);
+
+       private:
         Deleter m_deleter{};
         T* m_data;
     };
@@ -127,6 +131,33 @@ namespace FunnyOS::Stdlib {
      */
     template <typename T, typename... Args, typename Deleter = _Internal::DefaultDeleter<T>>
     Owner<T, Deleter> MakeOwner(Args&&... args);
+
+    /**
+     * Constructs an object of type U and an Owner<T, Deleter> that owns U.
+     *
+     * @tparam T type of the object that the Owner should own
+     * @tparam U type of the object that is being created, must be a subtype of T
+     *
+     * @tparam Args type of the arguments used to create instance of [U]
+     * @tparam Deleter deleter used to delete T
+     * @param args args to create an instance of [U]
+     * @return the newly created Owner owning the newly created [U] instance.
+     */
+    template <typename T, typename U, typename... Args, typename Deleter = _Internal::DefaultDeleter<T>>
+    Owner<T, Deleter> MakeOwnerBase(Args&&... args);
+
+    /**
+     * Casts an Owner<U> to an Owner<T, Deleter>.
+     *
+     * @tparam T type of the resulting Owner
+     * @tparam U type of the Owner to be cast, must be a type that can be static_cast'd to T
+     * @tparam Deleter deleter for the resulting Ownert
+     * @param ref owner to be cast, will be invalidated after the cast
+     *
+     * @return casted owner
+     */
+    template <typename T, typename U, typename Deleter = _Internal::DefaultDeleter<T>>
+    Owner<T, Deleter> StaticOwnerCast(Owner<U>&& ref);
 
     namespace _Internal {
         /**

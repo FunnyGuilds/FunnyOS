@@ -142,6 +142,14 @@ namespace FunnyOS::Stdlib::Memory {
     inline void Fill(SizedBuffer<Type>& destination, const SizedBuffer<Type>& pattern) noexcept;
 
     /**
+     * Fills an object in memory with zeroes.
+     *
+     * @param str an obj to be filled with zeroes
+     */
+    template <typename T>
+    inline void ZeroMemory(T& obj);
+
+    /**
      * Allocates N bytes of memory on the heap.
      *
      * @param[in] size number of bytes to allocate may be zero.

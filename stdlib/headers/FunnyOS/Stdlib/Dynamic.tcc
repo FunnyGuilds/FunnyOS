@@ -152,6 +152,16 @@ namespace FunnyOS::Stdlib {
         return Owner<T, Deleter>(new T(Forward<Args>(args)...));
     }
 
+    template <typename T, typename U, typename... Args, typename Deleter>
+    Owner<T, Deleter> MakeOwnerBase(Args&&... args) {
+        return Owner<T, Deleter>(new U(Forward<Args>(args)...));
+    }
+
+    template<typename T, typename U, typename Deleter>
+    Owner<T, Deleter> StaticOwnerCast(Owner<U>&& ref) {
+        return Owner<T, Deleter> { static_cast<T*>(ref.Release()) };
+    }
+
     namespace _Internal {
         RefCounter::RefCounter() : m_counter{nullptr} {}
 

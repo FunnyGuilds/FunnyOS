@@ -1,11 +1,10 @@
-
-#include "Memory.hpp"
-
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MEMORY_HPP
 #error "Include Memory.hpp instead"
 #endif
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MEMORY_TCC
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_MEMORY_TCC
+
+#include "TypeTraits.hpp"
 
 namespace FunnyOS::Stdlib::Memory {
 
@@ -97,6 +96,15 @@ namespace FunnyOS::Stdlib::Memory {
         for (size_t i = 0; i < destination.Size; i++) {
             destination.Data[i] = pattern.Data[i % pattern.Size];
         }
+    }
+
+    template <typename T>
+    inline void ZeroMemory(T& obj) {
+        using PtrType = Conditional<IsVolatile<T>, volatile uint8_t, uint8_t>;
+
+        SizedBuffer<PtrType> buf{reinterpret_cast<PtrType*>(&obj), sizeof(T)};
+
+        Set<PtrType>(buf, 0);
     }
 
     template <typename T>
