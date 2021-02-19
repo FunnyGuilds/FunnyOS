@@ -52,7 +52,9 @@ namespace FunnyOS::_Platform {
         ~StdlibFileReadInterface() override = default;
 
         Stdlib::size_t ReadData(Memory::SizedBuffer<uint8_t>& buffer) override {
+            m_stream->seekg(GetCurrentOffset(), m_stream->beg);
             m_stream->read(reinterpret_cast<char*>(buffer.Data), buffer.Size);
+            SetCurrentOffset(GetCurrentOffset() + m_stream->gcount());
             return m_stream->gcount();
         }
 

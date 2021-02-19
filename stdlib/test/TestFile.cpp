@@ -19,7 +19,7 @@ TEST(TestFile, TestFileReadWrite) {
     // read file
     File readFile = Move(OpenFile("file_test.txt", FILE_OPEN_MODE_READ).GetValue());
 
-    Reader reader{Move(readFile.GetReadInterface())};
+    Reader reader{Move(readFile.GetReadInterface()), 2};
     Vector<uint8_t> readBuffer = reader.ReadWhole();
     readBuffer.Append(0);
 
