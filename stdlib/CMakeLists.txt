@@ -7,9 +7,11 @@ configure_file(
 function(setup_stdlib_variant name type)
     add_library(${name} ${type}
             src/File.cpp
+            src/IniFile.cpp
             src/Logging.cpp
             src/Memory.cpp
             src/NewDelete.cpp
+            src/Stream.cpp
             src/String.cpp
             src/System.cpp
     )
