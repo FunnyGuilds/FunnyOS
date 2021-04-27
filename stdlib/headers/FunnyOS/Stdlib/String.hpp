@@ -21,6 +21,11 @@ namespace FunnyOS::Stdlib::String {
     using SmartStringBuffer = SmartSizedBuffer<char>;
 
     /**
+     * Default whitespaces used by default by whitespace dependent functions
+     */
+    constexpr const char* DefaultWhitespaceList = "\n\t ";
+
+    /**
      * Allocates a StringBuffer of a given size.
      *
      * @param size size of the buffer to allocate
@@ -151,6 +156,16 @@ namespace FunnyOS::Stdlib::String {
      * @return true if character matches any of the characters
      */
     bool Matches(char character, const char* characters);
+
+    /**
+     * Checks if the given character is a whitespace. This functions considers only whitespaces on the
+     * DefaultWhitespaceList
+     *
+     * @param character character to check
+     *
+     * @return true if the character is a whitespace, false if not
+     */
+    bool IsWhitespace(char character);
 
     /**
      * Removes any trailing whitespace from a string

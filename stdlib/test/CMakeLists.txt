@@ -3,6 +3,7 @@ add_executable(FunnyOS_Stdlib_Base_Tests
         TestAlgorithm.cpp
         TestDynamicString.cpp
         TestHashMap.cpp
+        TestIniFile.cpp
         TestFunctional.cpp
         TestFile.cpp
         TestLinkedList.cpp

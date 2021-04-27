@@ -189,6 +189,10 @@ namespace FunnyOS::Stdlib::String {
         return false;
     }
 
+    bool IsWhitespace(char character) {
+        return Matches(character, DefaultWhitespaceList);
+    }
+
     void Trim(char** string, const char* characters) {
         const size_t len = Length(*string);
 
