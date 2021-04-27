@@ -94,9 +94,10 @@ namespace FunnyOS::Stdlib {
      * @param end iterator pointing to the end of the range (exclusive).
      * @param matcher matcher to test elements
      * @param eraser eraser, functor used to erase elements (see _Internal::DefaultEraser for example)
+     * @return number of elements removed
      */
     template <typename Iterator, typename Matcher, typename Eraser>
-    void RemoveIf(Iterator begin, Iterator end, Matcher matcher, Eraser eraser);
+    size_t RemoveIf(Iterator begin, Iterator end, Matcher matcher, Eraser eraser);
 
     /**
      * Removes every element on the given container that matches the predicate [matcher].
@@ -107,11 +108,12 @@ namespace FunnyOS::Stdlib {
      * @tparam ContainerEraser type of the eraser
      * @param container container to remove the elements from
      * @param matcher matcher to test elements
+     * @return number of elements removed
      */
     template <
         typename Container, typename Iterator = typename Container::ConstIterator, typename Matcher,
         typename ContainerEraser = _Internal::DefaultEraser<Container, Iterator>>
-    void RemoveIf(Container& container, Matcher matcher);
+    size_t RemoveIf(Container& container, Matcher matcher);
 
 }  // namespace FunnyOS::Stdlib
 

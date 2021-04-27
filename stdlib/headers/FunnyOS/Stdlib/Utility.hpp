@@ -1,6 +1,7 @@
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_UTILITY_HPP
 #define FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_UTILITY_HPP
 
+#include "IntegerTypes.hpp"
 #include "TypeTraits.hpp"
 
 namespace FunnyOS::Stdlib {

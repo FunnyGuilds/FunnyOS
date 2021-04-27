@@ -32,7 +32,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     Storage<T>::Storage(T&& value) : m_initialized(true) {
-        new (static_cast<void*>(&m_data)) T(value);
+        new (static_cast<void*>(&m_data)) T(Forward<T&&>(value));
     }
 
     template <typename T>
@@ -72,6 +72,7 @@ namespace FunnyOS::Stdlib {
         }
 
         if (other.m_initialized) {
+            m_initialized = true;
             GetObject() = static_cast<const T&>(other.GetObject());
         }
 
@@ -98,6 +99,7 @@ namespace FunnyOS::Stdlib {
 
         if (other.m_initialized) {
             GetObject() = static_cast<T&&>(other.GetObject());
+            m_initialized = true;
 
             other.Destroy();
         }

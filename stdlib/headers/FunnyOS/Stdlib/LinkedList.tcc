@@ -245,7 +245,7 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     void LinkedList<T>::Insert(size_t index, T&& value) {
-        InsertElement(index, new Element{Storage<T>(value), nullptr, nullptr});
+        InsertElement(index, new Element{Storage<T>(Forward<T&&>(value)), nullptr, nullptr});
     }
 
     template <typename T>

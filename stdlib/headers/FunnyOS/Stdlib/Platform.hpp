@@ -26,7 +26,7 @@ namespace FunnyOS::_Platform {
 
     [[noreturn]] _EXTERN void Terminate(const char* error) noexcept;
 
-    [[nodiscard]] Stdlib::Optional<Stdlib::File> OpenFile(Stdlib::DynamicString path, Stdlib::FileOpenMode mode) noexcept;
+    [[nodiscard]] _EXTERN Stdlib::Optional<Stdlib::File> OpenFile(Stdlib::DynamicString path, Stdlib::FileOpenMode mode) noexcept;
 
 }  // namespace FunnyOS::_Platform
 

@@ -66,27 +66,37 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename Iterator, typename Matcher, typename Eraser>
-    void RemoveIf(Iterator begin, Iterator end, Matcher matcher, Eraser eraser) {
+    size_t RemoveIf(Iterator begin, Iterator end, Matcher matcher, Eraser eraser) {
+        size_t erased = 0;
+
         for (Iterator current = begin; current != end;) {
             if (matcher(*current)) {
                 current = eraser(current);
+                erased++;
             } else {
                 current++;
             }
         }
+
+        return erased;
     }
 
     template <typename Container, typename Iterator, typename Matcher, typename ContainerEraser>
-    void RemoveIf(Container& container, Matcher matcher) {
+    size_t RemoveIf(Container& container, Matcher matcher) {
         static ContainerEraser c_eraser;
+
+        size_t erased = 0;
 
         for (Iterator current = Begin(container); current != End(container);) {
             if (matcher(*current)) {
                 current = c_eraser(container, current);
+                erased++;
             } else {
                 current++;
             }
         }
+
+        return erased;
     }
 }  // namespace FunnyOS::Stdlib
 
