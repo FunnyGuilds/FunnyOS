@@ -1,3 +1,6 @@
+
+#include "DynamicString.hpp"
+
 #ifndef FUNNYOS_STDLIB_HEADERS_FUNNYOS_STDLIB_DYNAMICSTRING_HPP
 #error "Include DynamicString.hpp instead"
 #endif
@@ -64,7 +67,14 @@ namespace FunnyOS::Stdlib {
 
     template <typename T>
     void BasicDynamicString<T>::Append(const BasicDynamicString<T>& value) {
+        RequireBuffer();
         m_data.Insert(m_data.Size() - 1, value.Begin(), value.Size());
+    }
+
+    template <typename T>
+    void BasicDynamicString<T>::Append(T character) {
+        RequireBuffer();
+        m_data.Insert(m_data.Size() - 1, character);
     }
 
     template <typename T>
@@ -152,6 +162,11 @@ namespace FunnyOS::Stdlib {
     }
 
     template <typename T>
+    void BasicDynamicString<T>::Clear() {
+        m_data.Clear();
+    }
+
+    template <typename T>
     Vector<T>& BasicDynamicString<T>::AsVectorView() {
         return m_data;
     }
@@ -168,6 +183,31 @@ namespace FunnyOS::Stdlib {
         }
 
         return m_data.Begin();
+    }
+
+    template <typename T>
+    bool BasicDynamicString<T>::operator==(const BasicDynamicString<T>& other) const {
+        if (m_data.Size() != other.m_data.Size()) {
+            return false;
+        }
+
+        for (size_t i = 0; i < m_data.Size(); i++) {
+            if (m_data[i] != other.m_data[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    bool BasicDynamicString<T>::operator!=(const BasicDynamicString<T>& other) const {
+        return !(*this == other);
+    }
+
+    template <typename T>
+    BasicDynamicString<T>::operator bool() const {
+        return this->m_data.Size() != 0;
     }
 
     template <typename T>
@@ -188,6 +228,24 @@ namespace FunnyOS::Stdlib {
     template <typename T>
     typename BasicDynamicString<T>::ConstIterator BasicDynamicString<T>::End() const noexcept {
         return m_data.End() - 1;
+    }
+
+    template <typename T>
+    void BasicDynamicString<T>::RequireBuffer() {
+        if (m_data.Size() == 0) {
+            m_data.Append(0);
+        }
+    }
+
+    template <typename T>
+    hash_t Hash<BasicDynamicString<T>>::operator()(const BasicDynamicString<T>& obj) {
+        hash_t hash = 0;
+
+        for (const T character : obj) {
+            hash = 31 * hash + character;
+        }
+
+        return hash;
     }
 
 }  // namespace FunnyOS::Stdlib

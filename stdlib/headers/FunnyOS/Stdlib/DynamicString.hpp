@@ -4,6 +4,7 @@
 #include "Dynamic.hpp"
 #include "Compiler.hpp"
 #include "Functional.hpp"
+#include "Hash.hpp"
 #include "IntegerTypes.hpp"
 #include "Memory.hpp"
 #include "Vector.hpp"
@@ -117,6 +118,13 @@ namespace FunnyOS::Stdlib {
         void Append(const BasicDynamicString<T>& value);
 
         /**
+         * Appends a character at the end of this string.
+         *
+         * @param value character to append
+         */
+        void Append(T character);
+
+        /**
          * Replaces every occurrence of a string [from] to a string [to].
          *
          * @param from string to be replaced
@@ -155,6 +163,11 @@ namespace FunnyOS::Stdlib {
         void ToUppercase();
 
         /**
+         * Clears the entire string
+         */
+        void Clear();
+
+        /**
          * Returns a reference to a vector that can be used to view or modify the string's allocated heap data.
          */
         Vector<T>& AsVectorView();
@@ -168,6 +181,12 @@ namespace FunnyOS::Stdlib {
          * Returns a const reference to the string's characters.
          */
         const T* AsCString() const;
+
+        bool operator==(const BasicDynamicString<T>& other) const;
+
+        bool operator!=(const BasicDynamicString<T>& other) const;
+
+        operator bool() const;
 
         /**
          * Returns an iterator pointing at the beginning of the string.
@@ -200,7 +219,15 @@ namespace FunnyOS::Stdlib {
         HAS_STANDARD_ITERATORS;
 
        private:
+        void RequireBuffer();
+
+       private:
         Vector<T> m_data;
+    };
+
+    template <typename T>
+    struct Hash<BasicDynamicString<T>> {
+        hash_t operator()(const BasicDynamicString<T>& obj);
     };
 
     using DynamicString = BasicDynamicString<char>;
