@@ -7,5 +7,5 @@
 - `totalny sztosinger` - crejk     
 - `kekOS marry me pls` - Bopke
 - `Glupi nie jestem.` - Igor
-
+- `how do i get the tizona` - chair
 愛
